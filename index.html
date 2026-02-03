@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Portfolio of Alexandre SDD" />
+  <title>Alexandre SDD — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0b0d0f;
+      --paper: #f7f3ec;
+      --accent: #e45f35;
+      --accent-2: #1f7a8c;
+      --accent-3: #f0c44a;
+      --muted: #5a5a5a;
+      --card: rgba(255, 255, 255, 0.8);
+      --border: rgba(15, 20, 25, 0.1);
+      --shadow: 0 20px 60px rgba(11, 13, 15, 0.12);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Manrope", system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 20% 20%, #fff7e6 0%, #f7f3ec 30%, #f3ede3 100%);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glow {
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(228, 95, 53, 0.22), rgba(228, 95, 53, 0));
+      top: -120px;
+      right: -120px;
+      z-index: 0;
+      filter: blur(2px);
+    }
+
+    .glow.secondary {
+      background: radial-gradient(circle, rgba(31, 122, 140, 0.2), rgba(31, 122, 140, 0));
+      bottom: -160px;
+      left: -160px;
+      top: auto;
+      right: auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 64px;
+    }
+
+    .logo {
+      font-family: "Fraunces", serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-weight: 600;
+    }
+
+    nav a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      transition: background 0.2s ease;
+    }
+
+    nav a:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 80px;
+    }
+
+    .hero h1 {
+      font-family: "Fraunces", serif;
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .hero .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--ink);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+
+    .hero .cta span {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-card {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat h3 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    section {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 72px;
+    }
+
+    section h2 {
+      font-family: "Fraunces", serif;
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    section p.lead {
+      color: var(--muted);
+      margin-bottom: 28px;
+      max-width: 680px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .work-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(11, 13, 15, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(11, 13, 15, 0.15);
+    }
+
+    .work-card .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(240, 196, 74, 0.3);
+      color: #8a5c00;
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .work-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .work-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .work-card a {
+      font-weight: 600;
+      color: var(--accent-2);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .pill {
+      padding: 14px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: white;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .contact-card {
+      background: var(--ink);
+      color: white;
+      padding: 28px;
+      border-radius: var(--radius);
+      display: grid;
+      gap: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .contact-card a {
+      color: white;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      animation: rise 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    @media (max-width: 720px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        flex-wrap: wrap;
+      }
+
+      .hero {
+        margin-bottom: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="glow"></div>
+    <div class="glow secondary"></div>
+
+    <header>
+      <div class="logo">Alexandre SDD</div>
+      <nav>
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1 class="reveal">Designing thoughtful products and bold brands.</h1>
+        <p class="reveal delay-1">
+          I am a product-focused builder who turns complex problems into clean, human experiences. I blend design, code, and strategy to ship polished work quickly.
+        </p>
+        <a class="cta reveal delay-2" href="#contact">
+          <span>Available</span>
+          Let’s build something
+        </a>
+      </div>
+      <div class="hero-card reveal delay-2">
+        <h2>Currently</h2>
+        <p>Open to freelance, product, and brand collaborations in 2026.</p>
+        <div class="stats">
+          <div class="stat">
+            <h3>12+</h3>
+            <p>Projects shipped</p>
+          </div>
+          <div class="stat">
+            <h3>5</h3>
+            <p>Industries served</p>
+          </div>
+          <div class="stat">
+            <h3>8</h3>
+            <p>Happy partners</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="work">
+      <h2 class="reveal">Selected Work</h2>
+      <p class="lead reveal delay-1">
+        A few projects that show my range across product design, development, and storytelling.
+      </p>
+      <div class="card-grid">
+        <article class="work-card reveal delay-1">
+          <div class="tag">Product</div>
+          <h3>Atlas Logistics Dashboard</h3>
+          <p>End-to-end redesign of a logistics platform, improving daily operator efficiency and clarity.</p>
+          <a href="#">View case study</a>
+        </article>
+        <article class="work-card reveal delay-2">
+          <div class="tag">Brand</div>
+          <h3>Solstice Wellness Identity</h3>
+          <p>Visual identity and landing system for a health startup launching in three new markets.</p>
+          <a href="#">View project</a>
+        </article>
+        <article class="work-card reveal delay-3">
+          <div class="tag">Web</div>
+          <h3>Audio Nomad Portfolio</h3>
+          <p>Immersive portfolio site with custom soundscapes and interactive storytelling.</p>
+          <a href="#">View build</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="about">
+      <h2 class="reveal">About</h2>
+      <p class="lead reveal delay-1">
+        I help teams translate ideas into polished digital products. My work spans UX strategy, brand systems, and front-end execution.
+      </p>
+      <div class="split">
+        <div class="hero-card reveal delay-2">
+          <h3>What I do</h3>
+          <p>Product strategy, UX/UI design, and front-end implementation with a focus on clarity and craft.</p>
+        </div>
+        <div class="hero-card reveal delay-3">
+          <h3>How I work</h3>
+          <p>Collaborative, fast iterations, and clear documentation to keep teams aligned and shipping.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <h2 class="reveal">Core Skills</h2>
+      <p class="lead reveal delay-1">A quick snapshot of my favorite tools and strengths.</p>
+      <div class="card-grid">
+        <div class="pill reveal delay-1">Product Design</div>
+        <div class="pill reveal delay-2">Design Systems</div>
+        <div class="pill reveal delay-3">Front-End Dev</div>
+        <div class="pill reveal delay-1">Brand Strategy</div>
+        <div class="pill reveal delay-2">Prototyping</div>
+        <div class="pill reveal delay-3">Storytelling</div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="contact-card reveal">
+        <h2>Let’s work together</h2>
+        <p>Tell me about your project or say hello. I usually reply within 48 hours.</p>
+        <div class="split">
+          <div>
+            <p>Email</p>
+            <a href="mailto:hello@example.com">hello@example.com</a>
+          </div>
+          <div>
+            <p>Links</p>
+            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2026 Alexandre SDD. Built with care.
+    </footer>
+  </div>
+</body>
+</html>
