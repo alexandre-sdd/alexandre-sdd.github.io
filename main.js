@@ -31,12 +31,12 @@ const safeLink = (label, url, isPrimary = false) => {
 };
 
 const render = async () => {
-  const res = await fetch('content.json');
+  const res = await fetch('./content.json');
   if (!res.ok) return;
   const data = await res.json();
 
   qs('#brand-name').textContent = data.name;
-  qs('#brand-title').textContent = data.title;
+  qs('#brand-title').textContent = data.headline;
   qs('#hero-name').textContent = data.name;
   qs('#hero-location').textContent = data.location;
   qs('#hero-about').textContent = data.about;
@@ -61,7 +61,7 @@ const render = async () => {
     card.appendChild(buildList(project.highlights));
 
     const tags = makeEl('div', 'tags');
-    project.stack.forEach((tag) => tags.appendChild(makeEl('span', 'tag', tag)));
+    project.tags.forEach((tag) => tags.appendChild(makeEl('span', 'tag', tag)));
     card.appendChild(tags);
 
     if (project.links && project.links.length > 0) {
@@ -145,9 +145,6 @@ const render = async () => {
     a.target = '_blank';
     a.rel = 'noreferrer';
     contactLinks.appendChild(a);
-  } else {
-    const span = makeEl('span', '', 'Resume available on request');
-    contactLinks.appendChild(span);
   }
 
   contactCard.appendChild(contactLinks);

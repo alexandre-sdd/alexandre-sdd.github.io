@@ -163,7 +163,7 @@ a {
   height: 180px;
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(139, 211, 255, 0.2), rgba(90, 165, 255, 0.05)),
-    url(\"assets/placeholder.svg\") center/cover no-repeat;
+    url("./assets/placeholder.svg") center/cover no-repeat;
   border: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
@@ -367,19 +367,6 @@ a {
   border-top: 1px solid var(--outline);
   color: var(--muted);
   font-size: 0.9rem;
-}
-
-.noscript {
-  margin: 40px auto;
-  padding: 20px;
-  max-width: 800px;
-  color: var(--text);
-}
-
-.noscript ul {
-  margin-top: 12px;
-  display: grid;
-  gap: 8px;
 }
 
 @media (max-width: 760px) {
