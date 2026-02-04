@@ -168,8 +168,12 @@ a {
 } */
 
 .avatar {
+  width: 100%;
+  height: 220px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(139, 211, 255, 0.2), rgba(90, 165, 255, 0.05)),
-    url("./assets/headshot.jpg") center/cover no-repeat;
+    url("./assets/ASDD.jpg") center 20%/cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .hero-meta {
