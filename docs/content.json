@@ -1,0 +1,176 @@
+{
+  "name": "Alexandre Sepulveda De Dietrich",
+  "title": "Data Scientist and Business Analytics (MSBA candidate)",
+  "location": "New York, NY",
+  "about": "I build reliable analytics and machine learning systems that help teams make confident decisions. My work spans anomaly detection, time-series analysis, and data quality pipelines across finance, commercial strategy, and research labs.",
+  "links": {
+    "email": "aes2399@columbia.edu",
+    "linkedin": "https://www.linkedin.com/asepulvedadedietrich/",
+    "github": "",
+    "resume": ""
+  },
+  "experience": [
+    {
+      "company": "CHANEL Europe",
+      "role": "Data Scientist Intern, Advanced Analytics and Data Science",
+      "location": "Paris, France",
+      "dates": "Sep 2024 - May 2025",
+      "highlights": [
+        "Led development of CRAFT, an outlier detection system analyzing 30M+ accounting entries for finance teams.",
+        "Built custom anomaly detection pipelines for mixed data and tracked experiments with MLflow.",
+        "Deployed models via Azure ML and delivered near-production data quality monitoring."
+      ]
+    },
+    {
+      "company": "SIGMA Group",
+      "role": "Data Analyst Intern, Commercial Excellence Europe",
+      "location": "Madrid, Spain",
+      "dates": "May 2025 - Aug 2025",
+      "highlights": [
+        "Analyzed commercial performance across 6 countries and 60 resellers to surface ROI levers.",
+        "Built 5 dynamic dashboards standardizing KPIs for negotiation teams.",
+        "Enabled data-driven account strategy with consistent GP, NSV, and volume reporting."
+      ]
+    },
+    {
+      "company": "CentraleSupélec L2S Lab and Forvia",
+      "role": "Research Project, Sensor Fusion Vehicle Tracking",
+      "location": "Gif-sur-Yvette, France",
+      "dates": "Feb 2024 - Jun 2024",
+      "highlights": [
+        "Built a camera and ranging sensor fusion pipeline using optimal transport.",
+        "Reached about 20 cm positional accuracy within a 3 m by 2 m test area.",
+        "Coordinated with a 3-person team and presented findings to stakeholders."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "Columbia University",
+      "degree": "MS in Business Analytics",
+      "location": "New York, NY",
+      "dates": "Expected Dec 2026",
+      "details": [
+        "GPA: 3.93/4.00",
+        "Coursework: AI Engineering, Marketing Analytics, Business Analytics, Data Analytics, Probability Statistics and Simulation"
+      ]
+    },
+    {
+      "school": "Universite Paris-Saclay: CentraleSupélec",
+      "degree": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science",
+      "location": "Gif-sur-Yvette, France",
+      "dates": "Sep 2022 - Apr 2026",
+      "details": [
+        "GPA: 3.93/4.00",
+        "Coursework: Algorithms and Networks, Machine Learning, HPC and Cloud Computing, Signal Processing, Game Theory"
+      ]
+    },
+    {
+      "school": "Lycee Charlemagne and Lycee Saint-Louis",
+      "degree": "Intensive Preparatory Course in Physics and Engineering",
+      "location": "Paris, France",
+      "dates": "Sep 2019 - Jul 2022",
+      "details": [
+        "Ranked top 2 percent of national competitive entrance exams",
+        "Two to three year intensive program preparing for France's top engineering schools"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "HelpfulLens",
+      "summary": "Accessibility-oriented concept exploring how to surface helpful context quickly.",
+      "highlights": [
+        "Defined the problem space and key user scenarios.",
+        "Sketched a lightweight product workflow and UI concept.",
+        "Documented next steps for feasibility testing."
+      ],
+      "stack": ["Product", "UX", "Research"],
+      "links": []
+    },
+    {
+      "title": "FinAnts",
+      "summary": "Personal finance analytics prototype focused on clarity and decision support.",
+      "highlights": [
+        "Structured the data model for transactions and categories.",
+        "Designed key metrics for cash flow and savings trends.",
+        "Outlined a roadmap for predictive insights."
+      ],
+      "stack": ["Analytics", "Data Modeling"],
+      "links": []
+    },
+    {
+      "title": "Zeit",
+      "summary": "Time-focused productivity concept with a data-first approach.",
+      "highlights": [
+        "Mapped core user journeys and friction points.",
+        "Prototyped a weekly review and planning flow.",
+        "Identified opportunities for behavioral analytics."
+      ],
+      "stack": ["Product", "Strategy"],
+      "links": []
+    },
+    {
+      "title": "Resume Readiness Intelligence Engine",
+      "summary": "Tooling concept to assess resume readiness with structured criteria.",
+      "highlights": [
+        "Defined a rubric to score clarity, impact, and relevance.",
+        "Designed outputs to guide targeted improvements.",
+        "Planned integration points for automated feedback."
+      ],
+      "stack": ["NLP", "Product"],
+      "links": []
+    },
+    {
+      "title": "Forvia Camera-Radar Fusion Prototype",
+      "summary": "Sensor fusion pipeline for vehicle tracking using camera and ranging data.",
+      "highlights": [
+        "Implemented optimal transport for multi-sensor alignment.",
+        "Reached about 20 cm positional accuracy in a small test area.",
+        "Coordinated a 3-person team and shared results with stakeholders."
+      ],
+      "stack": ["Computer Vision", "Optimization"],
+      "links": []
+    },
+    {
+      "title": "Museum Companion App with Computer Vision",
+      "summary": "Concept app to support museum visitors with vision-based discovery.",
+      "highlights": [
+        "Outlined feature flows for object recognition and guidance.",
+        "Drafted UX for personalized content delivery.",
+        "Identified data and model requirements for next steps."
+      ],
+      "stack": ["Computer Vision", "UX"],
+      "links": []
+    },
+    {
+      "title": "CHANEL Europe Analytics Pipeline",
+      "summary": "Accounting data quality and anomaly detection pipeline for finance teams.",
+      "highlights": [
+        "Analyzed 30M+ accounting entries for anomalies and outliers.",
+        "Built mixed-data detection pipelines and tracked experiments with MLflow.",
+        "Deployed models through Azure ML for near-production monitoring."
+      ],
+      "stack": ["Python", "MLflow", "Azure ML"],
+      "links": []
+    }
+  ],
+  "skills": [
+    {
+      "group": "Data Science",
+      "items": ["Python", "Pandas", "Polars", "NumPy", "scikit-learn", "sktime"]
+    },
+    {
+      "group": "Analytics and BI",
+      "items": ["SQL", "Power Query", "Power Pivot", "Excel Dashboards", "Statistics"]
+    },
+    {
+      "group": "ML Ops",
+      "items": ["Azure ML", "MLflow", "Git"]
+    },
+    {
+      "group": "Languages",
+      "items": ["French (Native)", "Spanish (Proficient)"]
+    }
+  ]
+}
