@@ -216,6 +216,18 @@ img {
   box-shadow: var(--shadow);
 }
 
+.avatar-photo {
+  width: 60%;
+  max-width: 320px;
+  height: 240px;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 auto 14px;
+  background: #0f1d33;
+}
+
 .recruiter-card h2 {
   font-size: 1.2rem;
   margin-bottom: 14px;
@@ -713,6 +725,11 @@ img {
 
   .featured-card img {
     height: 170px;
+  }
+
+  .avatar-photo {
+    width: min(72%, 280px);
+    height: 220px;
   }
 
   .back-to-top {

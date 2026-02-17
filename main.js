@@ -58,6 +58,7 @@ const createButton = ({ label, url, primary = false, todoLabel = '' }) => {
     return link;
   }
 
+  // TODO: Fill missing CTA link in content.json so this disabled placeholder is not rendered.
   const span = document.createElement('span');
   span.className = `button ${primary ? 'primary' : 'ghost'} button-disabled`;
   span.setAttribute('aria-disabled', 'true');
@@ -90,6 +91,7 @@ const renderArtifacts = (container, artifacts = {}, showTodos = true) => {
     }
 
     if (showTodos) {
+      // TODO: Add missing artifact links in content.json (code/demo/writeup/slides).
       const todo = makeEl('span', 'artifact-link todo');
       todo.setAttribute('data-todo', `TODO: Add ${item.label.toLowerCase()} link.`);
       const icon = makeEl('span', 'artifact-icon', item.icon);
@@ -115,7 +117,7 @@ const renderHeroLinks = (data, resumeReady) => {
     label: 'Resume (PDF)',
     url: resumeUrl,
     primary: true,
-    todoLabel: 'Resume (Upload PDF)'
+    todoLabel: 'Resume (Add link)'
   }));
 
   heroLinks.appendChild(createButton({
@@ -147,6 +149,7 @@ const renderFeaturedProjects = (projects = []) => {
     const card = makeEl('article', 'featured-card');
 
     const image = document.createElement('img');
+    // TODO: Replace placeholder thumbnail with project screenshot/GIF preview.
     image.src = clean(project.thumbnail) || './assets/placeholder.svg';
     image.alt = `${project.title} project thumbnail`;
     image.loading = 'lazy';
@@ -159,6 +162,7 @@ const renderFeaturedProjects = (projects = []) => {
     if (clean(project.result)) {
       body.appendChild(makeEl('p', 'result-line', `Result: ${project.result}`));
     } else {
+      // TODO: Add a factual result line (or remove) once measurable output is available.
       const resultTodo = makeEl('p', 'result-line todo-text', 'Result: TODO (Available on request)');
       resultTodo.setAttribute('data-todo', 'TODO: Add factual project result line or remove this.');
       body.appendChild(resultTodo);
@@ -305,7 +309,7 @@ const render = async () => {
   const resumeReady = resumeExists !== 'missing' && Boolean(resumeUrl);
 
   const resumeBanner = qs('#resume-upload-todo');
-  const usingPlaceholderResume = /assets\/resume\/Alexandre_Resume\.pdf$/i.test(resumeUrl);
+  const usingPlaceholderResume = resumeUrl === './assets/resume/Alexandre_Resume.pdf' || resumeUrl === 'assets/resume/Alexandre_Resume.pdf';
   if (resumeBanner) {
     if (isDevMode() && usingPlaceholderResume) {
       resumeBanner.classList.remove('is-hidden');

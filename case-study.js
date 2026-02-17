@@ -58,6 +58,7 @@ const renderArtifacts = (container, artifacts = {}, showTodos = true) => {
     }
 
     if (showTodos) {
+      // TODO: Add missing artifact links in content.json for this case study.
       const todo = makeEl('span', 'artifact-link todo');
       const icon = makeEl('span', 'artifact-icon', item.icon);
       icon.setAttribute('aria-hidden', 'true');
@@ -90,6 +91,7 @@ const renderMedia = (mediaItems = []) => {
   mediaGrid.innerHTML = '';
 
   if (!Array.isArray(mediaItems) || mediaItems.length === 0) {
+    // TODO: Add at least one screenshot or GIF media item for this case study.
     const placeholder = makeEl('figure', 'media-card');
     const img = document.createElement('img');
     img.src = './assets/placeholder.svg';
@@ -104,6 +106,7 @@ const renderMedia = (mediaItems = []) => {
   mediaItems.forEach((item) => {
     const figure = makeEl('figure', 'media-card');
     const img = document.createElement('img');
+    // TODO: Replace fallback placeholder.svg with real media sources in content.json.
     img.src = clean(item.src) || './assets/placeholder.svg';
     img.alt = clean(item.alt) || 'Case-study visual.';
     img.loading = 'lazy';
@@ -149,6 +152,7 @@ const renderCaseStudy = async () => {
   }
 
   if (!caseStudy) {
+    // TODO: Ensure each case-study page has a matching entry in content.json.caseStudies.
     if (qs('#case-title')) qs('#case-title').textContent = 'Case study not found';
     if (qs('#case-summary')) qs('#case-summary').textContent = 'TODO: Add matching case-study entry in content.json.';
     return;
