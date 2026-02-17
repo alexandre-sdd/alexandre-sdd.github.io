@@ -2,13 +2,294 @@
   "name": "Alexandre Sepulveda De Dietrich",
   "headline": "Data Scientist and Business Analytics MS candidate",
   "location": "New York, NY",
+  "availability": "Summer 2026",
+  "targetRoleLine": "Seeking Summer 2026 Data Science / ML Engineer / Analytics internships in NYC",
   "about": "I build reliable analytics and machine learning systems that help teams make confident decisions. My focus includes anomaly detection, time series analysis, and data quality work for finance and commercial teams.",
+  "heroProofBullets": [
+    "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
+    "Built a camera and ranging sensor fusion pipeline with CentraleSupélec L2S Lab and Forvia."
+  ],
+  "recruiterQuickFacts": {
+    "location": "New York, NY",
+    "availability": "Summer 2026",
+    "interests": [
+      "ML/AI",
+      "Analytics",
+      "Anomaly detection",
+      "Time series"
+    ]
+  },
+  "impactHighlights": [
+    "Delivered analytics tooling in industry settings.",
+    "Built a computer vision and sensor fusion prototype in research-industry collaboration.",
+    "Project delivery in industry and research settings."
+  ],
   "links": {
     "email": "aes2399@columbia.edu",
     "github": "",
-    "linkedin": "https://www.linkedin.com/asepulvedadedietrich/",
-    "resume": ""
+    "linkedin": "https://www.linkedin.com/in/asepulvedadedietrich/",
+    "resume": "./assets/resume/Alexandre_Resume.pdf"
   },
+  "projects": [
+    {
+      "id": "chanel-europe-analytics-pipeline",
+      "title": "Chanel Europe Analytics Pipeline",
+      "summary": "Accounting data quality and anomaly detection pipeline for finance teams.",
+      "result": "Supported finance teams with monitoring outputs.",
+      "highlights": [
+        "Built data quality checks and anomaly detection logic.",
+        "Developed workflows for mixed data types.",
+        "Supported finance teams with monitoring outputs."
+      ],
+      "tags": [
+        "Python",
+        "ML",
+        "Data Quality"
+      ],
+      "featured": true,
+      "thumbnail": "./assets/projects/chanel-thumb.svg",
+      "caseStudyPage": "./case-study-chanel.html",
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "./case-study-chanel.html",
+        "slides": ""
+      }
+    },
+    {
+      "id": "forvia-camera-radar-fusion-prototype",
+      "title": "Forvia Camera Radar Fusion Prototype",
+      "summary": "Sensor fusion pipeline for vehicle tracking using camera and ranging data.",
+      "result": "Validated tracking accuracy in a controlled test area.",
+      "highlights": [
+        "Implemented multi sensor alignment techniques.",
+        "Validated tracking in a controlled test area.",
+        "Collaborated with a small research team."
+      ],
+      "tags": [
+        "Computer Vision",
+        "Optimization"
+      ],
+      "featured": true,
+      "thumbnail": "./assets/projects/forvia-thumb.svg",
+      "caseStudyPage": "./case-study-forvia.html",
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "./case-study-forvia.html",
+        "slides": ""
+      }
+    },
+    {
+      "id": "helpfullens",
+      "title": "HelpfulLens",
+      "summary": "Accessibility oriented product concept focused on quick, helpful context.",
+      "highlights": [
+        "Defined user scenarios and core pain points.",
+        "Outlined a lightweight workflow for context delivery.",
+        "Documented next steps for validation."
+      ],
+      "tags": [
+        "Product",
+        "UX",
+        "Research"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
+        "slides": ""
+      }
+    },
+    {
+      "id": "finants",
+      "title": "FinAnts",
+      "summary": "Personal finance analytics prototype for clarity and decision support.",
+      "highlights": [
+        "Structured a data model for transactions and categories.",
+        "Designed key metrics for cash flow and savings.",
+        "Mapped a roadmap for future insights."
+      ],
+      "tags": [
+        "Analytics",
+        "Data Modeling"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
+        "slides": ""
+      }
+    },
+    {
+      "id": "zeit",
+      "title": "Zeit",
+      "summary": "Time focused productivity concept with a data first approach.",
+      "highlights": [
+        "Mapped core user journeys and friction points.",
+        "Designed a weekly review workflow.",
+        "Identified opportunities for behavioral analytics."
+      ],
+      "tags": [
+        "Product",
+        "Strategy"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
+        "slides": ""
+      }
+    },
+    {
+      "id": "resume-readiness-intelligence-engine",
+      "title": "Resume Readiness Intelligence Engine",
+      "summary": "Concept for assessing resume readiness with structured criteria.",
+      "highlights": [
+        "Defined a rubric for clarity, impact, and relevance.",
+        "Designed outputs to guide targeted improvements.",
+        "Planned integration points for automated feedback."
+      ],
+      "tags": [
+        "NLP",
+        "Product"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
+        "slides": ""
+      }
+    },
+    {
+      "id": "museum-companion-app-with-computer-vision",
+      "title": "Museum Companion App with Computer Vision",
+      "summary": "Concept app to support museum visitors with vision based discovery.",
+      "highlights": [
+        "Outlined recognition and guidance flows.",
+        "Drafted UX for personalized content delivery.",
+        "Documented data and model requirements."
+      ],
+      "tags": [
+        "Computer Vision",
+        "UX"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
+        "slides": ""
+      }
+    }
+  ],
+  "caseStudies": [
+    {
+      "id": "chanel-europe-analytics-pipeline",
+      "page": "./case-study-chanel.html",
+      "title": "Chanel Europe Analytics Pipeline",
+      "subtitle": "Data Scientist Intern, Advanced Analytics and Data Science · CHANEL Europe",
+      "dates": "Sep 2024 - May 2025",
+      "location": "Paris, France",
+      "summary": "Accounting data quality and anomaly detection pipeline supporting finance workflows.",
+      "context": [
+        "Built during an internship in CHANEL Europe's Advanced Analytics and Data Science team.",
+        "Project served finance stakeholders who needed stronger trust in accounting data."
+      ],
+      "problem": [
+        "Accounting data quality issues and anomalies reduced confidence in downstream analysis.",
+        "Teams needed practical monitoring outputs that could be reviewed with non-technical partners."
+      ],
+      "constraints": [
+        "Mixed data types required robust handling and validation logic.",
+        "Domain constraints in finance workflows required explainable outputs for stakeholder review."
+      ],
+      "approach": [
+        "Built data quality checks and anomaly detection logic for accounting datasets.",
+        "Developed mixed-data detection workflows and tracked experiments.",
+        "Collaborated with finance stakeholders to align outputs with deployment needs."
+      ],
+      "results": [
+        "Delivered monitoring outputs used by finance stakeholders.",
+        "TODO: Add quantitative impact metrics (Available on request)."
+      ],
+      "techStack": [
+        "Python",
+        "Machine Learning",
+        "Data Quality"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "./case-study-chanel.html",
+        "slides": ""
+      },
+      "media": [
+        {
+          "src": "./assets/projects/chanel-thumb.svg",
+          "alt": "Placeholder visual for CHANEL Europe analytics pipeline case study.",
+          "caption": "TODO: Replace with pipeline diagram or screenshot.",
+          "type": "screenshot"
+        }
+      ],
+      "nextImprovements": [
+        "Add formal model and data drift monitoring dashboards.",
+        "Package reusable quality checks for faster rollout across adjacent finance datasets."
+      ]
+    },
+    {
+      "id": "forvia-camera-radar-fusion-prototype",
+      "page": "./case-study-forvia.html",
+      "title": "Forvia Camera Radar Fusion Prototype",
+      "subtitle": "Research Project · CentraleSupélec L2S Lab and Forvia",
+      "dates": "Feb 2024 - Jun 2024",
+      "location": "Gif-sur-Yvette, France",
+      "summary": "Sensor fusion prototype for vehicle tracking using camera and ranging sensor data.",
+      "context": [
+        "Built in a collaboration between CentraleSupélec L2S Lab and Forvia.",
+        "Project explored practical multi-sensor tracking behavior in a controlled environment."
+      ],
+      "problem": [
+        "Single-sensor signals were insufficiently robust for stable tracking behavior.",
+        "Team needed a fusion prototype that aligned and combined camera and ranging data."
+      ],
+      "constraints": [
+        "Sensor alignment and synchronization had to remain stable across test conditions.",
+        "Prototype scope focused on controlled test-area validation rather than full production deployment."
+      ],
+      "approach": [
+        "Implemented multi-sensor alignment techniques.",
+        "Built a camera and ranging sensor fusion pipeline.",
+        "Validated tracking behavior through controlled test runs and shared findings with partners."
+      ],
+      "results": [
+        "Validated tracking accuracy in a controlled test area.",
+        "TODO: Add quantitative tracking metrics (Available on request)."
+      ],
+      "techStack": [
+        "Computer Vision",
+        "Sensor Fusion",
+        "Optimization"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "./case-study-forvia.html",
+        "slides": ""
+      },
+      "media": [
+        {
+          "src": "./assets/projects/forvia-thumb.svg",
+          "alt": "Placeholder visual for Forvia camera and radar fusion case study.",
+          "caption": "TODO: Replace with tracking output screenshot or GIF.",
+          "type": "gif"
+        }
+      ],
+      "nextImprovements": [
+        "Evaluate robustness under additional lighting and motion conditions.",
+        "Add confidence scoring and failure-case analysis for each tracking sequence."
+      ]
+    }
+  ],
   "experience": [
     {
       "company": "CHANEL Europe",
@@ -76,101 +357,43 @@
       ]
     }
   ],
-  "projects": [
-    {
-      "title": "HelpfulLens",
-      "summary": "Accessibility oriented product concept focused on quick, helpful context.",
-      "highlights": [
-        "Defined user scenarios and core pain points.",
-        "Outlined a lightweight workflow for context delivery.",
-        "Documented next steps for validation."
-      ],
-      "tags": ["Product", "UX", "Research"],
-      "links": []
-    },
-    {
-      "title": "FinAnts",
-      "summary": "Personal finance analytics prototype for clarity and decision support.",
-      "highlights": [
-        "Structured a data model for transactions and categories.",
-        "Designed key metrics for cash flow and savings.",
-        "Mapped a roadmap for future insights."
-      ],
-      "tags": ["Analytics", "Data Modeling"],
-      "links": []
-    },
-    {
-      "title": "Zeit",
-      "summary": "Time focused productivity concept with a data first approach.",
-      "highlights": [
-        "Mapped core user journeys and friction points.",
-        "Designed a weekly review workflow.",
-        "Identified opportunities for behavioral analytics."
-      ],
-      "tags": ["Product", "Strategy"],
-      "links": []
-    },
-    {
-      "title": "Resume Readiness Intelligence Engine",
-      "summary": "Concept for assessing resume readiness with structured criteria.",
-      "highlights": [
-        "Defined a rubric for clarity, impact, and relevance.",
-        "Designed outputs to guide targeted improvements.",
-        "Planned integration points for automated feedback."
-      ],
-      "tags": ["NLP", "Product"],
-      "links": []
-    },
-    {
-      "title": "Forvia Camera Radar Fusion Prototype",
-      "summary": "Sensor fusion pipeline for vehicle tracking using camera and ranging data.",
-      "highlights": [
-        "Implemented multi sensor alignment techniques.",
-        "Validated tracking in a controlled test area.",
-        "Collaborated with a small research team."
-      ],
-      "tags": ["Computer Vision", "Optimization"],
-      "links": []
-    },
-    {
-      "title": "Museum Companion App with Computer Vision",
-      "summary": "Concept app to support museum visitors with vision based discovery.",
-      "highlights": [
-        "Outlined recognition and guidance flows.",
-        "Drafted UX for personalized content delivery.",
-        "Documented data and model requirements."
-      ],
-      "tags": ["Computer Vision", "UX"],
-      "links": []
-    },
-    {
-      "title": "Chanel Europe Analytics Pipeline",
-      "summary": "Accounting data quality and anomaly detection pipeline for finance teams.",
-      "highlights": [
-        "Built data quality checks and anomaly detection logic.",
-        "Developed workflows for mixed data types.",
-        "Supported finance teams with monitoring outputs."
-      ],
-      "tags": ["Python", "ML", "Data Quality"],
-      "links": []
-    }
-  ],
   "skills": [
     {
       "group": "Data Science",
-      "items": ["Python", "Pandas", "Polars", "NumPy", "scikit-learn", "sktime"]
+      "items": [
+        "Python",
+        "Pandas",
+        "Polars",
+        "NumPy",
+        "scikit-learn",
+        "sktime"
+      ]
     },
     {
       "group": "Analytics and BI",
-      "items": ["SQL", "Power Query", "Power Pivot", "Excel Dashboards", "Statistics"]
+      "items": [
+        "SQL",
+        "Power Query",
+        "Power Pivot",
+        "Excel Dashboards",
+        "Statistics"
+      ]
     },
     {
       "group": "ML Ops",
-      "items": ["Azure ML", "MLflow", "Git"]
+      "items": [
+        "Azure ML",
+        "MLflow",
+        "Git"
+      ]
     },
     {
       "group": "Languages",
-      "items": ["French (Native)", "Spanish (Proficient)"]
+      "items": [
+        "French (Native)",
+        "English (Professional)",
+        "Spanish (Proficient)"
+      ]
     }
   ]
 }

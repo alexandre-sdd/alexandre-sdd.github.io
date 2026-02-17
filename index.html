@@ -3,8 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Portfolio of Alexandre SEPULVEDA de DIETRICH" />
-  <title>Alexandre SEPULVEDA de DIETRICH</title>
+  <meta name="description" content="Data Scientist and ML Engineer candidate in NYC focused on analytics, anomaly detection, and time series. Seeking Summer 2026 internships." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Alexandre Sepulveda De Dietrich | Data Science and ML Internships NYC" />
+  <meta property="og:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta property="og:url" content="https://alexandre-sdd.github.io/" />
+  <meta property="og:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Alexandre Sepulveda De Dietrich | Data Science and ML Internships NYC" />
+  <meta name="twitter:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta name="twitter:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
+  <link rel="canonical" href="https://alexandre-sdd.github.io/" />
+  <title>Alexandre Sepulveda De Dietrich | Portfolio</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +26,16 @@
   <div class="page">
     <header class="site-header">
       <div class="brand">
-        <span class="brand-name" id="brand-name">Alexandre SEPULVEDA de DIETRICH</span>
+        <span class="brand-name" id="brand-name">Alexandre Sepulveda De Dietrich</span>
         <span class="brand-title" id="brand-title">Data Scientist and Business Analytics MS candidate</span>
       </div>
       <nav class="site-nav" aria-label="Primary">
         <a href="#about">About</a>
         <a href="#projects">Projects</a>
+        <a href="#case-studies">Case Studies</a>
         <a href="#experience">Experience</a>
         <a href="#skills">Skills</a>
+        <a id="nav-resume-link" href="./assets/resume/Alexandre_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -31,23 +44,49 @@
       <section id="home" class="section hero">
         <div class="hero-text">
           <p class="eyebrow" id="hero-location">New York, NY</p>
-          <h1 id="hero-name">Alexandre SEPULVEDA de DIETRICH</h1>
-          <p class="lead" id="hero-about">
-            I build reliable analytics and machine learning systems that help teams make confident decisions. My focus includes anomaly detection, time series analysis, and data quality work for finance and commercial teams.
-          </p>
+          <h1 id="hero-name">Alexandre Sepulveda De Dietrich</h1>
+          <p class="target-role" id="hero-target-line">Seeking Summer 2026 Data Science / ML Engineer / Analytics internships in NYC</p>
+          <p class="lead" id="hero-about">I build reliable analytics and machine learning systems that help teams make confident decisions. My focus includes anomaly detection, time series analysis, and data quality work for finance and commercial teams.</p>
+
+          <ul class="proof-list" id="hero-proof-list">
+            <li>Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.</li>
+            <li>Built a camera and ranging sensor fusion pipeline with CentraleSupélec L2S Lab and Forvia.</li>
+          </ul>
+
           <div class="hero-links" id="hero-links">
-            <a class="button primary" href="mailto:alexandre@sepulveda.org">Email</a>
+            <a class="button primary" href="./assets/resume/Alexandre_Resume.pdf" target="_blank" rel="noreferrer">Resume (PDF)</a>
+            <a class="button ghost" href="#" aria-disabled="true">GitHub</a>
             <a class="button ghost" href="https://www.linkedin.com/in/asepulvedadedietrich/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a class="button ghost" href="mailto:aes2399@columbia.edu">Email</a>
           </div>
+
+          <p id="resume-upload-todo" class="todo-banner is-hidden" role="status" aria-live="polite">TODO: Upload your real resume PDF to <code>assets/resume/Alexandre_Resume.pdf</code>.</p>
         </div>
-        <div class="hero-card">
-          <div class="avatar" aria-hidden="true"></div>
-          <div class="hero-meta">
-            <p class="meta-title">Focus</p>
-            <p>Analytics, anomaly detection, and decision support for finance and commercial teams.</p>
-            <p class="meta-title">Latest</p>
-            <p>MS in Business Analytics at Columbia University. Expected Dec 2026.</p>
-          </div>
+
+        <aside class="hero-card recruiter-card" aria-label="Recruiter quick facts">
+          <h2>Recruiter Quick Facts</h2>
+          <dl class="fact-list" id="quick-facts-list">
+            <div class="fact-row">
+              <dt>Location</dt>
+              <dd id="quick-fact-location">New York, NY</dd>
+            </div>
+            <div class="fact-row">
+              <dt>Availability</dt>
+              <dd id="quick-fact-availability">Summer 2026</dd>
+            </div>
+            <div class="fact-row">
+              <dt>Interests</dt>
+              <dd id="quick-fact-interests">ML/AI, Analytics, Anomaly detection, Time series</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+
+      <section id="impact" class="section impact-strip-section" aria-label="Impact highlights">
+        <div class="impact-strip" id="impact-highlights">
+          <article class="impact-item">Delivered analytics tooling in industry settings.</article>
+          <article class="impact-item">Built a computer vision and sensor fusion prototype in research-industry collaboration.</article>
+          <article class="impact-item">Project delivery in industry and research settings.</article>
         </div>
       </section>
 
@@ -58,12 +97,12 @@
         </div>
         <div class="about-grid">
           <article class="about-card">
-            <h3>What I do</h3>
+            <h3>What I Do</h3>
             <p>Anomaly detection, time series analysis, and data quality pipelines.</p>
           </article>
           <article class="about-card">
-            <h3>How I work</h3>
-            <p>Hands on experimentation, clear documentation, and collaboration with stakeholders.</p>
+            <h3>How I Work</h3>
+            <p>Hands-on experimentation, clear documentation, and collaboration with stakeholders.</p>
           </article>
         </div>
       </section>
@@ -71,102 +110,63 @@
       <section id="projects" class="section">
         <div class="section-header">
           <h2>Projects</h2>
-          <p>Selected work across analytics, computer vision, and product concepts.</p>
+          <p>Evidence-first project highlights with artifacts and direct case-study access.</p>
         </div>
-        <div class="card-grid" id="projects-grid">
-          <article class="card">
-            <h3>HelpfulLens</h3>
+
+        <div class="subsection-header">
+          <h3>Featured Projects</h3>
+        </div>
+        <div class="featured-grid" id="featured-projects-grid">
+          <article class="featured-card">
+            <img src="./assets/projects/chanel-thumb.svg" alt="Placeholder thumbnail for Chanel Europe analytics pipeline project" loading="lazy" />
+            <div class="featured-body">
+              <h4>Chanel Europe Analytics Pipeline</h4>
+              <p>Accounting data quality and anomaly detection pipeline for finance teams.</p>
+              <p class="result-line">Result: Supported finance teams with monitoring outputs.</p>
+              <div class="artifacts-row" aria-label="Project artifacts">
+                <span class="artifact-link todo">Code: Add link</span>
+                <span class="artifact-link todo">Demo: Add link</span>
+                <a class="artifact-link" href="./case-study-chanel.html">Write-up</a>
+                <span class="artifact-link todo">Slides: Add link</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="featured-card">
+            <img src="./assets/projects/forvia-thumb.svg" alt="Placeholder thumbnail for Forvia sensor fusion project" loading="lazy" />
+            <div class="featured-body">
+              <h4>Forvia Camera Radar Fusion Prototype</h4>
+              <p>Sensor fusion pipeline for vehicle tracking using camera and ranging data.</p>
+              <p class="result-line">Result: Validated tracking accuracy in a controlled test area.</p>
+              <div class="artifacts-row" aria-label="Project artifacts">
+                <span class="artifact-link todo">Code: Add link</span>
+                <span class="artifact-link todo">Demo: Add link</span>
+                <a class="artifact-link" href="./case-study-forvia.html">Write-up</a>
+                <span class="artifact-link todo">Slides: Add link</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="subsection-header">
+          <h3>Other Projects</h3>
+        </div>
+        <div class="card-grid" id="other-projects-grid">
+          <article class="card light-card">
+            <h4>HelpfulLens</h4>
             <p>Accessibility oriented product concept focused on quick, helpful context.</p>
-            <ul>
-              <li>Defined user scenarios and core pain points.</li>
-              <li>Outlined a lightweight workflow for context delivery.</li>
-              <li>Documented next steps for validation.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Product</span>
-              <span class="tag">UX</span>
-              <span class="tag">Research</span>
-            </div>
           </article>
-          <article class="card">
-            <h3>FinAnts</h3>
-            <p>Personal finance analytics prototype for clarity and decision support.</p>
-            <ul>
-              <li>Structured a data model for transactions and categories.</li>
-              <li>Designed key metrics for cash flow and savings.</li>
-              <li>Mapped a roadmap for future insights.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Analytics</span>
-              <span class="tag">Data Modeling</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Zeit</h3>
-            <p>Time focused productivity concept with a data first approach.</p>
-            <ul>
-              <li>Mapped core user journeys and friction points.</li>
-              <li>Designed a weekly review workflow.</li>
-              <li>Identified opportunities for behavioral analytics.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Product</span>
-              <span class="tag">Strategy</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Resume Readiness Intelligence Engine</h3>
-            <p>Concept for assessing resume readiness with structured criteria.</p>
-            <ul>
-              <li>Defined a rubric for clarity, impact, and relevance.</li>
-              <li>Designed outputs to guide targeted improvements.</li>
-              <li>Planned integration points for automated feedback.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">NLP</span>
-              <span class="tag">Product</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Forvia Camera Radar Fusion Prototype</h3>
-            <p>Sensor fusion pipeline for vehicle tracking using camera and ranging data.</p>
-            <ul>
-              <li>Implemented multi sensor alignment techniques.</li>
-              <li>Validated tracking in a controlled test area.</li>
-              <li>Collaborated with a small research team.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Computer Vision</span>
-              <span class="tag">Optimization</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Museum Companion App with Computer Vision</h3>
-            <p>Concept app to support museum visitors with vision based discovery.</p>
-            <ul>
-              <li>Outlined recognition and guidance flows.</li>
-              <li>Drafted UX for personalized content delivery.</li>
-              <li>Documented data and model requirements.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Computer Vision</span>
-              <span class="tag">UX</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Chanel Europe Analytics Pipeline</h3>
-            <p>Accounting data quality and anomaly detection pipeline for finance teams.</p>
-            <ul>
-              <li>Built data quality checks and anomaly detection logic.</li>
-              <li>Developed workflows for mixed data types.</li>
-              <li>Supported finance teams with monitoring outputs.</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Python</span>
-              <span class="tag">ML</span>
-              <span class="tag">Data Quality</span>
-            </div>
-          </article>
+        </div>
+      </section>
+
+      <section id="case-studies" class="section">
+        <div class="section-header">
+          <h2>Case Studies</h2>
+          <p>Two dedicated deep dives with context, approach, constraints, and next steps.</p>
+        </div>
+        <div class="case-study-links" id="case-study-links">
+          <a class="case-link" href="./case-study-chanel.html">Chanel Europe Analytics Pipeline</a>
+          <a class="case-link" href="./case-study-forvia.html">Forvia Camera Radar Fusion Prototype</a>
         </div>
       </section>
 
@@ -175,35 +175,7 @@
           <h2>Experience</h2>
           <p>Recent roles and research engagements.</p>
         </div>
-        <div class="timeline" id="experience-list">
-          <article class="timeline-item">
-            <h3>Data Scientist Intern, Advanced Analytics and Data Science · CHANEL Europe</h3>
-            <p class="meta">Paris, France · Sep 2024 - May 2025</p>
-            <ul>
-              <li>Built an accounting data quality and anomaly detection pipeline.</li>
-              <li>Developed mixed data detection workflows and experiment tracking.</li>
-              <li>Collaborated with finance stakeholders on deployment needs.</li>
-            </ul>
-          </article>
-          <article class="timeline-item">
-            <h3>Data Analyst Intern, Commercial Excellence Europe · SIGMA Group</h3>
-            <p class="meta">Madrid, Spain · May 2025 - Aug 2025</p>
-            <ul>
-              <li>Analyzed reseller performance across multiple markets.</li>
-              <li>Created dashboards for negotiation teams with standardized KPIs.</li>
-              <li>Enabled consistent reporting for account strategy planning.</li>
-            </ul>
-          </article>
-          <article class="timeline-item">
-            <h3>Research Project, Sensor Fusion Vehicle Tracking · CentraleSupélec L2S Lab and Forvia</h3>
-            <p class="meta">Gif-sur-Yvette, France · Feb 2024 - Jun 2024</p>
-            <ul>
-              <li>Built a camera and ranging sensor fusion pipeline.</li>
-              <li>Validated tracking accuracy in a controlled test area.</li>
-              <li>Shared findings with academic and industry partners.</li>
-            </ul>
-          </article>
-        </div>
+        <div class="timeline" id="experience-list"></div>
       </section>
 
       <section id="education" class="section">
@@ -211,32 +183,7 @@
           <h2>Education</h2>
           <p>Academic focus in analytics, machine learning, and engineering.</p>
         </div>
-        <div class="timeline" id="education-list">
-          <article class="timeline-item">
-            <h3>MS in Business Analytics · Columbia University</h3>
-            <p class="meta">New York, NY · Expected Dec 2026</p>
-            <ul>
-              <li>GPA: 3.93/4.00</li>
-              <li>Coursework: AI Engineering, Marketing Analytics, Business Analytics, Data Analytics, Probability Statistics and Simulation</li>
-            </ul>
-          </article>
-          <article class="timeline-item">
-            <h3>Diplome d'Ingenieur (MEng) in Mathematics and Data Science · Universite Paris-Saclay: CentraleSupélec</h3>
-            <p class="meta">Gif-sur-Yvette, France · Sep 2022 - Apr 2026</p>
-            <ul>
-              <li>GPA: 3.93/4.00</li>
-              <li>Coursework: Algorithms and Networks, Machine Learning, HPC and Cloud Computing, Signal Processing, Game Theory</li>
-            </ul>
-          </article>
-          <article class="timeline-item">
-            <h3>Intensive Preparatory Course in Physics and Engineering · Lycee Charlemagne and Lycee Saint-Louis</h3>
-            <p class="meta">Paris, France · Sep 2019 - Jul 2022</p>
-            <ul>
-              <li>Ranked top 2 percent of national competitive entrance exams</li>
-              <li>Two to three year intensive program preparing for France's top engineering schools</li>
-            </ul>
-          </article>
-        </div>
+        <div class="timeline" id="education-list"></div>
       </section>
 
       <section id="skills" class="section">
@@ -244,44 +191,7 @@
           <h2>Skills</h2>
           <p>Tools and strengths grouped by focus.</p>
         </div>
-        <div class="skills-grid" id="skills-grid">
-          <div class="skill-group">
-            <h3>Data Science</h3>
-            <ul>
-              <li>Python</li>
-              <li>Pandas</li>
-              <li>Polars</li>
-              <li>NumPy</li>
-              <li>scikit-learn</li>
-              <li>sktime</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <h3>Analytics and BI</h3>
-            <ul>
-              <li>SQL</li>
-              <li>Power Query</li>
-              <li>Power Pivot</li>
-              <li>Excel Dashboards</li>
-              <li>Statistics</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <h3>ML Ops</h3>
-            <ul>
-              <li>Azure ML</li>
-              <li>MLflow</li>
-              <li>Git</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <h3>Languages</h3>
-            <ul>
-              <li>French (Native)</li>
-              <li>Spanish (Proficient)</li>
-            </ul>
-          </div>
-        </div>
+        <div class="skills-grid" id="skills-grid"></div>
       </section>
 
       <section id="contact" class="section contact">
@@ -289,13 +199,19 @@
           <h2>Contact</h2>
           <p>Reach out for internships, research collaborations, or analytics projects.</p>
         </div>
+
         <div class="contact-card" id="contact-card">
           <p>Location: New York, NY</p>
           <div class="contact-links">
-            <a href="mailto:alexandre@sepulveda.org">alexandre@sepulveda.org</a>
+            <a href="mailto:aes2399@columbia.edu">aes2399@columbia.edu</a>
             <a href="https://www.linkedin.com/in/asepulvedadedietrich/" target="_blank" rel="noreferrer">LinkedIn</a>
           </div>
         </div>
+
+        <aside class="recruiter-cta" aria-label="Recruiter call to action">
+          <p>Hiring for Summer 2026 interns? Email me with the role + team and I'll reply with relevant work samples.</p>
+          <a class="button primary" href="mailto:aes2399@columbia.edu?subject=Summer%202026%20Internship%20Role&body=Hi%20Alexandre%2C%0A%0ATeam%3A%20%0ARole%3A%20%0AWhy%20you%3A%20%0A">Email with role details</a>
+        </aside>
       </section>
     </main>
 

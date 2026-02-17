@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">ASDD favicon</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8fd8ff" />
+      <stop offset="100%" stop-color="#64b5ff" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="#0d1a2f" />
+  <path d="M15 46 28 16h8l13 30h-8l-2.6-6.4H25.6L23 46Zm13.6-13.2h6.8L32 24.2Z" fill="url(#g)" />
+</svg>
