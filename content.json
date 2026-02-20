@@ -1,5 +1,5 @@
 {
-  "name": "Alexandre Sepulveda De Dietrich",
+  "name": "Alexandre SEPULVEDA de DIETRICH",
   "headline": "Data Scientist and Business Analytics MS candidate",
   "location": "New York, NY",
   "availability": "Summer 2026",
@@ -13,16 +13,17 @@
     "location": "New York, NY",
     "availability": "Summer 2026",
     "interests": [
-      "ML/AI",
+      "Machine Learning",
+      "AI Engineering",
       "Analytics",
       "Anomaly detection",
       "Time series"
     ]
   },
   "impactHighlights": [
-    "Delivered analytics tooling in industry settings.",
-    "Built a computer vision and sensor fusion prototype in research-industry collaboration.",
-    "Project delivery in industry and research settings."
+    "Built production-grade data pipelines and analytics tooling for finance teams at Chanel",
+    "Delivered retail performance dashboards and decision tools used to steer commercial strategy",
+    "Applied signal processing and data science research with L2S (CNRS UMR 8506), Paris-Saclay"
   ],
   "links": {
     "email": "aes2399@columbia.edu",
