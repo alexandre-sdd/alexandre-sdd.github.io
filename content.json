@@ -35,17 +35,17 @@
     {
       "id": "chanel-europe-analytics-pipeline",
       "title": "Chanel Europe Analytics Pipeline",
-      "summary": "Accounting data quality and anomaly detection pipeline for finance teams.",
-      "result": "Supported finance teams with monitoring outputs.",
+      "summary": "Built a hierarchy-aware mixed-type outlier detection framework for SAP-style accounting data, covering both amount anomalies and anomalous categorical combinations.",
+      "result": "Delivered an interpretable scoring workflow for finance review and documented the method in a technical note.",
       "highlights": [
-        "Built data quality checks and anomaly detection logic.",
-        "Developed workflows for mixed data types.",
-        "Supported finance teams with monitoring outputs."
+        "Modeled hierarchical categorical structures common in SAP-driven accounting systems.",
+        "Detected transaction-amount outliers conditionally on the categorical context of each transaction.",
+        "Added a second detector for unusual categorical combinations and ranked suspicious transactions for review."
       ],
       "tags": [
         "Python",
-        "ML",
-        "Data Quality"
+        "Outlier Detection",
+        "Hierarchical Data"
       ],
       "featured": true,
       "thumbnail": "./assets/projects/chanel-thumb.svg",
@@ -53,23 +53,24 @@
       "artifacts": {
         "code": "",
         "demo": "",
-        "writeup": "./case-study-chanel.html",
+        "writeup": "./assets/projects/Combination_Outlier_Detection.pdf",
         "slides": ""
       }
     },
     {
       "id": "forvia-camera-radar-fusion-prototype",
       "title": "Forvia Camera Radar Fusion Prototype",
-      "summary": "Sensor fusion pipeline for vehicle tracking using camera and ranging data.",
-      "result": "Validated tracking accuracy in a controlled test area.",
+      "summary": "Research project on camera and radar fusion for vehicle tracking in controlled conditions.",
+      "result": "Validated tracking behavior in controlled tests and produced a research report.",
       "highlights": [
-        "Implemented multi sensor alignment techniques.",
-        "Validated tracking in a controlled test area.",
-        "Collaborated with a small research team."
+        "Implemented camera-radar alignment and synchronization pipeline steps.",
+        "Ran controlled experiments to evaluate multi-sensor tracking behavior.",
+        "Documented methodology and findings in a formal research report."
       ],
       "tags": [
         "Computer Vision",
-        "Optimization"
+        "Sensor Fusion",
+        "Research"
       ],
       "featured": true,
       "thumbnail": "./assets/projects/forvia-thumb.svg",
@@ -77,7 +78,7 @@
       "artifacts": {
         "code": "",
         "demo": "",
-        "writeup": "./case-study-forvia.html",
+        "writeup": "./assets/projects/Forvia_Tracking.pdf",
         "slides": ""
       }
     },
@@ -191,27 +192,28 @@
       "subtitle": "Data Scientist Intern, Advanced Analytics and Data Science · CHANEL Europe",
       "dates": "Sep 2024 - May 2025",
       "location": "Paris, France",
-      "summary": "Accounting data quality and anomaly detection pipeline supporting finance workflows.",
+      "summary": "Designed a mixed-type outlier detection approach for accounting transactions with hierarchical business categories in an SAP context.",
       "context": [
         "Built during an internship in CHANEL Europe's Advanced Analytics and Data Science team.",
-        "Project served finance stakeholders who needed stronger trust in accounting data."
+        "Project served finance stakeholders who needed stronger trust in SAP-driven accounting data.",
+        "Because the underlying production data and workflows are confidential, shared artifacts focus on the method."
       ],
       "problem": [
-        "Accounting data quality issues and anomalies reduced confidence in downstream analysis.",
-        "Teams needed practical monitoring outputs that could be reviewed with non-technical partners."
+        "Global thresholds were not sufficient because many anomalies were only abnormal within a specific categorical branch.",
+        "Some risky transactions had normal-looking amounts but suspicious combinations of categorical attributes."
       ],
       "constraints": [
-        "Mixed data types required robust handling and validation logic.",
-        "Domain constraints in finance workflows required explainable outputs for stakeholder review."
+        "Data mixed numeric amounts with high-cardinality hierarchical categorical fields from business systems.",
+        "Outputs had to remain interpretable and easy to triage in finance review workflows."
       ],
       "approach": [
-        "Built data quality checks and anomaly detection logic for accounting datasets.",
-        "Developed mixed-data detection workflows and tracked experiments.",
-        "Collaborated with finance stakeholders to align outputs with deployment needs."
+        "Built two complementary detectors: one for amount anomalies conditioned on transaction context, and one for anomalous categorical combinations.",
+        "Used hierarchy-aware categorical representations so parent-child category structure remained informative.",
+        "Generated ranked anomaly candidates with clear reason signals to support analyst investigation."
       ],
       "results": [
-        "Delivered monitoring outputs used by finance stakeholders.",
-        "TODO: Add quantitative impact metrics (Available on request)."
+        "Delivered a reusable algorithmic workflow for mixed-type outlier detection in hierarchical accounting data.",
+        "Published a technical note summarizing the method: Combination Outlier Detection."
       ],
       "techStack": [
         "Python",
@@ -221,14 +223,15 @@
       "artifacts": {
         "code": "",
         "demo": "",
-        "writeup": "./case-study-chanel.html",
+        "writeup": "./assets/projects/Combination_Outlier_Detection.pdf",
         "slides": ""
       },
+      "showArtifactTodos": false,
       "media": [
         {
           "src": "./assets/projects/chanel-thumb.svg",
           "alt": "Placeholder visual for CHANEL Europe analytics pipeline case study.",
-          "caption": "TODO: Replace with pipeline diagram or screenshot.",
+          "caption": "Supporting method details are available in the Combination Outlier Detection note.",
           "type": "screenshot"
         }
       ],
@@ -244,7 +247,7 @@
       "subtitle": "Research Project · CentraleSupélec L2S Lab and Forvia",
       "dates": "Feb 2024 - Jun 2024",
       "location": "Gif-sur-Yvette, France",
-      "summary": "Sensor fusion prototype for vehicle tracking using camera and ranging sensor data.",
+      "summary": "Research project on camera and radar fusion for vehicle tracking in controlled conditions.",
       "context": [
         "Built in a collaboration between CentraleSupélec L2S Lab and Forvia.",
         "Project explored practical multi-sensor tracking behavior in a controlled environment."
@@ -263,8 +266,8 @@
         "Validated tracking behavior through controlled test runs and shared findings with partners."
       ],
       "results": [
-        "Validated tracking accuracy in a controlled test area.",
-        "TODO: Add quantitative tracking metrics (Available on request)."
+        "Validated tracking behavior in a controlled test area.",
+        "Authored a research report documenting the setup, method, and findings."
       ],
       "techStack": [
         "Computer Vision",
@@ -274,14 +277,14 @@
       "artifacts": {
         "code": "",
         "demo": "",
-        "writeup": "./case-study-forvia.html",
+        "writeup": "./assets/projects/Forvia_Tracking.pdf",
         "slides": ""
       },
       "media": [
         {
           "src": "./assets/projects/forvia-thumb.svg",
           "alt": "Placeholder visual for Forvia camera and radar fusion case study.",
-          "caption": "TODO: Replace with tracking output screenshot or GIF.",
+          "caption": "Research report is available in project artifacts.",
           "type": "gif"
         }
       ],

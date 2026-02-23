@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Case study: CHANEL Europe analytics pipeline for data quality and anomaly detection." />
+  <meta name="description" content="Case study: CHANEL mixed-type outlier detection for hierarchical SAP-style accounting data." />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="Chanel Europe Analytics Pipeline | Case Study" />
-  <meta property="og:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta property="og:description" content="Hierarchy-aware mixed-type outlier detection for SAP-style accounting data, with a public method write-up." />
   <meta property="og:url" content="https://alexandre-sdd.github.io/case-study-chanel.html" />
   <meta property="og:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Chanel Europe Analytics Pipeline | Case Study" />
-  <meta name="twitter:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta name="twitter:description" content="Hierarchy-aware mixed-type outlier detection for SAP-style accounting data, with a public method write-up." />
   <meta name="twitter:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
   <link rel="canonical" href="https://alexandre-sdd.github.io/case-study-chanel.html" />
   <title>Chanel Europe Analytics Pipeline | Case Study</title>
@@ -29,12 +29,9 @@
         <span class="brand-title" id="brand-title">Data Scientist and Business Analytics MS candidate</span>
       </div>
       <nav class="site-nav" aria-label="Primary">
-        <a href="./index.html">Home</a>
-        <a href="./index.html#projects">Projects</a>
-        <a href="./case-study-chanel.html">Chanel Case Study</a>
-        <a href="./case-study-forvia.html">Forvia Case Study</a>
+        <a href="./index.html">Back to Portfolio</a>
         <a id="case-nav-resume-link" href="./assets/resume/Alexandre_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
-        <a href="./index.html#contact">Contact</a>
+        <a href="mailto:aes2399@columbia.edu">Contact</a>
       </nav>
     </header>
 
@@ -43,60 +40,122 @@
         <p class="eyebrow">Case Study</p>
         <h1 id="case-title">Chanel Europe Analytics Pipeline</h1>
         <p class="meta" id="case-meta">Data Scientist Intern, Advanced Analytics and Data Science · CHANEL Europe</p>
-        <p class="case-summary" id="case-summary">Accounting data quality and anomaly detection pipeline supporting finance workflows.</p>
-        <!-- TODO: Add code/demo/slides links in content.json.caseStudies[].artifacts. -->
-        <div class="case-top-links artifacts-row" id="case-artifacts-top" aria-label="Case-study artifacts"></div>
+        <p class="case-summary" id="case-summary">Designed a mixed-type outlier detection approach for accounting transactions with hierarchical business categories in an SAP context.</p>
+        <!-- Proprietary project: only public artifact links are shown. -->
+        <div class="case-top-links artifacts-row" id="case-artifacts-top" aria-label="Case-study artifacts">
+          <a class="artifact-link" href="./assets/projects/Combination_Outlier_Detection.pdf">
+            <span class="artifact-icon" aria-hidden="true">Doc</span>
+            <span>Write-up</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="case-grid case-standalone-grid" aria-label="Standalone overview">
+        <article class="case-block">
+          <h2>Executive Summary</h2>
+          <ul>
+            <li>Built during my CHANEL Europe internship to improve trust in SAP-driven accounting data.</li>
+            <li>Designed a hierarchy-aware mixed-type outlier detection workflow for business transaction data.</li>
+            <li>Combined two detectors: amount anomalies conditioned on context, and anomalous categorical combinations.</li>
+            <li>Produced ranked anomaly candidates with interpretable reason signals for finance review.</li>
+            <li>Documented the method in a public technical note: Combination Outlier Detection.</li>
+          </ul>
+        </article>
+
+        <article class="case-block">
+          <h2>Confidentiality Scope</h2>
+          <ul>
+            <li>Source code is proprietary and cannot be shared publicly.</li>
+            <li>Internal demos, dashboards, and slides are confidential and omitted.</li>
+            <li>This page focuses on method design, modeling logic, and review workflow.</li>
+            <li>The shared write-up provides the public technical details I can disclose.</li>
+          </ul>
+        </article>
       </section>
 
       <section class="section">
         <div class="section-header">
           <h2>Visuals</h2>
-          <p>Screenshots and GIFs are lazy-loaded to keep the page fast.</p>
+          <p>Visual artifacts are sanitized due confidentiality constraints; the write-up contains method details.</p>
         </div>
-        <!-- TODO: Replace placeholder media with real screenshots/GIFs in content.json.caseStudies[].media. -->
-        <div class="case-media-grid" id="case-media-grid"></div>
+        <div class="case-media-grid" id="case-media-grid">
+          <figure class="media-card">
+            <img src="./assets/projects/chanel-thumb.svg" alt="Sanitized visual for CHANEL mixed-type outlier detection case study." loading="lazy" decoding="async" />
+            <figcaption>SCREENSHOT · Sanitized visual; public technical detail is provided in the write-up.</figcaption>
+          </figure>
+        </div>
       </section>
 
-      <section class="case-grid">
+      <section class="case-grid case-grid-plain">
         <article class="case-block">
           <h2>Context</h2>
-          <ul id="case-context"></ul>
+          <ul id="case-context">
+            <li>Built during an internship in CHANEL Europe's Advanced Analytics and Data Science team.</li>
+            <li>Project served finance stakeholders who needed stronger trust in SAP-driven accounting data.</li>
+            <li>Because the underlying production data and workflows are confidential, shared artifacts focus on the method.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Problem</h2>
-          <ul id="case-problem"></ul>
+          <ul id="case-problem">
+            <li>Global thresholds were not sufficient because many anomalies were only abnormal within a specific categorical branch.</li>
+            <li>Some risky transactions had normal-looking amounts but suspicious combinations of categorical attributes.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Constraints</h2>
-          <ul id="case-constraints"></ul>
+          <ul id="case-constraints">
+            <li>Data mixed numeric amounts with high-cardinality hierarchical categorical fields from business systems.</li>
+            <li>Outputs had to remain interpretable and easy to triage in finance review workflows.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Approach</h2>
-          <ul id="case-approach"></ul>
+          <ul id="case-approach">
+            <li>Built two complementary detectors: one for amount anomalies conditioned on transaction context, and one for anomalous categorical combinations.</li>
+            <li>Used hierarchy-aware categorical representations so parent-child category structure remained informative.</li>
+            <li>Generated ranked anomaly candidates with clear reason signals to support analyst investigation.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Results</h2>
-          <ul id="case-results"></ul>
+          <ul id="case-results">
+            <li>Delivered a reusable algorithmic workflow for mixed-type outlier detection in hierarchical accounting data.</li>
+            <li>Published a technical note summarizing the method: Combination Outlier Detection.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Tech Stack</h2>
-          <ul id="case-tech-stack"></ul>
+          <ul id="case-tech-stack">
+            <li>Python</li>
+            <li>Machine Learning</li>
+            <li>Data Quality</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Artifacts</h2>
-          <!-- TODO: Add code/demo/slides links in content.json.caseStudies[].artifacts. -->
-          <div class="artifacts-row" id="case-artifacts-block" aria-label="Case-study artifacts details"></div>
+          <!-- Proprietary project: only public artifact links are shown. -->
+          <p>Code, demo, and slides are not publicly shareable for this project.</p>
+          <div class="artifacts-row" id="case-artifacts-block" aria-label="Case-study artifacts details">
+            <a class="artifact-link" href="./assets/projects/Combination_Outlier_Detection.pdf">
+              <span class="artifact-icon" aria-hidden="true">Doc</span>
+              <span>Write-up</span>
+            </a>
+          </div>
         </article>
 
         <article class="case-block">
           <h2>What I Would Improve Next</h2>
-          <ul id="case-next-improvements"></ul>
+          <ul id="case-next-improvements">
+            <li>Add formal model and data drift monitoring dashboards.</li>
+            <li>Package reusable quality checks for faster rollout across adjacent finance datasets.</li>
+          </ul>
         </article>
       </section>
     </main>

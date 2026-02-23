@@ -33,6 +33,26 @@ const checkAssetExists = async (url) => {
   }
 };
 
+const loadCaseData = async () => {
+  try {
+    const res = await fetch('./content.json');
+    if (res.ok) return await res.json();
+  } catch {
+    // Fall through to embedded fallback data.
+  }
+
+  const embedded = qs('#case-study-fallback-data');
+  if (embedded) {
+    try {
+      return JSON.parse(embedded.textContent || '{}');
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
 const ARTIFACT_TYPES = [
   { key: 'code', label: 'Code', icon: '</>' },
   { key: 'demo', label: 'Demo', icon: 'Demo' },
@@ -128,16 +148,23 @@ const renderCaseStudy = async () => {
   const caseId = clean(document.body.dataset.caseStudyId);
   if (!caseId) return;
 
-  const res = await fetch('./content.json');
-  if (!res.ok) return;
+  const data = await loadCaseData();
+  if (!data) {
+    // Standalone fallback mode: keep static HTML content as-is.
+    const footer = qs('#footer-text');
+    if (footer) {
+      const currentYear = String(new Date().getFullYear());
+      footer.textContent = footer.textContent.replace(/\b\d{4}\b/, currentYear);
+    }
+    return;
+  }
 
-  const data = await res.json();
   const caseStudy = Array.isArray(data.caseStudies)
     ? data.caseStudies.find((item) => item.id === caseId)
     : null;
 
-  if (qs('#brand-title')) qs('#brand-title').textContent = data.headline;
-  if (qs('#footer-text')) qs('#footer-text').textContent = `© ${new Date().getFullYear()} ${data.name}`;
+  if (qs('#brand-title') && clean(data.headline)) qs('#brand-title').textContent = data.headline;
+  if (qs('#footer-text') && clean(data.name)) qs('#footer-text').textContent = `© ${new Date().getFullYear()} ${data.name}`;
 
   const navResume = qs('#case-nav-resume-link');
   const resumeUrl = clean(data.links?.resume);
@@ -151,12 +178,7 @@ const renderCaseStudy = async () => {
     }
   }
 
-  if (!caseStudy) {
-    // TODO: Ensure each case-study page has a matching entry in content.json.caseStudies.
-    if (qs('#case-title')) qs('#case-title').textContent = 'Case study not found';
-    if (qs('#case-summary')) qs('#case-summary').textContent = 'TODO: Add matching case-study entry in content.json.';
-    return;
-  }
+  if (!caseStudy) return;
 
   if (qs('#case-title')) qs('#case-title').textContent = caseStudy.title;
 
@@ -164,8 +186,9 @@ const renderCaseStudy = async () => {
   if (qs('#case-meta')) qs('#case-meta').textContent = metaParts.join(' · ');
   if (qs('#case-summary')) qs('#case-summary').textContent = clean(caseStudy.summary);
 
-  renderArtifacts(qs('#case-artifacts-top'), caseStudy.artifacts, true);
-  renderArtifacts(qs('#case-artifacts-block'), caseStudy.artifacts, true);
+  const showArtifactTodos = caseStudy.showArtifactTodos !== false;
+  renderArtifacts(qs('#case-artifacts-top'), caseStudy.artifacts, showArtifactTodos);
+  renderArtifacts(qs('#case-artifacts-block'), caseStudy.artifacts, showArtifactTodos);
 
   renderList('#case-context', caseStudy.context, 'TODO: Add context details.');
   renderList('#case-problem', caseStudy.problem, 'TODO: Add problem statement details.');

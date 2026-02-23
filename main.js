@@ -58,7 +58,6 @@ const createButton = ({ label, url, primary = false, todoLabel = '' }) => {
     return link;
   }
 
-  // TODO: Fill missing CTA link in content.json so this disabled placeholder is not rendered.
   const span = document.createElement('span');
   span.className = `button ${primary ? 'primary' : 'ghost'} button-disabled`;
   span.setAttribute('aria-disabled', 'true');
@@ -170,7 +169,7 @@ const renderFeaturedProjects = (projects = []) => {
 
     const artifacts = makeEl('div', 'artifacts-row');
     artifacts.setAttribute('aria-label', `${project.title} artifacts`);
-    renderArtifacts(artifacts, project.artifacts, true);
+    renderArtifacts(artifacts, project.artifacts, false);
     body.appendChild(artifacts);
 
     if (clean(project.caseStudyPage) && !clean(project.artifacts?.writeup)) {

@@ -632,6 +632,29 @@ img {
   gap: 18px;
 }
 
+.case-grid-plain {
+  gap: 22px;
+}
+
+.case-grid-plain .case-block {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--outline-soft);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0 0 14px;
+}
+
+.case-grid-plain .case-block:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.case-standalone-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-bottom: 24px;
+}
+
 .case-block {
   background: var(--panel);
   border: 1px solid var(--outline-soft);
@@ -644,6 +667,10 @@ img {
 
 .case-block h2 {
   font-size: 1.25rem;
+}
+
+.case-block p {
+  color: var(--muted);
 }
 
 .case-block ul {
