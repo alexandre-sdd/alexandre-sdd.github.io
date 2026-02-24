@@ -105,7 +105,7 @@ const renderList = (selector, items = [], fallbackTodo) => {
   container.appendChild(todo);
 };
 
-const renderMedia = (mediaItems = []) => {
+const renderMedia = (mediaItems = [], caseTitle = 'case study') => {
   const mediaGrid = qs('#case-media-grid');
   if (!mediaGrid) return;
   mediaGrid.innerHTML = '';
@@ -115,7 +115,7 @@ const renderMedia = (mediaItems = []) => {
     const placeholder = makeEl('figure', 'media-card');
     const img = document.createElement('img');
     img.src = './assets/placeholder.svg';
-    img.alt = 'Placeholder case-study visual.';
+    img.alt = `Supporting visual for ${caseTitle}.`;
     img.loading = 'lazy';
     placeholder.appendChild(img);
     placeholder.appendChild(makeEl('figcaption', '', 'TODO: Add screenshot or GIF.'));
@@ -128,7 +128,7 @@ const renderMedia = (mediaItems = []) => {
     const img = document.createElement('img');
     // TODO: Replace fallback placeholder.svg with real media sources in content.json.
     img.src = clean(item.src) || './assets/placeholder.svg';
-    img.alt = clean(item.alt) || 'Case-study visual.';
+    img.alt = clean(item.alt) || `Supporting visual for ${caseTitle}.`;
     img.loading = 'lazy';
     img.decoding = 'async';
     figure.appendChild(img);
@@ -198,7 +198,7 @@ const renderCaseStudy = async () => {
   renderList('#case-tech-stack', caseStudy.techStack, 'TODO: Add tech stack details.');
   renderList('#case-next-improvements', caseStudy.nextImprovements, 'TODO: Add next-iteration improvements.');
 
-  renderMedia(caseStudy.media);
+  renderMedia(caseStudy.media, clean(caseStudy.title) || 'case study');
 };
 
 renderCaseStudy().catch(() => {});

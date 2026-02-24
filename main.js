@@ -72,33 +72,20 @@ const ARTIFACT_TYPES = [
   { key: 'slides', label: 'Slides', icon: 'Deck' }
 ];
 
-const renderArtifacts = (container, artifacts = {}, showTodos = true) => {
+const renderArtifacts = (container, artifacts = {}) => {
   if (!container) return;
   container.innerHTML = '';
 
   ARTIFACT_TYPES.forEach((item) => {
     const href = clean(artifacts[item.key]);
-    if (href) {
-      const link = makeEl('a', 'artifact-link');
-      setLinkAttrs(link, href);
-      const icon = makeEl('span', 'artifact-icon', item.icon);
-      icon.setAttribute('aria-hidden', 'true');
-      const label = makeEl('span', '', item.label);
-      link.append(icon, label);
-      container.appendChild(link);
-      return;
-    }
-
-    if (showTodos) {
-      // TODO: Add missing artifact links in content.json (code/demo/writeup/slides).
-      const todo = makeEl('span', 'artifact-link todo');
-      todo.setAttribute('data-todo', `TODO: Add ${item.label.toLowerCase()} link.`);
-      const icon = makeEl('span', 'artifact-icon', item.icon);
-      icon.setAttribute('aria-hidden', 'true');
-      const label = makeEl('span', '', `${item.label}: Add link`);
-      todo.append(icon, label);
-      container.appendChild(todo);
-    }
+    if (!href) return;
+    const link = makeEl('a', 'artifact-link');
+    setLinkAttrs(link, href);
+    const icon = makeEl('span', 'artifact-icon', item.icon);
+    icon.setAttribute('aria-hidden', 'true');
+    const label = makeEl('span', '', item.label);
+    link.append(icon, label);
+    container.appendChild(link);
   });
 };
 
@@ -150,7 +137,7 @@ const renderFeaturedProjects = (projects = []) => {
     const image = document.createElement('img');
     // TODO: Replace placeholder thumbnail with project screenshot/GIF preview.
     image.src = clean(project.thumbnail) || './assets/placeholder.svg';
-    image.alt = `${project.title} project thumbnail`;
+    image.alt = `Preview visual for ${clean(project.title) || 'project'}`;
     image.loading = 'lazy';
     card.appendChild(image);
 
@@ -169,7 +156,7 @@ const renderFeaturedProjects = (projects = []) => {
 
     const artifacts = makeEl('div', 'artifacts-row');
     artifacts.setAttribute('aria-label', `${project.title} artifacts`);
-    renderArtifacts(artifacts, project.artifacts, false);
+    renderArtifacts(artifacts, project.artifacts);
     body.appendChild(artifacts);
 
     if (clean(project.caseStudyPage) && !clean(project.artifacts?.writeup)) {

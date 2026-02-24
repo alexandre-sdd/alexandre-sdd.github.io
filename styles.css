@@ -764,6 +764,13 @@ img {
   }
 }
 
+@media (max-width: 600px) {
+  #hero-name {
+    font-size: 2rem;
+    line-height: 1.12;
+  }
+}
+
 @media (min-width: 761px) {
   .back-to-top {
     display: none;
