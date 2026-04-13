@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Case study: Forvia sensor fusion prototype for vehicle tracking." />
+  <meta name="description" content="Case study: Forvia multi-sensor localization research using camera-derived priors, array measurements, and optimal transport." />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="Forvia Camera Radar Fusion Prototype | Case Study" />
-  <meta property="og:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta property="og:title" content="Forvia Multi-Sensor Localization Research | Case Study" />
+  <meta property="og:description" content="Research project on multi-sensor localization using camera-derived priors, array measurements, and an optimal-transport-based fusion approach." />
   <meta property="og:url" content="https://alexandre-sdd.github.io/case-study-forvia.html" />
   <meta property="og:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Forvia Camera Radar Fusion Prototype | Case Study" />
-  <meta name="twitter:description" content="Data Scientist, ML Engineer, Analytics, NYC, anomaly detection, time series." />
+  <meta name="twitter:title" content="Forvia Multi-Sensor Localization Research | Case Study" />
+  <meta name="twitter:description" content="Research project on multi-sensor localization using camera-derived priors, array measurements, and an optimal-transport-based fusion approach." />
   <meta name="twitter:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
   <link rel="canonical" href="https://alexandre-sdd.github.io/case-study-forvia.html" />
-  <title>Forvia Camera Radar Fusion Prototype | Case Study</title>
+  <title>Forvia Multi-Sensor Localization Research | Case Study</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,85 +25,148 @@
   <div class="page case-page">
     <header class="site-header">
       <div class="brand">
-        <a class="brand-name" href="./index.html">Alexandre Sepulveda De Dietrich</a>
+        <a class="brand-name" href="./index.html">Alexandre SEPULVEDA de DIETRICH</a>
         <span class="brand-title" id="brand-title">Data Scientist and Business Analytics MS candidate</span>
       </div>
       <nav class="site-nav" aria-label="Primary">
-        <a href="./index.html">Home</a>
-        <a href="./index.html#projects">Projects</a>
-        <a href="./case-study-chanel.html">Chanel Case Study</a>
-        <a href="./case-study-forvia.html">Forvia Case Study</a>
-        <!-- TODO: Replace placeholder resume PDF in assets/resume/Alexandre_Resume.pdf. -->
+        <a href="./index.html">Back to Portfolio</a>
         <a id="case-nav-resume-link" href="./assets/resume/Alexandre_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
-        <a href="./index.html#contact">Contact</a>
+        <a href="mailto:aes2399@columbia.edu">Contact</a>
       </nav>
     </header>
 
     <main>
       <section class="case-hero">
         <p class="eyebrow">Case Study</p>
-        <h1 id="case-title">Forvia Camera Radar Fusion Prototype</h1>
-        <p class="meta" id="case-meta">Research Project · CentraleSupélec L2S Lab and Forvia</p>
-        <p class="case-summary" id="case-summary">Sensor fusion prototype for vehicle tracking using camera and ranging sensor data.</p>
-        <!-- TODO: Add code/demo/slides links in content.json.caseStudies[].artifacts. -->
-        <div class="case-top-links artifacts-row" id="case-artifacts-top" aria-label="Case-study artifacts"></div>
+        <h1 id="case-title">Forvia Multi-Sensor Localization Research</h1>
+        <p class="meta" id="case-meta">Research Project · CentraleSupélec L2S Lab and Forvia · Gif-sur-Yvette, France · Feb 2024 - Jun 2024</p>
+        <p class="case-summary" id="case-summary">Research project on multi-sensor localization using camera-derived priors and array measurements with an optimal-transport-based fusion approach.</p>
+        <div class="case-top-links artifacts-row" id="case-artifacts-top" aria-label="Case-study artifacts">
+          <a class="artifact-link" href="https://github.com/alexandre-sdd/Forvia_OT_tracking" target="_blank" rel="noreferrer">
+            <span class="artifact-icon" aria-hidden="true">&lt;/&gt;</span>
+            <span>Code</span>
+          </a>
+          <a class="artifact-link" href="./assets/projects/Forvia_Tracking.pdf">
+            <span class="artifact-icon" aria-hidden="true">Doc</span>
+            <span>Write-up</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="case-grid case-standalone-grid" aria-label="Standalone overview">
+        <article class="case-block">
+          <h2>Executive Summary</h2>
+          <ul>
+            <li>Built in a collaboration between CentraleSupélec L2S Lab and Forvia.</li>
+            <li>Explored whether lower-cost sensing could support robust localization in controlled conditions.</li>
+            <li>Combined a camera-derived spatial prior with array-based likelihood maps.</li>
+            <li>Used an optimal-transport-based fusion objective to reconcile both sensing modalities.</li>
+            <li>Documented the method and experiments in a research report.</li>
+          </ul>
+        </article>
+
+        <article class="case-block">
+          <h2>Artifacts Scope</h2>
+          <ul>
+            <li>The public repo contains the research code and experiment structure.</li>
+            <li>The public write-up documents the setup, method, and findings.</li>
+            <li>No polished demo is provided because the work is research-oriented rather than productized.</li>
+            <li>This page focuses on the research framing, method, and experimental outcomes.</li>
+          </ul>
+        </article>
       </section>
 
       <section class="section">
         <div class="section-header">
           <h2>Visuals</h2>
-          <p>Screenshots and GIFs are lazy-loaded to keep the page fast.</p>
+          <p>Supporting visuals are simplified here; the report contains the fuller methodological detail.</p>
         </div>
-        <!-- TODO: Replace placeholder media with real screenshots/GIFs in content.json.caseStudies[].media. -->
-        <div class="case-media-grid" id="case-media-grid"></div>
+        <div class="case-media-grid" id="case-media-grid">
+          <figure class="media-card">
+            <img src="./assets/projects/forvia-thumb.svg" alt="Placeholder visual for Forvia multi-sensor localization case study." loading="lazy" decoding="async" />
+            <figcaption>GIF · Research report is available in project artifacts.</figcaption>
+          </figure>
+        </div>
       </section>
 
-      <section class="case-grid">
+      <section class="case-grid case-grid-plain">
         <article class="case-block">
           <h2>Context</h2>
-          <ul id="case-context"></ul>
+          <ul id="case-context">
+            <li>Built in a collaboration between CentraleSupélec L2S Lab and Forvia.</li>
+            <li>Project explored whether lower-cost sensing could support robust localization in controlled conditions.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Problem</h2>
-          <ul id="case-problem"></ul>
+          <ul id="case-problem">
+            <li>Single-sensor signals were not sufficiently robust for stable localization on their own.</li>
+            <li>The team needed a fusion prototype that could combine a camera prior with array-based measurements.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Constraints</h2>
-          <ul id="case-constraints"></ul>
+          <ul id="case-constraints">
+            <li>Sensor alignment and synchronization had to remain stable across test conditions.</li>
+            <li>Camera priors and array likelihoods had different noise and resolution characteristics.</li>
+            <li>Prototype scope focused on controlled test-area validation rather than full production deployment.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Approach</h2>
-          <ul id="case-approach"></ul>
+          <ul id="case-approach">
+            <li>Built a camera-derived spatial prior from image-processing outputs.</li>
+            <li>Generated spatial likelihood maps from array measurements and fused them with an optimal-transport-based objective.</li>
+            <li>Validated localization behavior through controlled experiments and shared findings with partners.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Results</h2>
-          <ul id="case-results"></ul>
+          <ul id="case-results">
+            <li>Produced a working multi-sensor localization pipeline for controlled experiments.</li>
+            <li>Authored a research report documenting the setup, method, and findings.</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Tech Stack</h2>
-          <ul id="case-tech-stack"></ul>
+          <ul id="case-tech-stack">
+            <li>Computer Vision</li>
+            <li>Sensor Fusion</li>
+            <li>Optimal Transport</li>
+          </ul>
         </article>
 
         <article class="case-block">
           <h2>Artifacts</h2>
-          <!-- TODO: Add code/demo/slides links in content.json.caseStudies[].artifacts. -->
-          <div class="artifacts-row" id="case-artifacts-block" aria-label="Case-study artifacts details"></div>
+          <div class="artifacts-row" id="case-artifacts-block" aria-label="Case-study artifacts details">
+            <a class="artifact-link" href="https://github.com/alexandre-sdd/Forvia_OT_tracking" target="_blank" rel="noreferrer">
+              <span class="artifact-icon" aria-hidden="true">&lt;/&gt;</span>
+              <span>Code</span>
+            </a>
+            <a class="artifact-link" href="./assets/projects/Forvia_Tracking.pdf">
+              <span class="artifact-icon" aria-hidden="true">Doc</span>
+              <span>Write-up</span>
+            </a>
+          </div>
         </article>
 
         <article class="case-block">
           <h2>What I Would Improve Next</h2>
-          <ul id="case-next-improvements"></ul>
+          <ul id="case-next-improvements">
+            <li>Evaluate robustness under additional lighting and motion conditions.</li>
+            <li>Add confidence scoring and failure-case analysis for each tracking sequence.</li>
+          </ul>
         </article>
       </section>
     </main>
 
     <footer class="site-footer">
-      <span id="footer-text">© 2026 Alexandre Sepulveda De Dietrich</span>
+      <span id="footer-text">© 2026 Alexandre SEPULVEDA de DIETRICH</span>
     </footer>
   </div>
 
