@@ -178,23 +178,23 @@
     {
       "id": "zeit-project",
       "title": "Zeit",
-      "summary": "Private intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
-      "result": "Early private build focused on the API and data-model foundation for a solver-backed scheduling product.",
+      "summary": "Intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
+      "result": "Established the public API and data-model foundation for a solver-backed scheduling product, with clear extension points for planning logic.",
       "highlights": [
         "Defined core scheduling entities for tasks, events, and generated blocks.",
         "Set up a FastAPI service skeleton ready for CRUD endpoints and solver integration.",
-        "Private project, presented for product direction and systems design rather than public code artifacts."
+        "Early-stage public repo that shows the product direction and systems design for a planning assistant."
       ],
       "tags": [
         "FastAPI",
         "OR-Tools",
         "Scheduling",
-        "Private Project"
+        "Product Infrastructure"
       ],
       "artifacts": {
-        "code": "",
+        "code": "https://github.com/alexandre-sdd/zeit-project",
         "demo": "",
-        "writeup": "",
+        "writeup": "https://github.com/alexandre-sdd/zeit-project/blob/main/README.md",
         "slides": ""
       }
     },
