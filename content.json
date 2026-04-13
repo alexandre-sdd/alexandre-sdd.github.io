@@ -29,7 +29,7 @@
     "email": "aes2399@columbia.edu",
     "github": "https://github.com/alexandre-sdd",
     "linkedin": "https://www.linkedin.com/in/asepulvedadedietrich/",
-    "resume": "./assets/resume/Alexandre_Resume.pdf"
+    "resume": "./assets/resume/resume_april.pdf"
   },
   "projects": [
     {
@@ -337,36 +337,46 @@
   ],
   "experience": [
     {
-      "company": "CHANEL Europe",
-      "role": "Data Scientist Intern, Advanced Analytics and Data Science",
-      "location": "Paris, France",
-      "dates": "Sep 2024 - May 2025",
+      "company": "Columbia Business School & CUIMC",
+      "role": "Research Assistant",
+      "location": "New York, NY",
+      "dates": "Mar 2026 - Present",
       "highlights": [
-        "Built an accounting data quality and anomaly detection pipeline.",
-        "Developed mixed data detection workflows and experiment tracking.",
-        "Collaborated with finance stakeholders on deployment needs."
+        "Developing a discrete-event simulation of outpatient appointment scheduling to study the link between delays, no-shows, cancellations, and patient access.",
+        "Evaluating policies such as FCFS, reserved capacity, booking windows, and overbooking across utilization and financial metrics."
       ]
     },
     {
-      "company": "SIGMA Group",
-      "role": "Data Analyst Intern, Commercial Excellence Europe",
+      "company": "Junior CentraleSupelec (JCS) – Nantes University Hospital",
+      "role": "Data & Operations Consultant (Healthcare Planning & Forecasting)",
+      "location": "Remote, France",
+      "dates": "Feb 2026 - Present",
+      "highlights": [
+        "Scoping hospital operations tools for emergency patient-flow forecasting and physician scheduling optimization.",
+        "Eliciting stakeholder needs and translating operational rules, staffing constraints, and workflow requirements into modeling specifications for a complex scheduling system involving about 80 physicians.",
+        "Building decision-support models for patient-flow forecasting and schedule generation under workload, overtime, prioritization, and feasibility constraints."
+      ]
+    },
+    {
+      "company": "SIGMA Group, Commercial Excellence Europe",
+      "role": "Data Analyst, Key Account Management",
       "location": "Madrid, Spain",
       "dates": "May 2025 - Aug 2025",
       "highlights": [
-        "Analyzed reseller performance across multiple markets.",
-        "Created dashboards for negotiation teams with standardized KPIs.",
-        "Enabled consistent reporting for account strategy planning."
+        "Reconciled fragmented commercial, budget, and ERP-style data across 6 countries and about 60 resellers to build a consistent European reporting layer.",
+        "Built 5 dashboards standardizing GP, NSV, and volume KPIs, giving negotiation teams a consolidated cross-country view.",
+        "Created mapping tables and repeatable transformation logic to align inconsistent identifiers, naming conventions, and local business definitions across sources."
       ]
     },
     {
-      "company": "CentraleSupélec L2S Lab and Forvia",
-      "role": "Research Project, Multi-Sensor Localization",
-      "location": "Gif-sur-Yvette, France",
-      "dates": "Feb 2024 - Jun 2024",
+      "company": "CHANEL Europe, Advanced Analytics & Data Science",
+      "role": "Data Scientist",
+      "location": "Paris, France",
+      "dates": "Sep 2024 - May 2025",
       "highlights": [
-        "Built a multi-sensor localization pipeline combining camera priors and array-based measurements.",
-        "Validated localization behavior in a controlled test area.",
-        "Shared findings with academic and industry partners."
+        "Led end-to-end development of CRAFT, an anomaly detection system over 30M+ accounting entries, from business scoping to near-production deployment for corporate finance teams.",
+        "Developed explainable anomaly-detection pipelines for hierarchical mixed data, integrating business rules, evolving mappings, and stakeholder-validated review workflows.",
+        "Designed clustering and multivariate forecasting methods for 300+ monthly sales series, enabling cluster-level forecasting templates in small-data settings."
       ]
     }
   ],
