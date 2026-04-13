@@ -191,6 +191,8 @@
         "Scheduling",
         "Product Infrastructure"
       ],
+      "featured": true,
+      "thumbnail": "./assets/projects/zeit-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/zeit-project",
         "demo": "",
