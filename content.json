@@ -131,18 +131,18 @@
     },
     {
       "id": "appointment-scheduling-dynamics",
-      "title": "Appointment Scheduling Dynamics",
-      "summary": "Healthcare operations research sandbox for simulating appointment backlogs, delay-sensitive no-shows, and policy tradeoffs.",
-      "result": "Includes reusable simulation modules, policy comparisons, and synthesized notes from queueing literature.",
+      "title": "CUIMC Appointment Scheduling Research",
+      "summary": "Research project with Columbia University Irving Medical Center under Prof. Carri Chan on delay-sensitive appointment scheduling, cancellations, no-shows, and policy tradeoffs.",
+      "result": "Built a reusable simulation package, formal modeling note, and policy-comparison notebooks for healthcare scheduling research.",
       "highlights": [
-        "Wraps queueing-model ideas from the literature in reusable Python modules and tests.",
-        "Useful portfolio evidence for simulation, policy comparison, and research synthesis work.",
-        "Needs a proper README before it should move higher in the portfolio."
+        "Developed a rolling-horizon simulator for delay-sensitive booking, cancellation, and no-show behavior.",
+        "Compared FCFS, reserved-capacity, and booking-window policies in a healthcare operations setting.",
+        "Research project with Prof. Carri Chan at CUIMC, with calibration to Columbia Doctors workflows and data planned."
       ],
       "tags": [
         "Simulation",
-        "Queueing",
-        "Healthcare Analytics",
+        "Research",
+        "Healthcare Operations",
         "Python"
       ],
       "artifacts": {
@@ -178,12 +178,12 @@
     {
       "id": "zeit-project",
       "title": "Zeit",
-      "summary": "Intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
-      "result": "Established the API and data-model foundation for a solver-backed scheduling product, with clear extension points for planning logic.",
+      "summary": "Private intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
+      "result": "Early private build focused on the API and data-model foundation for a solver-backed scheduling product.",
       "highlights": [
         "Defined core scheduling entities for tasks, events, and generated blocks.",
         "Set up a FastAPI service skeleton ready for CRUD endpoints and solver integration.",
-        "Useful portfolio support for product thinking around planning systems, even though the repo is still early-stage."
+        "Private project, presented for product direction and systems design rather than public code artifacts."
       ],
       "tags": [
         "FastAPI",
