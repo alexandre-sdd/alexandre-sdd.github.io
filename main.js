@@ -131,7 +131,7 @@ const renderFeaturedProjects = (projects = []) => {
   if (!featuredGrid) return;
   featuredGrid.innerHTML = '';
 
-  projects.slice(0, 2).forEach((project) => {
+  projects.slice(0, 3).forEach((project) => {
     const card = makeEl('article', 'featured-card');
 
     const image = document.createElement('img');
@@ -184,6 +184,13 @@ const renderOtherProjects = (projects = []) => {
       const tags = makeEl('div', 'tags');
       project.tags.forEach((tag) => tags.appendChild(makeEl('span', 'tag', tag)));
       card.appendChild(tags);
+    }
+
+    const artifacts = makeEl('div', 'artifacts-row');
+    artifacts.setAttribute('aria-label', `${project.title} artifacts`);
+    renderArtifacts(artifacts, project.artifacts);
+    if (artifacts.childElementCount > 0) {
+      card.appendChild(artifacts);
     }
 
     grid.appendChild(card);
@@ -336,7 +343,7 @@ const render = async () => {
   renderImpactHighlights(data.impactHighlights || []);
 
   const projects = Array.isArray(data.projects) ? data.projects : [];
-  const featured = projects.filter((project) => project.featured).slice(0, 2);
+  const featured = projects.filter((project) => project.featured).slice(0, 3);
   const featuredIds = new Set(featured.map((project) => project.id));
   const other = projects.filter((project) => !featuredIds.has(project.id));
 

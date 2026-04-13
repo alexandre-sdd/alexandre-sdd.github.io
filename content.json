@@ -3,11 +3,11 @@
   "headline": "Data Scientist and Business Analytics MS candidate",
   "location": "New York, NY",
   "availability": "Summer 2026",
-  "targetRoleLine": "Seeking Summer 2026 Data Science / ML internships in NYC",
-  "about": "I focus on practical machine learning: build the model, stress-test the assumptions, and translate outputs into decisions non-technical partners can trust.",
+  "targetRoleLine": "Seeking Summer 2026 Data Science, AI Engineering, and ML internships in NYC",
+  "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.",
   "heroProofBullets": [
     "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
-    "Built a camera and ranging sensor fusion pipeline with CentraleSupélec L2S Lab and Forvia."
+    "Shipped an end-to-end AI decision-support MVP with FastAPI, Next.js, and voice workflows."
   ],
   "recruiterQuickFacts": {
     "location": "New York, NY",
@@ -15,15 +15,15 @@
     "interests": [
       "Machine Learning",
       "AI Engineering",
+      "Optimization",
       "Analytics",
-      "Anomaly detection",
-      "Time series"
+      "LLM Products"
     ]
   },
   "impactHighlights": [
-    "Built production-grade data pipelines and analytics tooling for finance teams at Chanel",
-    "Delivered retail performance dashboards and decision tools used to steer commercial strategy",
-    "Applied signal processing and data science research with L2S (CNRS UMR 8506), Paris-Saclay"
+    "Built production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe",
+    "Shipped AI product MVPs and developer tools with FastAPI, Next.js, and LLM orchestration",
+    "Built optimization and simulation models for childcare access and healthcare appointment dynamics"
   ],
   "links": {
     "email": "aes2399@columbia.edu",
@@ -33,153 +33,169 @@
   },
   "projects": [
     {
-      "id": "chanel-europe-analytics-pipeline",
-      "title": "Chanel Europe Analytics Pipeline",
-      "summary": "Built a hierarchy-aware mixed-type outlier detection framework for SAP-style accounting data, covering both amount anomalies and anomalous categorical combinations.",
-      "result": "Delivered an interpretable scoring workflow for finance review and documented the method in a technical note.",
+      "id": "tomorrow-you",
+      "title": "Tomorrow You",
+      "summary": "Voice-first AI decision exploration app that turns a user's dilemma into branching future personas they can interview.",
+      "result": "Built and deployed a working FastAPI + Next.js MVP with text and voice onboarding plus branchable future-self conversations.",
       "highlights": [
-        "Modeled hierarchical categorical structures common in SAP-driven accounting systems.",
-        "Detected transaction-amount outliers conditionally on the categorical context of each transaction.",
-        "Added a second detector for unusual categorical combinations and ranked suspicious transactions for review."
+        "Structured an end-to-end product flow from onboarding interview through branching conversations.",
+        "Connected LLM-driven profile extraction and future generation with a production-style API surface.",
+        "Added a deployed frontend experience to make the concept reviewable outside the repo."
       ],
       "tags": [
-        "Python",
-        "Outlier Detection",
-        "Hierarchical Data"
+        "FastAPI",
+        "Next.js",
+        "LLMs",
+        "Product MVP"
       ],
       "featured": true,
-      "thumbnail": "./assets/projects/chanel-thumb.svg",
-      "caseStudyPage": "./case-study-chanel.html",
+      "thumbnail": "./assets/projects/tomorrow-you-thumb.svg",
       "artifacts": {
-        "code": "",
-        "demo": "",
-        "writeup": "./assets/projects/Combination_Outlier_Detection.pdf",
-        "slides": ""
-      }
-    },
-    {
-      "id": "forvia-camera-radar-fusion-prototype",
-      "title": "Forvia Camera Radar Fusion Prototype",
-      "summary": "Research project on camera and radar fusion for vehicle tracking in controlled conditions.",
-      "result": "Validated tracking behavior in controlled tests and produced a research report.",
-      "highlights": [
-        "Implemented camera-radar alignment and synchronization pipeline steps.",
-        "Ran controlled experiments to evaluate multi-sensor tracking behavior.",
-        "Documented methodology and findings in a formal research report."
-      ],
-      "tags": [
-        "Computer Vision",
-        "Sensor Fusion",
-        "Research"
-      ],
-      "featured": true,
-      "thumbnail": "./assets/projects/forvia-thumb.svg",
-      "caseStudyPage": "./case-study-forvia.html",
-      "artifacts": {
-        "code": "",
-        "demo": "",
-        "writeup": "./assets/projects/Forvia_Tracking.pdf",
+        "code": "https://github.com/alexandre-sdd/tomorrow-you",
+        "demo": "https://tomorrow-you.vercel.app",
+        "writeup": "https://github.com/alexandre-sdd/tomorrow-you/blob/main/architecture.md",
         "slides": ""
       }
     },
     {
       "id": "helpfullens",
       "title": "HelpfulLens",
-      "summary": "Accessibility oriented product concept focused on quick, helpful context.",
+      "summary": "Yelp review helpfulness modeling pipeline with sentiment-enriched features, reproducible data prep, and exploratory analysis helpers.",
+      "result": "Built an end-to-end Python workflow from raw Yelp dumps through feature engineering, EDA, and modeling artifacts.",
       "highlights": [
-        "Defined user scenarios and core pain points.",
-        "Outlined a lightweight workflow for context delivery.",
-        "Documented next steps for validation."
+        "Built ingest and cleaning steps for Yelp review data without heavy platform dependencies.",
+        "Added sentiment-enriched feature engineering with lightweight and transformer-based options.",
+        "Packaged the work as a reproducible applied-ML repo with reports and notebooks."
       ],
       "tags": [
-        "Product",
-        "UX",
-        "Research"
-      ],
-      "artifacts": {
-        "code": "",
-        "demo": "",
-        "writeup": "",
-        "slides": ""
-      }
-    },
-    {
-      "id": "finants",
-      "title": "FinAnts",
-      "summary": "Personal finance analytics prototype for clarity and decision support.",
-      "highlights": [
-        "Structured a data model for transactions and categories.",
-        "Designed key metrics for cash flow and savings.",
-        "Mapped a roadmap for future insights."
-      ],
-      "tags": [
-        "Analytics",
-        "Data Modeling"
-      ],
-      "artifacts": {
-        "code": "",
-        "demo": "",
-        "writeup": "",
-        "slides": ""
-      }
-    },
-    {
-      "id": "zeit",
-      "title": "Zeit",
-      "summary": "Time focused productivity concept with a data first approach.",
-      "highlights": [
-        "Mapped core user journeys and friction points.",
-        "Designed a weekly review workflow.",
-        "Identified opportunities for behavioral analytics."
-      ],
-      "tags": [
-        "Product",
-        "Strategy"
-      ],
-      "artifacts": {
-        "code": "",
-        "demo": "",
-        "writeup": "",
-        "slides": ""
-      }
-    },
-    {
-      "id": "resume-readiness-intelligence-engine",
-      "title": "Resume Readiness Intelligence Engine",
-      "summary": "Concept for assessing resume readiness with structured criteria.",
-      "highlights": [
-        "Defined a rubric for clarity, impact, and relevance.",
-        "Designed outputs to guide targeted improvements.",
-        "Planned integration points for automated feedback."
-      ],
-      "tags": [
+        "Python",
         "NLP",
-        "Product"
+        "Feature Engineering",
+        "Applied ML"
       ],
+      "featured": true,
+      "thumbnail": "./assets/projects/helpfullens-thumb.svg",
       "artifacts": {
-        "code": "",
+        "code": "https://github.com/alexandre-sdd/HelpfulLens",
         "demo": "",
-        "writeup": "",
+        "writeup": "https://github.com/alexandre-sdd/HelpfulLens/blob/main/final_report/latex_skeleton_team.pdf",
         "slides": ""
       }
     },
     {
-      "id": "museum-companion-app-with-computer-vision",
-      "title": "Museum Companion App with Computer Vision",
-      "summary": "Concept app to support museum visitors with vision based discovery.",
+      "id": "childcare-deserts-nyc",
+      "title": "Childcare Deserts NYC",
+      "summary": "Optimization project for reducing NYC childcare deserts by combining facility expansions with new-site planning under cost and spacing constraints.",
+      "result": "Built a seven-stage notebook pipeline with ideal and realistic planning scenarios and exported report-ready tables and figures.",
       "highlights": [
-        "Outlined recognition and guidance flows.",
-        "Drafted UX for personalized content delivery.",
-        "Documented data and model requirements."
+        "Formulated the planning problem as a staged optimization workflow with shared cleaning and parameter estimation.",
+        "Compared benchmark and realistic deployment scenarios using structured notebook stages.",
+        "Produced report artifacts grounded in exported solution tables, figures, and solver logs."
       ],
       "tags": [
-        "Computer Vision",
-        "UX"
+        "Optimization",
+        "Gurobi",
+        "Urban Analytics",
+        "Operations Research"
+      ],
+      "featured": true,
+      "thumbnail": "./assets/projects/childcare-deserts-thumb.svg",
+      "artifacts": {
+        "code": "https://github.com/alexandre-sdd/childcare_deserts_nyc",
+        "demo": "",
+        "writeup": "https://github.com/alexandre-sdd/childcare_deserts_nyc/blob/main/report/opti_group_8_report.pdf",
+        "slides": ""
+      }
+    },
+    {
+      "id": "codebase-analyzer",
+      "title": "Codebase Analyzer",
+      "summary": "WIP developer tool that ingests a repository and produces architecture diagrams, structure reports, onboarding explanations, and starter tasks.",
+      "result": "Current MVP spans a Fastify API and lightweight web UI for local or GitHub repo inputs.",
+      "highlights": [
+        "Targets a real onboarding problem: helping engineers understand unfamiliar codebases quickly.",
+        "Combines repo crawling, artifact generation, and a lightweight review UI in one monorepo.",
+        "Strong fit for the portfolio as an active AI tooling build, but it still needs polish to move into the featured set."
+      ],
+      "tags": [
+        "TypeScript",
+        "Fastify",
+        "Developer Tools",
+        "LLMs"
       ],
       "artifacts": {
-        "code": "",
+        "code": "https://github.com/alexandre-sdd/codebase-analyzer",
         "demo": "",
-        "writeup": "",
+        "writeup": "https://github.com/alexandre-sdd/codebase-analyzer/blob/main/docs/PRODUCT.md",
+        "slides": ""
+      }
+    },
+    {
+      "id": "appointment-scheduling-dynamics",
+      "title": "Appointment Scheduling Dynamics",
+      "summary": "Healthcare operations research sandbox for simulating appointment backlogs, delay-sensitive no-shows, and policy tradeoffs.",
+      "result": "Includes reusable simulation modules, policy comparisons, and synthesized notes from queueing literature.",
+      "highlights": [
+        "Wraps queueing-model ideas from the literature in reusable Python modules and tests.",
+        "Useful portfolio evidence for simulation, policy comparison, and research synthesis work.",
+        "Needs a proper README before it should move higher in the portfolio."
+      ],
+      "tags": [
+        "Simulation",
+        "Queueing",
+        "Healthcare Analytics",
+        "Python"
+      ],
+      "artifacts": {
+        "code": "https://github.com/alexandre-sdd/research_cuimc_queuing",
+        "demo": "",
+        "writeup": "https://github.com/alexandre-sdd/research_cuimc_queuing/blob/main/Documents/generated_notes/knowledge_appointment_dynamics.md",
+        "slides": ""
+      }
+    },
+    {
+      "id": "linkedin-note-copilot",
+      "title": "LinkedIn Note Copilot",
+      "summary": "Chrome extension plus FastAPI backend for generating personalized LinkedIn connection notes from the current profile page.",
+      "result": "Built a working browser-extension workflow with configurable profile inputs and OpenAI-backed note generation.",
+      "highlights": [
+        "Combines browser automation ergonomics with a clean backend generation service.",
+        "Portfolio-relevant because it shows practical shipping instincts around workflow automation.",
+        "Should stay secondary until the parent repo is split or renamed to match the subproject."
+      ],
+      "tags": [
+        "Chrome Extension",
+        "FastAPI",
+        "OpenAI API",
+        "Automation"
+      ],
+      "artifacts": {
+        "code": "https://github.com/alexandre-sdd/organisation_tools/tree/main/Linkedin_cold_msg_extension",
+        "demo": "",
+        "writeup": "https://github.com/alexandre-sdd/organisation_tools/blob/main/Linkedin_cold_msg_extension/README.md",
+        "slides": ""
+      }
+    },
+    {
+      "id": "dna-plasmid-closure",
+      "title": "DNA Plasmid Closure with Genetic Algorithms",
+      "summary": "Evolutionary computation project that learns dinucleotide rotation parameters so 3D DNA trajectories close into plasmid loops.",
+      "result": "Implemented the genetic algorithm, 3D trajectory model, visualization tooling, and packaged docs/tests.",
+      "highlights": [
+        "Strong evidence of mathematical modeling and scientific computing depth.",
+        "Useful portfolio support for optimization and experimental workflow design.",
+        "Best presented as coursework or research engineering rather than a product build."
+      ],
+      "tags": [
+        "Genetic Algorithms",
+        "Scientific Computing",
+        "Python",
+        "Optimization"
+      ],
+      "artifacts": {
+        "code": "https://github.com/alexandre-sdd/EI_evolutionary_games",
+        "demo": "",
+        "writeup": "https://github.com/alexandre-sdd/EI_evolutionary_games/blob/main/docs/project_report.md",
         "slides": ""
       }
     }
@@ -243,39 +259,40 @@
     {
       "id": "forvia-camera-radar-fusion-prototype",
       "page": "./case-study-forvia.html",
-      "title": "Forvia Camera Radar Fusion Prototype",
+      "title": "Forvia Multi-Sensor Localization Research",
       "subtitle": "Research Project · CentraleSupélec L2S Lab and Forvia",
       "dates": "Feb 2024 - Jun 2024",
       "location": "Gif-sur-Yvette, France",
-      "summary": "Research project on camera and radar fusion for vehicle tracking in controlled conditions.",
+      "summary": "Research project on multi-sensor localization using camera-derived priors and array measurements with an optimal-transport-based fusion approach.",
       "context": [
         "Built in a collaboration between CentraleSupélec L2S Lab and Forvia.",
-        "Project explored practical multi-sensor tracking behavior in a controlled environment."
+        "Project explored whether lower-cost sensing could support robust localization in controlled conditions."
       ],
       "problem": [
-        "Single-sensor signals were insufficiently robust for stable tracking behavior.",
-        "Team needed a fusion prototype that aligned and combined camera and ranging data."
+        "Single-sensor signals were not sufficiently robust for stable localization on their own.",
+        "The team needed a fusion prototype that could combine a camera prior with array-based measurements."
       ],
       "constraints": [
         "Sensor alignment and synchronization had to remain stable across test conditions.",
+        "Camera priors and array likelihoods had different noise and resolution characteristics.",
         "Prototype scope focused on controlled test-area validation rather than full production deployment."
       ],
       "approach": [
-        "Implemented multi-sensor alignment techniques.",
-        "Built a camera and ranging sensor fusion pipeline.",
-        "Validated tracking behavior through controlled test runs and shared findings with partners."
+        "Built a camera-derived spatial prior from image-processing outputs.",
+        "Generated spatial likelihood maps from array measurements and fused them with an optimal-transport-based objective.",
+        "Validated localization behavior through controlled experiments and shared findings with partners."
       ],
       "results": [
-        "Validated tracking behavior in a controlled test area.",
+        "Produced a working multi-sensor localization pipeline for controlled experiments.",
         "Authored a research report documenting the setup, method, and findings."
       ],
       "techStack": [
         "Computer Vision",
         "Sensor Fusion",
-        "Optimization"
+        "Optimal Transport"
       ],
       "artifacts": {
-        "code": "",
+        "code": "https://github.com/alexandre-sdd/Forvia_OT_tracking",
         "demo": "",
         "writeup": "./assets/projects/Forvia_Tracking.pdf",
         "slides": ""
@@ -283,7 +300,7 @@
       "media": [
         {
           "src": "./assets/projects/forvia-thumb.svg",
-          "alt": "Placeholder visual for Forvia camera and radar fusion case study.",
+          "alt": "Placeholder visual for Forvia multi-sensor localization case study.",
           "caption": "Research report is available in project artifacts.",
           "type": "gif"
         }
@@ -319,12 +336,12 @@
     },
     {
       "company": "CentraleSupélec L2S Lab and Forvia",
-      "role": "Research Project, Sensor Fusion Vehicle Tracking",
+      "role": "Research Project, Multi-Sensor Localization",
       "location": "Gif-sur-Yvette, France",
       "dates": "Feb 2024 - Jun 2024",
       "highlights": [
-        "Built a camera and ranging sensor fusion pipeline.",
-        "Validated tracking accuracy in a controlled test area.",
+        "Built a multi-sensor localization pipeline combining camera priors and array-based measurements.",
+        "Validated localization behavior in a controlled test area.",
         "Shared findings with academic and industry partners."
       ]
     }
@@ -367,10 +384,10 @@
       "items": [
         "Python",
         "Pandas",
-        "Polars",
         "NumPy",
         "scikit-learn",
-        "sktime"
+        "PyTorch",
+        "Statistical Modeling"
       ]
     },
     {
@@ -384,10 +401,21 @@
       ]
     },
     {
-      "group": "ML Ops",
+      "group": "Optimization and Research",
       "items": [
-        "Azure ML",
-        "MLflow",
+        "Gurobi",
+        "Simulation",
+        "Experimental Design",
+        "Signal Processing"
+      ]
+    },
+    {
+      "group": "AI and Product Engineering",
+      "items": [
+        "FastAPI",
+        "Next.js",
+        "TypeScript",
+        "REST APIs",
         "Git"
       ]
     },
