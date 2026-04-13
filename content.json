@@ -73,7 +73,6 @@
         "Feature Engineering",
         "Applied ML"
       ],
-      "featured": true,
       "thumbnail": "./assets/projects/helpfullens-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/HelpfulLens",
@@ -160,8 +159,8 @@
       "result": "Built a working browser-extension workflow with configurable profile inputs and OpenAI-backed note generation.",
       "highlights": [
         "Combines browser automation ergonomics with a clean backend generation service.",
-        "Portfolio-relevant because it shows practical shipping instincts around workflow automation.",
-        "Should stay secondary until the parent repo is split or renamed to match the subproject."
+        "Presented as its own project because the shipped workflow is clearer than the umbrella utilities repo.",
+        "Strong supporting evidence of practical shipping instincts around workflow automation."
       ],
       "tags": [
         "Chrome Extension",
@@ -170,9 +169,32 @@
         "Automation"
       ],
       "artifacts": {
-        "code": "https://github.com/alexandre-sdd/organisation_tools/tree/main/Linkedin_cold_msg_extension",
+        "code": "https://github.com/alexandre-sdd/organisation_tools/tree/main/Linkedin_cold_msg_extenstion",
         "demo": "",
-        "writeup": "https://github.com/alexandre-sdd/organisation_tools/blob/main/Linkedin_cold_msg_extension/README.md",
+        "writeup": "https://github.com/alexandre-sdd/organisation_tools/blob/main/Linkedin_cold_msg_extenstion/README.md",
+        "slides": ""
+      }
+    },
+    {
+      "id": "zeit-project",
+      "title": "Zeit",
+      "summary": "Intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
+      "result": "Established the API and data-model foundation for a solver-backed scheduling product, with clear extension points for planning logic.",
+      "highlights": [
+        "Defined core scheduling entities for tasks, events, and generated blocks.",
+        "Set up a FastAPI service skeleton ready for CRUD endpoints and solver integration.",
+        "Useful portfolio support for product thinking around planning systems, even though the repo is still early-stage."
+      ],
+      "tags": [
+        "FastAPI",
+        "OR-Tools",
+        "Scheduling",
+        "Private Project"
+      ],
+      "artifacts": {
+        "code": "",
+        "demo": "",
+        "writeup": "",
         "slides": ""
       }
     },
