@@ -7,7 +7,7 @@
   "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.",
   "heroProofBullets": [
     "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
-    "Shipped an end-to-end AI decision-support MVP with FastAPI, Next.js, and voice workflows."
+    "Won the ElevenLabs voice AI track in NYC with a hackathon-built agent system for future-self decision support."
   ],
   "recruiterQuickFacts": {
     "location": "New York, NY",
@@ -35,24 +35,24 @@
     {
       "id": "tomorrow-you",
       "title": "Tomorrow You",
-      "summary": "Voice-first AI decision exploration app that turns a user's dilemma into branching future personas they can interview.",
-      "result": "Built and deployed a working FastAPI + Next.js MVP with text and voice onboarding plus branchable future-self conversations.",
+      "summary": "Hackathon-winning agent-based decision support system that turns structured user interviews into personalized future scenarios and interactive conversations with simulated future selves.",
+      "result": "Won Best Use of Voice AI in NYC on the ElevenLabs track and shipped an end-to-end FastAPI + Next.js prototype with multi-step reasoning and voice interaction pipelines.",
       "highlights": [
-        "Structured an end-to-end product flow from onboarding interview through branching conversations.",
-        "Connected LLM-driven profile extraction and future generation with a production-style API surface.",
-        "Added a deployed frontend experience to make the concept reviewable outside the repo."
+        "Built an end-to-end agent workflow that generates future scenarios from structured interviews and supports conversations with simulated future selves.",
+        "Designed multi-step reasoning and voice interaction pipelines with Mistral AI, ElevenLabs, FastAPI, and Next.js.",
+        "Public demo is temporarily offline during migration and API reroute; code and architecture write-up remain available."
       ],
       "tags": [
         "FastAPI",
         "Next.js",
-        "LLMs",
-        "Product MVP"
+        "ElevenLabs",
+        "Agent Systems"
       ],
       "featured": true,
       "thumbnail": "./assets/projects/tomorrow-you-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/tomorrow-you",
-        "demo": "https://tomorrow-you.vercel.app",
+        "demo": "./tomorrow-you-maintenance.html",
         "writeup": "https://github.com/alexandre-sdd/tomorrow-you/blob/main/architecture.md",
         "slides": ""
       }
