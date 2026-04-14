@@ -178,24 +178,24 @@
     {
       "id": "zeit-project",
       "title": "Zeit",
-      "summary": "Intelligent scheduling assistant skeleton built around FastAPI, SQLAlchemy, and OR-Tools for task, event, and time-block planning.",
-      "result": "Established the public API and data-model foundation for a solver-backed scheduling product, with clear extension points for planning logic.",
+      "summary": "FastAPI scheduling assistant prototype with a live demo, seeded weekly planning flow, and generated work blocks from tasks plus hard events.",
+      "result": "Built and deployed an end-to-end planning demo with seeded data, schedule generation, persisted blocks, and tests across API, solver, and UI flows.",
       "highlights": [
-        "Defined core scheduling entities for tasks, events, and generated blocks.",
-        "Set up a FastAPI service skeleton ready for CRUD endpoints and solver integration.",
-        "Early-stage public repo that shows the product direction and systems design for a planning assistant."
+        "Added a server-rendered demo UI plus JSON endpoints for tasks, events, blocks, demo reset, and schedule generation.",
+        "Implemented a weekday scheduler that respects hard events, due dates, and work-window limits while surfacing unscheduled tasks clearly.",
+        "Made the project interview-ready with deterministic seed/reset flows, automated tests, and a public Railway deployment."
       ],
       "tags": [
         "FastAPI",
         "OR-Tools",
         "Scheduling",
-        "Product Infrastructure"
+        "SQLAlchemy"
       ],
       "featured": true,
       "thumbnail": "./assets/projects/zeit-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/zeit-project",
-        "demo": "",
+        "demo": "https://zeit-project-production.up.railway.app/",
         "writeup": "https://github.com/alexandre-sdd/zeit-project/blob/main/README.md",
         "slides": ""
       }
