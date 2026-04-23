@@ -107,6 +107,11 @@ const renderHeroLinks = (data, resumeReady) => {
   }));
 
   heroLinks.appendChild(createButton({
+    label: 'AI Interview',
+    url: './interview/'
+  }));
+
+  heroLinks.appendChild(createButton({
     label: 'GitHub',
     url: githubUrl,
     todoLabel: 'GitHub (Add link)'

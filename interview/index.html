@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive recruiter interview simulator grounded in Alexandre's portfolio evidence." />
+  <title>Interview Me Through My Work | Alexandre SDD</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page interview-page">
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-name">Interview Me Through My Work</span>
+        <span class="brand-title">Grounded recruiter interview simulator</span>
+      </div>
+      <nav class="site-nav" aria-label="Page">
+        <a href="../index.html">Portfolio</a>
+        <a href="../index.html#projects">Projects</a>
+        <a href="../index.html#case-studies">Case Studies</a>
+      </nav>
+    </header>
+
+    <main class="interview-layout">
+      <section class="section interview-hero">
+        <div class="hero-text">
+          <p class="eyebrow">Interactive MVP</p>
+          <h1>Test Alexandre like an interviewer, with evidence on every answer.</h1>
+          <p class="lead">
+            This page simulates a recruiter or hiring-manager conversation. Answers are grounded in portfolio content,
+            project write-ups, and case studies instead of free-form roleplay.
+          </p>
+          <div class="hero-links">
+            <a class="button primary" href="../index.html#projects">Review portfolio first</a>
+            <a class="button ghost" href="https://github.com/alexandre-sdd" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+
+        <aside class="hero-card interview-status-card" aria-label="API status">
+          <h2>Runtime Status</h2>
+          <dl class="fact-list">
+            <div class="fact-row">
+              <dt>API</dt>
+              <dd id="api-status">Checking...</dd>
+            </div>
+            <div class="fact-row">
+              <dt>Mode</dt>
+              <dd id="api-mode">Unknown</dd>
+            </div>
+            <div class="fact-row">
+              <dt>Corpus</dt>
+              <dd id="corpus-stats">Loading...</dd>
+            </div>
+          </dl>
+          <p class="status-note">
+            This frontend is static on GitHub Pages. Point it at a local or Railway API using the settings below.
+          </p>
+        </aside>
+      </section>
+
+      <section class="section control-grid">
+        <article class="card light-card">
+          <div class="section-header compact">
+            <h2>API Settings</h2>
+            <p>Set the backend URL once. The page stores it locally in your browser.</p>
+          </div>
+          <form id="api-settings-form" class="settings-form">
+            <label class="field">
+              <span>API Base URL</span>
+              <input id="api-base-url" name="apiBaseUrl" type="url" placeholder="http://127.0.0.1:8787" />
+            </label>
+            <div class="settings-actions">
+              <button class="button primary" type="submit">Save and reconnect</button>
+              <button class="button ghost" type="button" id="use-local-api">Use local default</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="card light-card">
+          <div class="section-header compact">
+            <h2>Role Preset</h2>
+            <p>Choose the interviewer lens that should bias evidence routing and answer style.</p>
+          </div>
+          <div id="role-picker" class="chip-grid" aria-label="Role presets"></div>
+        </article>
+      </section>
+
+      <section class="section simulator-grid">
+        <article class="card interview-card">
+          <div class="section-header compact">
+            <h2>Interview Thread</h2>
+            <p>Ask your own question or start from a seeded prompt.</p>
+          </div>
+
+          <div id="seeded-question-list" class="seeded-list" aria-label="Seeded recruiter prompts"></div>
+
+          <div id="conversation" class="conversation" aria-live="polite"></div>
+
+          <form id="interview-form" class="composer">
+            <label class="field">
+              <span>Your question</span>
+              <textarea
+                id="question-input"
+                name="question"
+                rows="4"
+                placeholder="Example: Tell me about a project that best demonstrates your AI engineering depth."
+              ></textarea>
+            </label>
+            <div class="composer-actions">
+              <button class="button primary" type="submit">Ask question</button>
+              <span id="submit-status" class="composer-status" role="status"></span>
+            </div>
+          </form>
+        </article>
+
+        <aside class="card evidence-card">
+          <div class="section-header compact">
+            <h2>Evidence Panel</h2>
+            <p>Every answer should show the project artifacts and chunks it relied on.</p>
+          </div>
+          <div id="evidence-state" class="placeholder-panel">
+            Ask a question to inspect citations, project routing, and retrieval traces.
+          </div>
+          <div id="citation-list" class="citation-list"></div>
+          <div id="project-usage" class="project-usage"></div>
+          <details class="debug-panel" open>
+            <summary>Retrieval trace</summary>
+            <div id="retrieval-debug" class="retrieval-debug">No retrieval yet.</div>
+          </details>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script src="./config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "@portfolio/interview-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "generate": "node --import tsx src/build-corpus.ts",
+    "build": "npm run generate && tsc -p tsconfig.json",
+    "test": "node --import tsx --test src/*.test.ts"
+  }
+}
