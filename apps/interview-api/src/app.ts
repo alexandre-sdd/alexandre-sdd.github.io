@@ -96,8 +96,9 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
 
       const emit = async (event: unknown) => {
         reply.raw.write(`${JSON.stringify(event)}\n`);
-        if (typeof (reply.raw as { flush?: () => void }).flush === "function") {
-          (reply.raw as { flush: () => void }).flush();
+        const maybeFlush = (reply.raw as unknown as { flush?: () => void }).flush;
+        if (typeof maybeFlush === "function") {
+          maybeFlush.call(reply.raw);
         }
       };
 
