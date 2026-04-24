@@ -109,6 +109,25 @@ test("work-history queries are not drowned out by project role boosts", () => {
   assert.ok(matches.some((match) => match.chunk.sourceType === "experience"));
 });
 
+test("medical field queries retrieve direct healthcare evidence before adjacent AI projects", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "Have you built projects in the medical field?", {
+    roleId: "ai-engineer",
+    topK: 6
+  });
+  const titles = matches.map((match) => match.chunk.title);
+
+  assert.equal(matches[0]?.chunk.projectId, "appointment-scheduling-dynamics");
+  assert.ok(titles.some((title) => /Nantes University Hospital/i.test(title)));
+  assert.ok(titles.some((title) => /CUIMC|Appointment Scheduling/i.test(title)));
+  assert.ok(
+    matches.slice(0, 4).every((match) => /healthcare domain match/.test(match.reasons.join(" "))),
+    "Expected direct healthcare evidence to outrank adjacent AI projects"
+  );
+});
+
 test("AI engineering query retrieves Tomorrow You evidence near the top", () => {
   const content = loadPortfolioContent();
   const corpus = buildCorpusFromContent(content);

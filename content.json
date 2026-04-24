@@ -4,7 +4,7 @@
   "location": "New York, NY",
   "availability": "Summer 2026",
   "targetRoleLine": "Seeking Summer 2026 Data Science, AI Engineering, and ML internships in NYC",
-  "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.",
+  "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy and healthcare operations problems, and product-grade ML tools with modern web stacks.",
   "heroProofBullets": [
     "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
     "Won the ElevenLabs voice AI track in NYC and built AI-lexandre, a recruiter-facing interview assistant with grounded citations and live streaming."
@@ -23,7 +23,7 @@
   "impactHighlights": [
     "Built production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe",
     "Shipped AI product MVPs and portfolio-native agent experiences with FastAPI, Next.js, and LLM orchestration",
-    "Built optimization and simulation models for childcare access and healthcare appointment dynamics"
+    "Built optimization and simulation models for childcare access, hospital planning, and healthcare appointment dynamics"
   ],
   "links": {
     "email": "aes2399@columbia.edu",
@@ -377,6 +377,7 @@
       "location": "Remote, France",
       "dates": "Feb 2026 - Present",
       "highlights": [
+        "Built a respiratory-system planning component as part of the Nantes University Hospital engagement, alongside emergency patient-flow forecasting and physician scheduling optimization.",
         "Scoping hospital operations tools for emergency patient-flow forecasting and physician scheduling optimization.",
         "Eliciting stakeholder needs and translating operational rules, staffing constraints, and workflow requirements into modeling specifications for a complex scheduling system involving about 80 physicians.",
         "Building decision-support models for patient-flow forecasting and schedule generation under workload, overtime, prioritization, and feasibility constraints."

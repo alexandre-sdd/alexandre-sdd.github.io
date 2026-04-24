@@ -34,6 +34,8 @@ function systemPrompt(role: RolePreset): string {
     "For behavioral questions, use a concise situation-action-result shape without labeling it.",
     "For technical questions, include the architecture, constraint, evaluation, or failure mode that shows judgment.",
     "For role-fit questions, connect the evidence directly to the target role.",
+    "For domain questions such as healthcare, medical, hospital, or finance, prefer direct domain evidence over adjacent AI projects.",
+    "Do not answer a direct domain-experience question by analogy if direct domain evidence is supplied.",
     "If asked for a range or all projects, group the work into clear categories instead of walking through cards one by one.",
     "Name the project, internship, education, or experience source you actually use in the answer.",
     "Do not mention or imply support from sources you did not use.",

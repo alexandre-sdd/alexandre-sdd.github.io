@@ -31,6 +31,12 @@ const STOPWORDS = new Set([
   "your"
 ]);
 
+const HEALTHCARE_QUERY_PATTERN =
+  /\b(care|clinical|clinic|cuimc|doctor|doctors|healthcare|health care|hospital|medical|medicine|nantes|patient|patients|physician|physicians|respiratory)\b/;
+
+const HEALTHCARE_SOURCE_PATTERN =
+  /\b(cuimc|clinical|columbia doctors|doctor|doctors|emergency|healthcare|health care|hospital|medical|medicine|nantes|outpatient|patient|patients|physician|physicians|respiratory)\b/;
+
 function tokenize(value: string): string[] {
   return value
     .toLowerCase()
@@ -64,6 +70,10 @@ function baseSourceWeight(chunk: CorpusChunk): number {
     default:
       return 1;
   }
+}
+
+function chunkSearchText(chunk: CorpusChunk): string {
+  return `${chunk.title} ${chunk.section} ${chunk.text} ${chunk.sourceId} ${chunk.keywords.join(" ")}`.toLowerCase();
 }
 
 function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): RetrievalMatch {
@@ -106,6 +116,15 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
   if (chunk.evidenceStrength === "core") {
     score += 3;
     reasons.push("core evidence");
+  }
+
+  if (
+    ["project", "case-study", "experience"].includes(chunk.sourceType) &&
+    HEALTHCARE_QUERY_PATTERN.test(lowerQuery) &&
+    HEALTHCARE_SOURCE_PATTERN.test(chunkSearchText(chunk))
+  ) {
+    score += 42;
+    reasons.push("healthcare domain match");
   }
 
   if (chunk.sourceType === "experience") {

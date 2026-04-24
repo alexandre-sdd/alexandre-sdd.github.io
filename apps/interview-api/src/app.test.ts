@@ -263,6 +263,48 @@ test("interview response can cite internship and experience evidence", async () 
   await app.close();
 });
 
+test("medical field questions use direct healthcare evidence", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Have you built projects in the medical field?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+    projectsUsed: Array<{ title: string; sourceType: string }>;
+    retrieval: { results: Array<{ title: string; reasons: string[] }> };
+  };
+
+  assert.doesNotMatch(json.answer, /Tomorrow You/);
+  assert.match(json.answer, /CUIMC|Columbia University Irving Medical Center|Nantes University Hospital|healthcare/i);
+  assert.ok(
+    json.citations.some((citation) => /CUIMC|Appointment Scheduling|Nantes University Hospital/i.test(citation.title)),
+    "Expected direct healthcare citation"
+  );
+  assert.ok(
+    json.projectsUsed.some((source) => /CUIMC|Appointment Scheduling|Nantes University Hospital/i.test(source.title)),
+    "Expected direct healthcare source chip"
+  );
+  assert.ok(
+    json.retrieval.results.slice(0, 4).every((result) => result.reasons.includes("healthcare domain match")),
+    "Expected healthcare evidence to outrank adjacent AI projects"
+  );
+
+  await app.close();
+});
+
 test("broad project overview can retrieve every project and case study", async () => {
   const app = buildApp({
     useMockResponses: true,
