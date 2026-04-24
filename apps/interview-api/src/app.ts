@@ -34,6 +34,20 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
     origin: config.corsOrigin === "*" ? true : config.corsOrigin
   });
 
+  app.get("/", async () => ({
+    ok: true,
+    service: "portfolio-interview-api",
+    mode: config.useMockResponses ? "mock" : "openai",
+    model: config.openaiModel,
+    endpoints: {
+      health: "/v1/health",
+      config: "/v1/config",
+      evidenceSearch: "/v1/evidence/search?q=ai%20project",
+      respond: "/v1/interview/respond",
+      stream: "/v1/interview/stream"
+    }
+  }));
+
   app.get("/v1/health", async () => ({
     ok: true,
     mode: config.useMockResponses ? "mock" : "openai",
