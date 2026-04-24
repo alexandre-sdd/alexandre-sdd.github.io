@@ -25,9 +25,12 @@ const PROCESS_STEPS = {
   retrieve: "Finding relevant portfolio evidence.",
   ground: "Preparing source-backed context.",
   draft: "Writing the answer from retrieved evidence.",
-  sources: "Checking the source links for this answer.",
-  fallback: "Streaming unavailable; requesting the full answer."
+  sources: "Checking the source links for this answer."
 };
+const PROCESS_TIMELINE = [
+  { delay: 500, step: PROCESS_STEPS.ground },
+  { delay: 1300, step: PROCESS_STEPS.draft }
+];
 
 const qs = (selector, scope = document) => scope.querySelector(selector);
 const params = new URLSearchParams(window.location.search);
@@ -219,7 +222,7 @@ function createMessageElement(message) {
   if (message.role === "assistant" && message.processStep) {
     const process = document.createElement("div");
     process.className = "message-process";
-    process.textContent = message.processStep;
+    process.textContent = `Process: ${message.processStep}`;
     article.appendChild(process);
   }
 
@@ -324,6 +327,22 @@ function upsertMessage(id, updater) {
   if (!message) return;
   updater(message);
   renderConversation();
+}
+
+function setMessageProcess(messageId, step) {
+  upsertMessage(messageId, (message) => {
+    message.processStep = step;
+  });
+}
+
+function startProcessTimeline(messageId) {
+  const timers = PROCESS_TIMELINE.map(({ delay, step }) =>
+    window.setTimeout(() => {
+      setMessageProcess(messageId, step);
+    }, delay)
+  );
+
+  return () => timers.forEach((timer) => window.clearTimeout(timer));
 }
 
 async function flushStreamQueue(messageId) {
@@ -527,17 +546,21 @@ async function submitQuestion(question) {
   renderConversation();
   setStreamingState(true);
   setStatus("Streaming...");
+  const stopProcessTimeline = startProcessTimeline(assistantMessage.id);
 
   try {
     await streamQuestion(question, assistantMessage.id, history);
     setStatus("", "success");
   } catch (streamError) {
     try {
-      setStatus("Live typing unavailable on this API instance. Showing full answer instead.", "default");
-      upsertMessage(assistantMessage.id, (message) => {
-        message.processStep = PROCESS_STEPS.fallback;
-      });
-      const payload = await askQuestion(question, history);
+      setStatus("Preparing answer...");
+      const payloadPromise = askQuestion(question, history);
+      setMessageProcess(assistantMessage.id, PROCESS_STEPS.ground);
+      await wait(260);
+      setMessageProcess(assistantMessage.id, PROCESS_STEPS.draft);
+      const payload = await payloadPromise;
+      setMessageProcess(assistantMessage.id, PROCESS_STEPS.sources);
+      await wait(260);
       upsertMessage(assistantMessage.id, (message) => {
         message.content = payload.answer;
         message.citations = payload.citations;
@@ -564,6 +587,7 @@ async function submitQuestion(question) {
     }
     console.error(streamError);
   } finally {
+    stopProcessTimeline();
     setStreamingState(false);
     renderDevPanel();
   }
