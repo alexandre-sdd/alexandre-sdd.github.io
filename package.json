@@ -12,6 +12,7 @@
     "build": "npm run build:corpus && npm run build:api",
     "clean": "rm -rf apps/interview-api/dist packages/interview-core/dist packages/interview-core/generated",
     "dev:api": "npm run dev --workspace @portfolio/interview-api",
+    "start": "npm run start --workspace @portfolio/interview-api",
     "test": "npm run test --workspace @portfolio/interview-core && npm run test --workspace @portfolio/interview-api"
   },
   "devDependencies": {
