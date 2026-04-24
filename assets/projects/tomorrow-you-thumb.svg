@@ -1,25 +1,31 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Tomorrow You project thumbnail</title>
-  <desc id="desc">Stylized branching conversation visual for the Tomorrow You featured project.</desc>
+  <desc id="desc">Warm portfolio-style visual showing branching future scenarios and voice AI flow.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f2d3b" />
-      <stop offset="100%" stop-color="#08161f" />
+    <linearGradient id="bg" x1="70" y1="56" x2="1120" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9EF"/>
+      <stop offset="1" stop-color="#F8E7D2"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="675" fill="url(#bg)" />
-  <rect x="64" y="64" width="1072" height="547" rx="28" fill="none" stroke="#86f1d1" stroke-opacity="0.36" stroke-width="4" />
-  <circle cx="880" cy="170" r="24" fill="#86f1d1" />
-  <circle cx="980" cy="260" r="24" fill="#86f1d1" />
-  <circle cx="860" cy="340" r="24" fill="#86f1d1" />
-  <circle cx="1015" cy="395" r="24" fill="#86f1d1" />
-  <path d="M 880 194 C 900 220, 940 225, 980 236" fill="none" stroke="#86f1d1" stroke-width="6" stroke-linecap="round" />
-  <path d="M 880 194 C 870 225, 860 285, 860 316" fill="none" stroke="#86f1d1" stroke-width="6" stroke-linecap="round" />
-  <path d="M 860 364 C 900 375, 960 385, 991 390" fill="none" stroke="#86f1d1" stroke-width="6" stroke-linecap="round" />
-  <rect x="790" y="450" width="260" height="86" rx="20" fill="#112936" stroke="#86f1d1" stroke-opacity="0.25" />
-  <rect x="820" y="478" width="156" height="10" rx="5" fill="#dffdf4" fill-opacity="0.9" />
-  <rect x="820" y="502" width="196" height="10" rx="5" fill="#dffdf4" fill-opacity="0.42" />
-  <text x="96" y="210" fill="#86f1d1" font-family="Space Grotesk, Arial, sans-serif" font-size="34" letter-spacing="3">FEATURED PROJECT</text>
-  <text x="96" y="312" fill="#f4f8ff" font-family="Source Serif 4, Georgia, serif" font-size="74">Tomorrow You</text>
-  <text x="96" y="392" fill="#bfd8e2" font-family="Space Grotesk, Arial, sans-serif" font-size="30">Branching futures. Voice onboarding. AI decision support.</text>
+  <rect width="1200" height="675" rx="36" fill="#FFF6E8"/>
+  <rect x="58" y="58" width="1084" height="559" rx="28" fill="url(#bg)" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="94" y="118" width="182" height="34" rx="17" fill="#C05800"/>
+  <rect x="292" y="118" width="138" height="34" rx="17" fill="#F3E3C7"/>
+  <rect x="446" y="118" width="190" height="34" rx="17" fill="#F3E3C7"/>
+  <text x="96" y="214" fill="#A84B00" font-family="Space Grotesk, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2.6">AI PRODUCT</text>
+  <text x="96" y="306" fill="#38240D" font-family="Source Serif 4, Georgia, serif" font-size="78">Tomorrow You</text>
+  <text x="96" y="366" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">Voice onboarding, scenario generation, and</text>
+  <text x="96" y="404" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">agent conversations with simulated future selves.</text>
+  <rect x="760" y="132" width="306" height="382" rx="28" fill="#FFFDF8" stroke="#D6C9AE" stroke-width="2"/>
+  <circle cx="910" cy="214" r="28" fill="#D97706"/>
+  <circle cx="832" cy="330" r="22" fill="#FFE7C3" stroke="#C05800" stroke-width="5"/>
+  <circle cx="980" cy="330" r="22" fill="#FFE7C3" stroke="#C05800" stroke-width="5"/>
+  <circle cx="870" cy="444" r="20" fill="#FFF6E8" stroke="#9C6A3D" stroke-width="5"/>
+  <circle cx="1014" cy="444" r="20" fill="#FFF6E8" stroke="#9C6A3D" stroke-width="5"/>
+  <path d="M898 238 C878 268 852 292 836 309" fill="none" stroke="#C05800" stroke-width="8" stroke-linecap="round"/>
+  <path d="M922 238 C946 268 970 292 976 309" fill="none" stroke="#C05800" stroke-width="8" stroke-linecap="round"/>
+  <path d="M832 354 C842 386 858 414 868 424" fill="none" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <path d="M980 354 C994 386 1006 414 1012 424" fill="none" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <rect x="812" y="542" width="214" height="16" rx="8" fill="#D9C4A1"/>
+  <rect x="812" y="570" width="154" height="12" rx="6" fill="#E8DFC7"/>
 </svg>

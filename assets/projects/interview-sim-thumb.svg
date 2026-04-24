@@ -1,29 +1,29 @@
-<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="780" rx="40" fill="#FFF6E8"/>
-  <rect x="42" y="42" width="1116" height="696" rx="32" fill="url(#bg)"/>
-  <rect x="96" y="112" width="1008" height="84" rx="26" fill="#FFFFFF" fill-opacity="0.86"/>
-  <rect x="132" y="138" width="148" height="32" rx="16" fill="#C05800"/>
-  <rect x="296" y="138" width="154" height="32" rx="16" fill="#F3E3C7"/>
-  <rect x="466" y="138" width="204" height="32" rx="16" fill="#F3E3C7"/>
-  <rect x="96" y="228" width="1008" height="428" rx="28" fill="#FFFDF8" stroke="#E2D4BB" stroke-width="2"/>
-  <rect x="132" y="270" width="432" height="110" rx="24" fill="#FFE7C3"/>
-  <rect x="636" y="408" width="360" height="176" rx="24" fill="#FFFFFF"/>
-  <rect x="180" y="302" width="214" height="18" rx="9" fill="#A85000"/>
-  <rect x="180" y="334" width="320" height="14" rx="7" fill="#C47B36"/>
-  <rect x="674" y="444" width="144" height="18" rx="9" fill="#713600"/>
-  <rect x="674" y="478" width="268" height="14" rx="7" fill="#9C6A3D"/>
-  <rect x="674" y="506" width="236" height="14" rx="7" fill="#9C6A3D"/>
-  <rect x="674" y="534" width="174" height="14" rx="7" fill="#9C6A3D"/>
-  <rect x="132" y="620" width="302" height="16" rx="8" fill="#D9C4A1"/>
-  <path d="M590 368L650 410" stroke="#D97706" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="590" cy="368" r="20" fill="#D97706"/>
-  <circle cx="650" cy="410" r="20" fill="#D97706"/>
-  <text x="132" y="96" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="32" font-weight="700">AI-lexandre</text>
-  <text x="132" y="694" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="30" font-weight="700">Grounded answers from portfolio, internships, and project evidence</text>
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AI-lexandre project thumbnail</title>
+  <desc id="desc">Warm portfolio-style visual showing an interview assistant grounded in source evidence.</desc>
   <defs>
-    <linearGradient id="bg" x1="68" y1="68" x2="1120" y2="712" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bg" x1="70" y1="56" x2="1120" y2="620" gradientUnits="userSpaceOnUse">
       <stop stop-color="#FFF9EF"/>
       <stop offset="1" stop-color="#F8E7D2"/>
     </linearGradient>
   </defs>
+  <rect width="1200" height="675" rx="36" fill="#FFF6E8"/>
+  <rect x="58" y="58" width="1084" height="559" rx="28" fill="url(#bg)" stroke="#E2D4BB" stroke-width="2"/>
+  <text x="96" y="214" fill="#A84B00" font-family="Space Grotesk, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2.6">INTERVIEW AGENT</text>
+  <text x="96" y="306" fill="#38240D" font-family="Source Serif 4, Georgia, serif" font-size="80">AI-lexandre</text>
+  <text x="96" y="366" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">Grounded answers from projects, internships,</text>
+  <text x="96" y="404" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">education, skills, and source citations.</text>
+  <rect x="720" y="120" width="370" height="430" rx="30" fill="#FFFDF8" stroke="#D6C9AE" stroke-width="2"/>
+  <rect x="758" y="164" width="230" height="48" rx="18" fill="#FFE7C3"/>
+  <rect x="786" y="179" width="140" height="18" rx="9" fill="#C05800"/>
+  <rect x="758" y="260" width="250" height="96" rx="24" fill="#FFF6E8" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="790" y="292" width="164" height="16" rx="8" fill="#9C6A3D"/>
+  <rect x="790" y="322" width="108" height="14" rx="7" fill="#D9C4A1"/>
+  <path d="M870 356 L922 404" stroke="#D97706" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="870" cy="356" r="18" fill="#D97706"/>
+  <circle cx="922" cy="404" r="18" fill="#D97706"/>
+  <rect x="906" y="404" width="136" height="94" rx="24" fill="#FFFFFF" stroke="#E8DFC7" stroke-width="2"/>
+  <rect x="934" y="432" width="78" height="14" rx="7" fill="#713600"/>
+  <rect x="934" y="460" width="54" height="12" rx="6" fill="#9C6A3D"/>
+  <rect x="758" y="510" width="196" height="12" rx="6" fill="#D9C4A1"/>
 </svg>

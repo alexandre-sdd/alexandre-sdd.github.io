@@ -1,17 +1,29 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <!-- TODO: Replace this placeholder thumbnail with a real Chanel project visual export. -->
-  <title id="title">Chanel Europe analytics pipeline placeholder thumbnail</title>
-  <desc id="desc">Placeholder image for Chanel Europe analytics project card.</desc>
+  <title id="title">Chanel Europe analytics pipeline thumbnail</title>
+  <desc id="desc">Warm portfolio-style visual showing a confidential finance data-quality pipeline and anomaly review flow.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#163158" />
-      <stop offset="100%" stop-color="#0a1629" />
+    <linearGradient id="bg" x1="70" y1="56" x2="1120" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9EF"/>
+      <stop offset="1" stop-color="#F8E7D2"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="675" fill="url(#bg)" />
-  <rect x="60" y="60" width="1080" height="555" rx="24" fill="none" stroke="#8fd8ff" stroke-opacity="0.38" stroke-width="4" />
-  <text x="96" y="220" fill="#8fd8ff" font-family="Space Grotesk, Arial, sans-serif" font-size="34" letter-spacing="3">FEATURED PROJECT</text>
-  <text x="96" y="312" fill="#f4f8ff" font-family="Source Serif 4, Georgia, serif" font-size="62">Chanel Europe</text>
-  <text x="96" y="388" fill="#f4f8ff" font-family="Source Serif 4, Georgia, serif" font-size="62">Analytics Pipeline</text>
-  <text x="96" y="470" fill="#b3bfd5" font-family="Space Grotesk, Arial, sans-serif" font-size="32">TODO: Replace with real screenshot or architecture visual</text>
+  <rect width="1200" height="675" rx="36" fill="#FFF6E8"/>
+  <rect x="58" y="58" width="1084" height="559" rx="28" fill="url(#bg)" stroke="#E2D4BB" stroke-width="2"/>
+  <text x="96" y="214" fill="#A84B00" font-family="Space Grotesk, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2.6">DATA QUALITY</text>
+  <text x="96" y="304" fill="#38240D" font-family="Source Serif 4, Georgia, serif" font-size="70">Chanel Europe</text>
+  <text x="96" y="376" fill="#38240D" font-family="Source Serif 4, Georgia, serif" font-size="70">Analytics Pipeline</text>
+  <text x="96" y="438" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">Hierarchy-aware anomaly detection for</text>
+  <text x="96" y="476" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="28">confidential SAP-style accounting data.</text>
+  <rect x="742" y="132" width="330" height="392" rx="28" fill="#FFFDF8" stroke="#D6C9AE" stroke-width="2"/>
+  <rect x="782" y="178" width="110" height="48" rx="16" fill="#FFE7C3" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="922" y="178" width="110" height="48" rx="16" fill="#FFE7C3" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="852" y="288" width="110" height="48" rx="16" fill="#C05800"/>
+  <rect x="782" y="400" width="110" height="48" rx="16" fill="#F3E3C7" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="922" y="400" width="110" height="48" rx="16" fill="#F3E3C7" stroke="#E2D4BB" stroke-width="2"/>
+  <path d="M837 226 L882 288" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <path d="M977 226 L932 288" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <path d="M882 336 L837 400" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <path d="M932 336 L977 400" stroke="#9C6A3D" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="1014" cy="306" r="18" fill="#D97706"/>
+  <path d="M1006 306 H1022 M1014 298 V314" stroke="#FFFDF8" stroke-width="5" stroke-linecap="round"/>
 </svg>

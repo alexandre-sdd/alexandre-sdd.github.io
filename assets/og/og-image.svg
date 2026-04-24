@@ -1,0 +1,23 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Alexandre Sepulveda de Dietrich portfolio preview</title>
+  <desc id="desc">Warm portfolio social preview for data science, AI engineering, and analytics internships.</desc>
+  <defs>
+    <linearGradient id="bg" x1="62" y1="48" x2="1138" y2="582" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9EF"/>
+      <stop offset="1" stop-color="#F8E7D2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="34" fill="#FFF6E8"/>
+  <rect x="64" y="70" width="1072" height="490" rx="28" fill="url(#bg)" stroke="#D6C9AE" stroke-width="2"/>
+  <text x="100" y="174" fill="#38240D" font-family="Space Grotesk, Arial, sans-serif" font-size="56" font-weight="700">Alexandre Sepulveda de Dietrich</text>
+  <text x="100" y="250" fill="#A84B00" font-family="Space Grotesk, Arial, sans-serif" font-size="34" font-weight="600">Data Science | AI Engineering | Analytics</text>
+  <text x="100" y="326" fill="#5C4630" font-family="Space Grotesk, Arial, sans-serif" font-size="34">Seeking Summer 2026 internships in NYC</text>
+  <text x="100" y="406" fill="#7A6654" font-family="Space Grotesk, Arial, sans-serif" font-size="28">Anomaly detection, optimization, LLM products, and</text>
+  <text x="100" y="446" fill="#7A6654" font-family="Space Grotesk, Arial, sans-serif" font-size="28">portfolio-native interview evidence with AI-lexandre.</text>
+  <rect x="835" y="328" width="230" height="118" rx="26" fill="#FFFDF8" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="868" y="364" width="112" height="16" rx="8" fill="#C05800"/>
+  <rect x="868" y="396" width="154" height="14" rx="7" fill="#D9C4A1"/>
+  <path d="M862 248 C900 198 958 192 1012 224" stroke="#D97706" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <circle cx="862" cy="248" r="20" fill="#C05800"/>
+  <circle cx="1012" cy="224" r="20" fill="#D97706"/>
+</svg>
