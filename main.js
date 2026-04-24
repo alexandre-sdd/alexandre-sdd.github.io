@@ -108,7 +108,7 @@ const renderHeroLinks = (data, resumeReady) => {
 
   heroLinks.appendChild(createButton({
     label: 'AI Interview',
-    url: './interview/'
+    url: '#interview-demo'
   }));
 
   heroLinks.appendChild(createButton({

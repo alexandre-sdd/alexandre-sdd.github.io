@@ -317,6 +317,51 @@ img {
   min-height: 92px;
 }
 
+.interview-spotlight {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+  gap: 24px;
+  align-items: stretch;
+  padding: 30px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 243, 214, 0.95) 0%, rgba(255, 255, 255, 0) 34%),
+    linear-gradient(145deg, #fffdf8 0%, #fff4df 100%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.interview-spotlight-copy h2 {
+  font-family: "Source Serif 4", serif;
+  font-size: clamp(1.9rem, 3.8vw, 3rem);
+  line-height: 1.04;
+  margin-bottom: 12px;
+}
+
+.interview-spotlight-copy .lead {
+  max-width: 62ch;
+}
+
+.interview-spotlight-card {
+  display: grid;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.interview-spotlight-card img {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.interview-spotlight-card h3 {
+  font-size: 1.1rem;
+}
+
+.interview-spotlight-card p {
+  color: var(--text-secondary);
+}
+
 .section-header {
   display: grid;
   gap: 10px;
@@ -769,7 +814,8 @@ img {
 }
 
 @media (max-width: 980px) {
-  .hero {
+  .hero,
+  .interview-spotlight {
     grid-template-columns: 1fr;
   }
 

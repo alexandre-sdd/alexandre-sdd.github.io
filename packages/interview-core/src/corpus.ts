@@ -21,6 +21,7 @@ const contentFilePath = path.join(repoRoot, "content.json");
 const generatedCorpusPath = path.join(repoRoot, "packages/interview-core/generated/corpus.json");
 
 const PROJECT_ROLE_TAGS: Record<string, string[]> = {
+  "interview-through-my-work": ["ai-engineer", "ml-engineer", "product-data-scientist"],
   "tomorrow-you": ["ai-engineer", "ml-engineer", "product-data-scientist"],
   helpfullens: ["ml-engineer", "product-data-scientist"],
   "childcare-deserts-nyc": ["optimization-analytics", "research-engineer", "product-data-scientist"],

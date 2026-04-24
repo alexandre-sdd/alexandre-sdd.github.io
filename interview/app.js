@@ -20,6 +20,8 @@ const state = {
   showDevControls: false
 };
 
+const STREAM_RENDER_DELAY_MS = 22;
+
 const qs = (selector, scope = document) => scope.querySelector(selector);
 const params = new URLSearchParams(window.location.search);
 
@@ -61,6 +63,10 @@ function nextMessageId() {
 function setStatus(message, tone = "default") {
   els.submitStatus.textContent = message;
   els.submitStatus.dataset.tone = tone;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function featuredRoles() {
@@ -290,6 +296,42 @@ function upsertMessage(id, updater) {
   renderConversation();
 }
 
+async function flushStreamQueue(messageId) {
+  const message = state.messages.find((item) => item.id === messageId);
+  if (!message || message.streamFlushActive) return;
+
+  message.streamFlushActive = true;
+
+  while (true) {
+    const current = state.messages.find((item) => item.id === messageId);
+    if (!current) break;
+
+    if (current.streamQueue && current.streamQueue.length > 0) {
+      current.content += current.streamQueue.shift();
+      current.isStreaming = true;
+      renderConversation();
+      await wait(STREAM_RENDER_DELAY_MS);
+      continue;
+    }
+
+    if (current.finalPayload) {
+      current.content = current.finalPayload.answer;
+      current.citations = current.finalPayload.citations;
+      current.projectsUsed = current.finalPayload.projectsUsed;
+      current.followUps = current.finalPayload.followUps;
+      current.isStreaming = false;
+      current.finalPayload = null;
+      current.streamFlushActive = false;
+      renderConversation();
+      return;
+    }
+
+    current.streamFlushActive = false;
+    renderConversation();
+    return;
+  }
+}
+
 async function checkHealth() {
   const response = await fetch(apiUrl("/v1/health"));
   if (!response.ok) throw new Error("Health check failed.");
@@ -382,19 +424,18 @@ async function streamQuestion(question, assistantId, history) {
 
       if (event.type === "token") {
         upsertMessage(assistantId, (message) => {
-          message.content += event.text;
+          if (!message.streamQueue) message.streamQueue = [];
+          message.streamQueue.push(event.text);
           message.isStreaming = true;
         });
+        void flushStreamQueue(assistantId);
       }
 
       if (event.type === "done") {
         upsertMessage(assistantId, (message) => {
-          message.content = event.payload.answer;
-          message.projectsUsed = event.payload.projectsUsed;
-          message.citations = event.payload.citations;
-          message.followUps = event.payload.followUps;
-          message.isStreaming = false;
+          message.finalPayload = event.payload;
         });
+        void flushStreamQueue(assistantId);
         state.mode = event.payload.mode;
       }
 
@@ -450,13 +491,14 @@ async function submitQuestion(question) {
   state.messages.push(userMessage, assistantMessage);
   renderConversation();
   setStreamingState(true);
-  setStatus("Thinking...");
+  setStatus("Streaming...");
 
   try {
     await streamQuestion(question, assistantMessage.id, history);
     setStatus("", "success");
   } catch (streamError) {
     try {
+      setStatus("Live typing unavailable on this API instance. Showing full answer instead.", "default");
       const payload = await askQuestion(question, history);
       upsertMessage(assistantMessage.id, (message) => {
         message.content = payload.answer;
@@ -464,13 +506,18 @@ async function submitQuestion(question) {
         message.projectsUsed = payload.projectsUsed;
         message.followUps = payload.followUps;
         message.isStreaming = false;
+        message.streamQueue = [];
+        message.finalPayload = null;
       });
       state.mode = payload.mode;
+      await wait(1200);
       setStatus("", "success");
     } catch (error) {
       upsertMessage(assistantMessage.id, (message) => {
         message.content = "The interview service could not answer right now.";
         message.isStreaming = false;
+        message.streamQueue = [];
+        message.finalPayload = null;
       });
       setStatus("Request failed.", "danger");
       console.error(error);

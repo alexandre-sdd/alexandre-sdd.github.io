@@ -9,7 +9,7 @@ export const ROLE_PRESETS: RolePreset[] = [
     summary: "Grounded product builder for LLM systems, APIs, and end-to-end AI workflows.",
     recruiterLens: "Focus on system architecture, orchestration, shipping instincts, and evidence-backed AI work.",
     answerStyle: "Lead with shipped systems, then explain architecture, tradeoffs, and reliability choices.",
-    priorityProjectIds: ["tomorrow-you", "codebase-analyzer", "linkedin-note-copilot", "zeit-project"],
+    priorityProjectIds: ["interview-through-my-work", "tomorrow-you", "codebase-analyzer", "linkedin-note-copilot"],
     keywords: ["llm", "agent", "voice", "api", "product", "automation", "fastapi", "next.js", "typescript"]
   },
   {
@@ -18,7 +18,7 @@ export const ROLE_PRESETS: RolePreset[] = [
     summary: "Applied ML candidate with production data workflows, anomaly detection, and modeling depth.",
     recruiterLens: "Focus on data pipelines, model choices, evaluation thinking, and operational constraints.",
     answerStyle: "Connect modeling work to deployment realities and measurable outcomes.",
-    priorityProjectIds: ["tomorrow-you", "helpfullens", "codebase-analyzer", "chanel-europe-analytics-pipeline"],
+    priorityProjectIds: ["interview-through-my-work", "tomorrow-you", "helpfullens", "chanel-europe-analytics-pipeline"],
     keywords: ["machine learning", "anomaly", "forecasting", "pipeline", "evaluation", "feature engineering"]
   },
   {
@@ -41,7 +41,7 @@ export const ROLE_PRESETS: RolePreset[] = [
     summary: "Builds decision-support tools with a strong eye for product framing and stakeholder value.",
     recruiterLens: "Focus on user needs, prioritization, tradeoffs, and evidence of turning models into tools.",
     answerStyle: "Tie technical decisions to user impact, stakeholder adoption, and product clarity.",
-    priorityProjectIds: ["zeit-project", "tomorrow-you", "linkedin-note-copilot", "childcare-deserts-nyc"],
+    priorityProjectIds: ["interview-through-my-work", "zeit-project", "tomorrow-you", "linkedin-note-copilot"],
     keywords: ["decision support", "stakeholder", "product", "dashboard", "workflow", "adoption"]
   },
   {
@@ -61,7 +61,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
     label: "AI depth",
     question: "Tell me about a project that best demonstrates your AI engineering depth.",
     roleIds: ["ai-engineer", "ml-engineer"],
-    expectedProjectIds: ["tomorrow-you", "codebase-analyzer"],
+    expectedProjectIds: ["interview-through-my-work", "tomorrow-you", "codebase-analyzer"],
     intent: "technical"
   },
   {
@@ -69,7 +69,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
     label: "System design",
     question: "Walk me through the architecture of one of your AI systems from user input to final output.",
     roleIds: ["ai-engineer", "ml-engineer"],
-    expectedProjectIds: ["tomorrow-you", "codebase-analyzer", "linkedin-note-copilot"],
+    expectedProjectIds: ["interview-through-my-work", "tomorrow-you", "codebase-analyzer"],
     intent: "technical"
   },
   {
@@ -101,7 +101,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
     label: "Best fit",
     question: "Why are you a strong fit for an AI engineer internship specifically?",
     roleIds: ["ai-engineer"],
-    expectedProjectIds: ["tomorrow-you", "codebase-analyzer", "linkedin-note-copilot"],
+    expectedProjectIds: ["interview-through-my-work", "tomorrow-you", "codebase-analyzer"],
     intent: "role-fit"
   },
   {
@@ -149,7 +149,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
     label: "Growth edge",
     question: "What technical area are you actively improving right now, and which of your projects shows that direction?",
     roleIds: ["ai-engineer", "research-engineer", "ml-engineer"],
-    expectedProjectIds: ["codebase-analyzer", "appointment-scheduling-dynamics", "tomorrow-you"],
+    expectedProjectIds: ["interview-through-my-work", "codebase-analyzer", "appointment-scheduling-dynamics", "tomorrow-you"],
     intent: "role-fit"
   }
 ];

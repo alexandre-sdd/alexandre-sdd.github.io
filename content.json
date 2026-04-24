@@ -7,7 +7,7 @@
   "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.",
   "heroProofBullets": [
     "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
-    "Won the ElevenLabs voice AI track in NYC with a hackathon-built agent system for future-self decision support."
+    "Won the ElevenLabs voice AI track in NYC and built a recruiter-facing interview simulator with grounded citations and live streaming."
   ],
   "recruiterQuickFacts": {
     "location": "New York, NY",
@@ -22,7 +22,7 @@
   },
   "impactHighlights": [
     "Built production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe",
-    "Shipped AI product MVPs and developer tools with FastAPI, Next.js, and LLM orchestration",
+    "Shipped AI product MVPs and portfolio-native agent experiences with FastAPI, Next.js, and LLM orchestration",
     "Built optimization and simulation models for childcare access and healthcare appointment dynamics"
   ],
   "links": {
@@ -32,6 +32,31 @@
     "resume": "./assets/resume/resume_april.pdf"
   },
   "projects": [
+    {
+      "id": "interview-through-my-work",
+      "title": "Interview Me Through My Work",
+      "summary": "Recruiter-facing interview simulator that answers in first person from my published portfolio, streams responses live, and shows source-backed project evidence.",
+      "result": "Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus.",
+      "highlights": [
+        "Turns the portfolio into an interactive interview product instead of a static list of project cards.",
+        "Builds a local corpus from portfolio projects, case studies, experience, education, and skills, then retrieves role-relevant evidence before answering.",
+        "Streams answers live in the UI while keeping links back to the source projects and writeups visible."
+      ],
+      "tags": [
+        "TypeScript",
+        "OpenAI API",
+        "Fastify",
+        "GitHub Pages"
+      ],
+      "featured": true,
+      "thumbnail": "./assets/projects/interview-sim-thumb.svg",
+      "artifacts": {
+        "code": "https://github.com/alexandre-sdd/alexandre-sdd.github.io",
+        "demo": "./interview/",
+        "writeup": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
+        "slides": ""
+      }
+    },
     {
       "id": "tomorrow-you",
       "title": "Tomorrow You",
@@ -97,7 +122,7 @@
         "Urban Analytics",
         "Operations Research"
       ],
-      "featured": true,
+      "featured": false,
       "thumbnail": "./assets/projects/childcare-deserts-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/childcare_deserts_nyc",
@@ -114,7 +139,7 @@
       "highlights": [
         "Targets a real onboarding problem: helping engineers understand unfamiliar codebases quickly.",
         "Combines repo crawling, artifact generation, and a lightweight review UI in one monorepo.",
-        "Strong fit for the portfolio as an active AI tooling build, but it still needs polish to move into the featured set."
+        "Strong supporting evidence for developer tooling and AI-assisted onboarding workflows."
       ],
       "tags": [
         "TypeScript",

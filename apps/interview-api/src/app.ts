@@ -91,9 +91,14 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
       reply.raw.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
       reply.raw.setHeader("Cache-Control", "no-cache, no-transform");
       reply.raw.setHeader("Connection", "keep-alive");
+      reply.raw.setHeader("X-Accel-Buffering", "no");
+      reply.raw.flushHeaders?.();
 
       const emit = async (event: unknown) => {
         reply.raw.write(`${JSON.stringify(event)}\n`);
+        if (typeof (reply.raw as { flush?: () => void }).flush === "function") {
+          (reply.raw as { flush: () => void }).flush();
+        }
       };
 
       await interviewService.streamQuestion(body, emit);

@@ -1,6 +1,6 @@
 # alexandre-sdd.github.io
 
-Portfolio site hosted on GitHub Pages, now extended with a grounded interview simulator MVP.
+Portfolio site hosted on GitHub Pages, with a static interview simulator frontend and a separate API for grounded interview answers.
 
 ## Main Areas
 
@@ -9,6 +9,13 @@ Portfolio site hosted on GitHub Pages, now extended with a grounded interview si
 - `packages/interview-core/`: shared corpus builder, presets, retrieval
 - `apps/interview-api/`: Railway-ready Fastify API for grounded answers
 - `docs/interview-mvp.md`: product and architecture spec
+
+## Repo Shape
+
+- Root stays GitHub Pages-friendly: all static pages and assets live at the repo root or in top-level static folders.
+- `apps/` contains deployable services that are not served by Pages.
+- `packages/` contains reusable logic shared by services.
+- Generated build output is not committed; rebuild locally with npm scripts.
 
 ## How Portfolio Content Works
 
@@ -43,6 +50,7 @@ The static interview page will publish with the portfolio. The API should be hos
 
 ## Useful Commands
 
+- `npm run clean`: remove generated build artifacts
 - `npm run build:corpus`: regenerate the interview corpus from `content.json`
 - `npm run build`: build the shared package and API
 - `npm run dev:api`: run the interview API locally

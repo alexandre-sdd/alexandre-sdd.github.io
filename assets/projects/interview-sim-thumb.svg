@@ -1,0 +1,29 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="780" rx="40" fill="#FFF6E8"/>
+  <rect x="42" y="42" width="1116" height="696" rx="32" fill="url(#bg)"/>
+  <rect x="96" y="112" width="1008" height="84" rx="26" fill="#FFFFFF" fill-opacity="0.86"/>
+  <rect x="132" y="138" width="148" height="32" rx="16" fill="#C05800"/>
+  <rect x="296" y="138" width="154" height="32" rx="16" fill="#F3E3C7"/>
+  <rect x="466" y="138" width="204" height="32" rx="16" fill="#F3E3C7"/>
+  <rect x="96" y="228" width="1008" height="428" rx="28" fill="#FFFDF8" stroke="#E2D4BB" stroke-width="2"/>
+  <rect x="132" y="270" width="432" height="110" rx="24" fill="#FFE7C3"/>
+  <rect x="636" y="408" width="360" height="176" rx="24" fill="#FFFFFF"/>
+  <rect x="180" y="302" width="214" height="18" rx="9" fill="#A85000"/>
+  <rect x="180" y="334" width="320" height="14" rx="7" fill="#C47B36"/>
+  <rect x="674" y="444" width="144" height="18" rx="9" fill="#713600"/>
+  <rect x="674" y="478" width="268" height="14" rx="7" fill="#9C6A3D"/>
+  <rect x="674" y="506" width="236" height="14" rx="7" fill="#9C6A3D"/>
+  <rect x="674" y="534" width="174" height="14" rx="7" fill="#9C6A3D"/>
+  <rect x="132" y="620" width="302" height="16" rx="8" fill="#D9C4A1"/>
+  <path d="M590 368L650 410" stroke="#D97706" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="590" cy="368" r="20" fill="#D97706"/>
+  <circle cx="650" cy="410" r="20" fill="#D97706"/>
+  <text x="132" y="96" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="28" font-weight="700">Interview Simulator</text>
+  <text x="132" y="694" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="34" font-weight="700">Grounded interview agent with live streaming and source-backed answers</text>
+  <defs>
+    <linearGradient id="bg" x1="68" y1="68" x2="1120" y2="712" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9EF"/>
+      <stop offset="1" stop-color="#F8E7D2"/>
+    </linearGradient>
+  </defs>
+</svg>
