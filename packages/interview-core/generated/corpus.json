@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T14:48:37.415Z",
+  "generatedAt": "2026-04-24T14:57:49.679Z",
   "chunkCount": 37,
   "chunks": [
     {
@@ -69,7 +69,7 @@
       "section": "Project summary",
       "text": "Summary: Recruiter-facing interview assistant that answers in first person from my published portfolio, streams responses live, and shows source-backed evidence. Result: Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus. Tags: TypeScript, OpenAI API, Fastify, GitHub Pages.",
       "citationLabel": "AI-lexandre - summary",
-      "publicUrl": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
+      "publicUrl": "../ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -128,7 +128,7 @@
       "section": "Project highlights",
       "text": "Turns the portfolio into an interactive interview product instead of a static list of project cards. Builds a local corpus from portfolio projects, case studies, experience, education, and skills, then retrieves role-relevant evidence before answering. Streams answers live in the UI while keeping links back to the source projects and writeups visible.",
       "citationLabel": "AI-lexandre - highlights",
-      "publicUrl": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
+      "publicUrl": "../ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",

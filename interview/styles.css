@@ -184,6 +184,29 @@
   color: var(--muted);
 }
 
+.message-process {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(122, 102, 84, 0.72);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.message-process::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(122, 102, 84, 0.38);
+}
+
+.message-assistant.is-streaming .message-process::before {
+  animation: interview-process-pulse 1.2s ease-in-out infinite;
+}
+
 .message-body {
   color: var(--text-primary);
   white-space: pre-wrap;
@@ -374,6 +397,16 @@
   }
   50%,
   100% {
+    opacity: 1;
+  }
+}
+
+@keyframes interview-process-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
     opacity: 1;
   }
 }

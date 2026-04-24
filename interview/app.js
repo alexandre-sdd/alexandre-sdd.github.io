@@ -21,6 +21,13 @@ const state = {
 };
 
 const STREAM_RENDER_DELAY_MS = 22;
+const PROCESS_STEPS = {
+  retrieve: "Finding relevant portfolio evidence.",
+  ground: "Preparing source-backed context.",
+  draft: "Writing the answer from retrieved evidence.",
+  sources: "Checking the source links for this answer.",
+  fallback: "Streaming unavailable; requesting the full answer."
+};
 
 const qs = (selector, scope = document) => scope.querySelector(selector);
 const params = new URLSearchParams(window.location.search);
@@ -209,6 +216,13 @@ function createMessageElement(message) {
   meta.textContent = message.role === "assistant" ? "Alex" : "Interviewer";
   article.appendChild(meta);
 
+  if (message.role === "assistant" && message.processStep) {
+    const process = document.createElement("div");
+    process.className = "message-process";
+    process.textContent = message.processStep;
+    article.appendChild(process);
+  }
+
   const body = document.createElement("div");
   body.className = "message-body";
   body.textContent = message.content;
@@ -336,6 +350,7 @@ async function flushStreamQueue(messageId) {
       current.projectsUsed = current.finalPayload.projectsUsed;
       current.followUps = current.finalPayload.followUps;
       current.isStreaming = false;
+      current.processStep = null;
       current.finalPayload = null;
       current.streamFlushActive = false;
       renderConversation();
@@ -435,6 +450,7 @@ async function streamQuestion(question, assistantId, history) {
         upsertMessage(assistantId, (message) => {
           message.projectsUsed = event.projectsUsed;
           message.citations = event.citations;
+          message.processStep = PROCESS_STEPS.ground;
         });
       }
 
@@ -443,6 +459,7 @@ async function streamQuestion(question, assistantId, history) {
           if (!message.streamQueue) message.streamQueue = [];
           message.streamQueue.push(event.text);
           message.isStreaming = true;
+          message.processStep = PROCESS_STEPS.draft;
         });
         void flushStreamQueue(assistantId);
       }
@@ -450,6 +467,7 @@ async function streamQuestion(question, assistantId, history) {
       if (event.type === "done") {
         upsertMessage(assistantId, (message) => {
           message.finalPayload = event.payload;
+          message.processStep = PROCESS_STEPS.sources;
         });
         void flushStreamQueue(assistantId);
         state.mode = event.payload.mode;
@@ -501,6 +519,7 @@ async function submitQuestion(question) {
     citations: [],
     projectsUsed: [],
     followUps: [],
+    processStep: PROCESS_STEPS.retrieve,
     isStreaming: true
   };
 
@@ -515,6 +534,9 @@ async function submitQuestion(question) {
   } catch (streamError) {
     try {
       setStatus("Live typing unavailable on this API instance. Showing full answer instead.", "default");
+      upsertMessage(assistantMessage.id, (message) => {
+        message.processStep = PROCESS_STEPS.fallback;
+      });
       const payload = await askQuestion(question, history);
       upsertMessage(assistantMessage.id, (message) => {
         message.content = payload.answer;
@@ -522,6 +544,7 @@ async function submitQuestion(question) {
         message.projectsUsed = payload.projectsUsed;
         message.followUps = payload.followUps;
         message.isStreaming = false;
+        message.processStep = null;
         message.streamQueue = [];
         message.finalPayload = null;
       });
@@ -532,6 +555,7 @@ async function submitQuestion(question) {
       upsertMessage(assistantMessage.id, (message) => {
         message.content = "The interview service could not answer right now.";
         message.isStreaming = false;
+        message.processStep = null;
         message.streamQueue = [];
         message.finalPayload = null;
       });

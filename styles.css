@@ -813,14 +813,109 @@ img {
   gap: 10px;
 }
 
+/* System architecture page */
+.system-hero {
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+  align-items: center;
+  gap: 24px;
+}
+
+.system-hero-visual {
+  border: 1px solid var(--outline-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.system-hero-visual img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.system-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  counter-reset: system-step;
+}
+
+.system-node {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  min-height: 210px;
+  border: 1px solid var(--outline-soft);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(192, 88, 0, 0.09), rgba(255, 255, 255, 0.94) 54%);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.system-node::before {
+  counter-increment: system-step;
+  content: counter(system-step);
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accent-primary);
+  color: var(--cta-text);
+  font-weight: 700;
+}
+
+.system-node-label {
+  color: var(--accent-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.system-node h3 {
+  font-size: 1.12rem;
+}
+
+.system-node p {
+  color: var(--text-secondary);
+}
+
+.system-node code,
+.system-steps code,
+.case-block code {
+  color: var(--accent-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.system-steps {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+  color: var(--text-secondary);
+}
+
+.system-contract-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
 @media (max-width: 980px) {
   .hero,
-  .interview-spotlight {
+  .interview-spotlight,
+  .system-hero {
     grid-template-columns: 1fr;
   }
 
   .impact-strip {
     grid-template-columns: 1fr;
+  }
+
+  .system-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -858,6 +953,10 @@ img {
 
   .back-to-top {
     display: block;
+  }
+
+  .system-map {
+    grid-template-columns: 1fr;
   }
 }
 

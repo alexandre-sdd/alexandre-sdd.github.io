@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="AI-lexandre system architecture: how the portfolio interview assistant retrieves evidence, streams answers, and keeps citations grounded." />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="AI-lexandre System Architecture" />
+  <meta property="og:description" content="How the interview assistant works across GitHub Pages, Fastify, retrieval, OpenAI, and source-backed citations." />
+  <meta property="og:url" content="https://alexandre-sdd.github.io/ai-lexandre-system.html" />
+  <meta property="og:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI-lexandre System Architecture" />
+  <meta name="twitter:description" content="How the interview assistant works across GitHub Pages, Fastify, retrieval, OpenAI, and source-backed citations." />
+  <meta name="twitter:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png" />
+  <link rel="canonical" href="https://alexandre-sdd.github.io/ai-lexandre-system.html" />
+  <title>AI-lexandre System Architecture</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="case-page system-page">
+  <div class="page case-page">
+    <header class="site-header">
+      <div class="brand">
+        <a class="brand-name" href="./index.html">Alexandre SEPULVEDA de DIETRICH</a>
+        <span class="brand-title">Data Scientist and Business Analytics MS candidate</span>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./index.html">Back to Portfolio</a>
+        <a href="./interview/">Try AI-lexandre</a>
+        <a href="https://github.com/alexandre-sdd/alexandre-sdd.github.io" target="_blank" rel="noreferrer">Code</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="case-hero system-hero">
+        <div>
+          <p class="eyebrow">System Architecture</p>
+          <h1>AI-lexandre</h1>
+          <p class="meta">Recruiter-facing interview assistant over my portfolio evidence.</p>
+          <p class="case-summary">AI-lexandre is a small production-style RAG system: a static GitHub Pages frontend, a Railway-hosted Fastify API, a generated local evidence corpus, role-aware retrieval, OpenAI answer generation, streaming UI updates, and citation filtering so the visible sources match the answer.</p>
+          <div class="case-top-links artifacts-row" aria-label="AI-lexandre links">
+            <a class="artifact-link" href="./interview/">
+              <span class="artifact-icon" aria-hidden="true">Demo</span>
+              <span>Interview</span>
+            </a>
+            <a class="artifact-link" href="https://github.com/alexandre-sdd/alexandre-sdd.github.io" target="_blank" rel="noreferrer">
+              <span class="artifact-icon" aria-hidden="true">&lt;/&gt;</span>
+              <span>Code</span>
+            </a>
+          </div>
+        </div>
+        <figure class="system-hero-visual">
+          <img src="./assets/projects/interview-sim-thumb.svg" alt="AI-lexandre interview system visual." loading="eager" decoding="async" />
+        </figure>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Architecture</h2>
+          <p>The system separates the static portfolio experience from the interview runtime, so the public site stays fast while the API handles retrieval, model calls, and streaming.</p>
+        </div>
+
+        <div class="system-map" aria-label="AI-lexandre system architecture map">
+          <article class="system-node">
+            <span class="system-node-label">Static Client</span>
+            <h3>GitHub Pages</h3>
+            <p><code>interview/index.html</code>, <code>app.js</code>, and <code>config.js</code> render the chat UI, role presets, streaming tokens, sources, and follow-up chips.</p>
+          </article>
+          <article class="system-node">
+            <span class="system-node-label">API</span>
+            <h3>Fastify on Railway</h3>
+            <p><code>apps/interview-api</code> exposes health, config, evidence search, full response, and streaming response endpoints.</p>
+          </article>
+          <article class="system-node">
+            <span class="system-node-label">Evidence</span>
+            <h3>Generated Corpus</h3>
+            <p><code>content.json</code> is converted into chunks from projects, case studies, internships, education, and skills.</p>
+          </article>
+          <article class="system-node">
+            <span class="system-node-label">Model</span>
+            <h3>OpenAI Responses</h3>
+            <p>The API sends only the selected evidence blocks, role preset, question, and recent history to the model.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="case-grid case-standalone-grid" aria-label="System flow overview">
+        <article class="case-block">
+          <h2>Request Flow</h2>
+          <ol class="system-steps">
+            <li>The interview page loads API health and role/config data.</li>
+            <li>The user picks a role preset and asks a question.</li>
+            <li>The client calls <code>/v1/interview/stream</code> and falls back to <code>/respond</code> if streaming fails.</li>
+            <li>The API validates the request, retrieves evidence, and builds a grounded model prompt.</li>
+            <li>Tokens stream back to the UI, then the final payload updates answer text, sources, and follow-ups.</li>
+          </ol>
+        </article>
+
+        <article class="case-block">
+          <h2>Evidence Flow</h2>
+          <ol class="system-steps">
+            <li><code>content.json</code> is the source of truth for public portfolio evidence.</li>
+            <li><code>packages/interview-core</code> builds a corpus with source type, title, section, citation label, URL, keywords, and role tags.</li>
+            <li>Retrieval scores lexical matches, domain signals, role relevance, source type, and priority projects.</li>
+            <li>Broad questions can diversify across all projects; domain questions prioritize direct domain evidence.</li>
+            <li>The visible source chips are filtered to sources actually named in the final answer.</li>
+          </ol>
+        </article>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Runtime Contracts</h2>
+          <p>The important behavior is encoded as small contracts between the client, API, retrieval package, and deployment environment.</p>
+        </div>
+
+        <div class="system-contract-grid">
+          <article class="case-block">
+            <h2>Frontend</h2>
+            <ul>
+              <li>Reads the deployed API base URL from <code>interview/config.js</code>.</li>
+              <li>Maintains local chat state and selected role.</li>
+              <li>Parses NDJSON stream events: <code>meta</code>, <code>token</code>, <code>done</code>, and <code>error</code>.</li>
+              <li>Renders final sources from the completed payload, not from raw retrieval candidates.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>API</h2>
+            <ul>
+              <li>Uses Zod schemas to validate requests.</li>
+              <li>Builds role-aware retrieval context before generation.</li>
+              <li>Streams through the OpenAI Responses API when available.</li>
+              <li>Falls back to deterministic grounded answers if provider generation fails before tokens are emitted.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Retrieval</h2>
+            <ul>
+              <li>Uses local structured portfolio content instead of scraping the live page.</li>
+              <li>Supports source types for projects, case studies, experience, education, skills, and overview text.</li>
+              <li>Boosts direct healthcare, hospital, patient, physician, and respiratory evidence for medical questions.</li>
+              <li>Diversifies results for broad inventory and healthcare-domain questions.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Deployment</h2>
+            <ul>
+              <li>GitHub Pages serves the portfolio and interview client.</li>
+              <li>Railway runs the Fastify API with <code>OPENAI_API_KEY</code>, <code>OPENAI_MODEL</code>, and <code>CORS_ORIGIN</code>.</li>
+              <li><code>MOCK_INTERVIEW_RESPONSES</code> supports local deterministic mode.</li>
+              <li>The generated corpus is refreshed during the build path.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="case-grid case-grid-plain">
+        <article class="case-block">
+          <h2>Why This Structure</h2>
+          <ul>
+            <li>It keeps the public portfolio static and cheap to serve, while the API can evolve independently.</li>
+            <li>It makes interview answers auditable because every answer starts from structured local evidence.</li>
+            <li>It lets role presets steer answers without hiding the actual retrieval basis.</li>
+            <li>It creates clear failure modes: API unavailable, streaming unavailable, provider unavailable, or weak evidence.</li>
+          </ul>
+        </article>
+
+        <article class="case-block">
+          <h2>Files To Read</h2>
+          <ul>
+            <li><code>interview/app.js</code> for the browser chat and streaming client.</li>
+            <li><code>apps/interview-api/src/app.ts</code> for HTTP endpoints and streaming response wiring.</li>
+            <li><code>apps/interview-api/src/services/interview-service.ts</code> for retrieval, fallback generation, source filtering, and payload construction.</li>
+            <li><code>packages/interview-core/src/retrieval.ts</code> for evidence scoring and domain-specific routing.</li>
+            <li><code>packages/interview-core/src/corpus.ts</code> for corpus generation from portfolio content.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>© 2026 Alexandre SEPULVEDA de DIETRICH</span>
+    </footer>
+  </div>
+</body>
+</html>

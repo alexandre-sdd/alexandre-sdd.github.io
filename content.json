@@ -53,7 +53,7 @@
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/alexandre-sdd.github.io",
         "demo": "./interview/",
-        "writeup": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
+        "writeup": "./ai-lexandre-system.html",
         "slides": ""
       }
     },
