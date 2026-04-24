@@ -9,6 +9,7 @@ function buildEvidenceBlock(evidence: RetrievalMatch[]): string {
     .map(
       (match, index) =>
         `[E${index + 1}] title=${match.chunk.title}\n` +
+        `sourceType=${match.chunk.sourceType}\n` +
         `section=${match.chunk.section}\n` +
         `projectId=${match.chunk.projectId ?? "n/a"}\n` +
         `citation=${match.chunk.citationLabel}\n` +

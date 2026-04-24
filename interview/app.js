@@ -116,6 +116,19 @@ function createFollowUpChip(text) {
   return button;
 }
 
+function sourceTypeLabel(sourceType) {
+  const labels = {
+    "case-study": "Case study",
+    education: "Education",
+    experience: "Experience",
+    overview: "Overview",
+    project: "Project",
+    skills: "Skills"
+  };
+
+  return labels[sourceType] || "Source";
+}
+
 function createSources(message) {
   if ((!message.projectsUsed || message.projectsUsed.length === 0) && (!message.citations || message.citations.length === 0)) {
     return null;
@@ -128,12 +141,13 @@ function createSources(message) {
     const row = document.createElement("div");
     row.className = "source-row";
 
-    message.projectsUsed.forEach((project) => {
-      const link = document.createElement(project.publicUrl ? "a" : "span");
+    message.projectsUsed.forEach((source) => {
+      const link = document.createElement(source.publicUrl ? "a" : "span");
       link.className = "source-chip";
-      link.textContent = project.title;
-      if (project.publicUrl) {
-        link.href = project.publicUrl;
+      link.textContent = source.sourceType && source.sourceType !== "project" ? `${sourceTypeLabel(source.sourceType)}: ${source.title}` : source.title;
+      link.title = source.why ? `${sourceTypeLabel(source.sourceType)} · ${source.why}` : sourceTypeLabel(source.sourceType);
+      if (source.publicUrl) {
+        link.href = source.publicUrl;
         link.target = "_blank";
         link.rel = "noreferrer";
       }

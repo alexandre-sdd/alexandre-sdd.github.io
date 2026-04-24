@@ -18,8 +18,8 @@
   <path d="M590 368L650 410" stroke="#D97706" stroke-width="10" stroke-linecap="round"/>
   <circle cx="590" cy="368" r="20" fill="#D97706"/>
   <circle cx="650" cy="410" r="20" fill="#D97706"/>
-  <text x="132" y="96" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="28" font-weight="700">Interview Simulator</text>
-  <text x="132" y="694" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="34" font-weight="700">Grounded interview agent with live streaming and source-backed answers</text>
+  <text x="132" y="96" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="32" font-weight="700">AI-lexandre</text>
+  <text x="132" y="694" fill="#5C4630" font-family="Space Grotesk, sans-serif" font-size="30" font-weight="700">Grounded answers from portfolio, internships, and project evidence</text>
   <defs>
     <linearGradient id="bg" x1="68" y1="68" x2="1120" y2="712" gradientUnits="userSpaceOnUse">
       <stop stop-color="#FFF9EF"/>

@@ -45,6 +45,10 @@ function matchCount(haystack: string[], needles: string[]): number {
   return needles.reduce((count, needle) => count + (set.has(needle) ? 1 : 0), 0);
 }
 
+function queryHas(query: string, pattern: RegExp): boolean {
+  return pattern.test(query.toLowerCase());
+}
+
 function baseSourceWeight(chunk: CorpusChunk): number {
   switch (chunk.sourceType) {
     case "project":
@@ -63,6 +67,7 @@ function baseSourceWeight(chunk: CorpusChunk): number {
 }
 
 function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): RetrievalMatch {
+  const lowerQuery = query.toLowerCase();
   const queryTokens = tokenize(query);
   const titleTokens = tokenize(chunk.title);
   const sectionTokens = tokenize(chunk.section);
@@ -103,6 +108,34 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     reasons.push("core evidence");
   }
 
+  if (chunk.sourceType === "experience") {
+    if (queryHas(lowerQuery, /\b(internship|internships|intern|role|roles|job|jobs|work history|work experience|professional experience)\b/)) {
+      score += 24;
+      reasons.push("strong experience intent");
+    } else if (queryHas(lowerQuery, /\b(experience|experiences)\b/)) {
+      score += 10;
+      reasons.push("experience intent");
+    }
+  }
+
+  if (
+    (chunk.sourceType === "project" || chunk.sourceType === "case-study") &&
+    queryHas(lowerQuery, /\b(project|projects|built|build|portfolio|case study|case studies|work sample|work samples)\b/)
+  ) {
+    score += 4;
+    reasons.push("project intent");
+  }
+
+  if (chunk.sourceType === "education" && queryHas(lowerQuery, /\b(education|school|degree|coursework|university|college|gpa)\b/)) {
+    score += 8;
+    reasons.push("education intent");
+  }
+
+  if (chunk.sourceType === "skills" && queryHas(lowerQuery, /\b(skill|skills|stack|tools|technologies|technology|languages)\b/)) {
+    score += 8;
+    reasons.push("skills intent");
+  }
+
   if (rolePreset) {
     const roleKeywordHits = matchCount(keywordTokens, rolePreset.keywords.map((keyword) => keyword.toLowerCase()));
     if (chunk.roleTags.includes(rolePreset.id)) {
@@ -124,13 +157,13 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
   return { chunk, score, reasons };
 }
 
-function diversify(matches: RetrievalMatch[], topK: number): RetrievalMatch[] {
+function diversify(matches: RetrievalMatch[], topK: number, maxPerSource = 2): RetrievalMatch[] {
   const selected: RetrievalMatch[] = [];
   const perSource = new Map<string, number>();
 
   for (const match of matches) {
     const sourceCount = perSource.get(match.chunk.sourceId) ?? 0;
-    if (sourceCount >= 2) continue;
+    if (sourceCount >= maxPerSource) continue;
     selected.push(match);
     perSource.set(match.chunk.sourceId, sourceCount + 1);
     if (selected.length >= topK) break;
@@ -150,5 +183,5 @@ export function retrieveEvidence(
     .filter((match) => match.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  return diversify(scored, topK);
+  return diversify(scored, topK, options.maxPerSource);
 }

@@ -1,8 +1,8 @@
-# Interview Simulator MVP
+# AI-lexandre MVP
 
 ## Product Goal
 
-Build a recruiter-facing experience that lets a visitor interview Alexandre through grounded portfolio evidence instead of reading static cards.
+Build AI-lexandre: a recruiter-facing experience that lets a visitor interview Alexandre through grounded portfolio evidence instead of reading static cards.
 
 The MVP is intentionally narrow:
 
@@ -31,7 +31,7 @@ packages/
 docs/
   interview-mvp.md      Product and architecture spec
 interview/
-  index.html            Static simulator page
+  index.html            Static AI-lexandre page
   app.js                Frontend logic
   styles.css            Frontend-specific styling
   config.js             API base URL config for local or Railway use
@@ -48,7 +48,7 @@ interview/
 7. Frontend shows:
    - the answer
    - cited evidence
-   - project routing
+   - source routing across projects, internships, experience, education, and skills
    - retrieval debug trace
 
 ## Architecture
@@ -57,7 +57,7 @@ interview/
 
 - Plain HTML/CSS/JS to match the existing GitHub Pages site.
 - Configurable API base URL stored in `localStorage`.
-- Evidence panel on the right to make grounding explicit.
+- Inline source chips and citation details make grounding explicit.
 
 ### Shared Core
 
@@ -108,12 +108,8 @@ When `MOCK_INTERVIEW_RESPONSES=false` and `OPENAI_API_KEY` is present:
 
 - the API calls OpenAI through the Responses API
 - evidence is passed explicitly in the prompt
-- the model is asked for structured JSON:
-  - answer
-  - citation ids
-  - project ids
-  - follow-up suggestions
-  - confidence
+- the model is asked for concise interview-ready prose
+- citations, source chips, follow-up suggestions, and confidence are assembled by the API from the retrieved local corpus
 
 Default model:
 

@@ -132,6 +132,7 @@ export interface RetrievalMatch {
 export interface RetrievalOptions {
   roleId?: string;
   topK?: number;
+  maxPerSource?: number;
 }
 
 export interface InterviewTurn {

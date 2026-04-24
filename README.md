@@ -1,11 +1,11 @@
 # alexandre-sdd.github.io
 
-Portfolio site hosted on GitHub Pages, with a static interview simulator frontend and a separate API for grounded interview answers.
+Portfolio site hosted on GitHub Pages, with AI-lexandre as a static interview frontend and a separate API for grounded interview answers.
 
 ## Main Areas
 
 - `index.html`, `main.js`, `styles.css`, `content.json`: main portfolio site
-- `interview/`: static recruiter interview simulator page
+- `interview/`: static AI-lexandre recruiter interview page
 - `packages/interview-core/`: shared corpus builder, presets, retrieval
 - `apps/interview-api/`: Railway-ready Fastify API for grounded answers
 - `docs/interview-mvp.md`: product and architecture spec
@@ -19,13 +19,13 @@ Portfolio site hosted on GitHub Pages, with a static interview simulator fronten
 
 ## How Portfolio Content Works
 
-Update `content.json`. The main site and the interview corpus both derive from it, so the portfolio and simulator stay aligned.
+Update `content.json`. The main site and the interview corpus both derive from it, so the portfolio and AI-lexandre stay aligned.
 
 If JavaScript is disabled, the static HTML in `index.html` is shown. If you want perfect no-JS parity, keep `index.html` aligned with `content.json`.
 
-## Interview Simulator
+## AI-lexandre
 
-The simulator lives at `./interview/` and expects a backend API.
+AI-lexandre lives at `./interview/` and expects a backend API.
 
 Local setup:
 

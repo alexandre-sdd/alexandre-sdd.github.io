@@ -7,7 +7,7 @@
   "about": "I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.",
   "heroProofBullets": [
     "Built an accounting data quality and anomaly detection pipeline at CHANEL Europe.",
-    "Won the ElevenLabs voice AI track in NYC and built a recruiter-facing interview simulator with grounded citations and live streaming."
+    "Won the ElevenLabs voice AI track in NYC and built AI-lexandre, a recruiter-facing interview assistant with grounded citations and live streaming."
   ],
   "recruiterQuickFacts": {
     "location": "New York, NY",
@@ -33,9 +33,9 @@
   },
   "projects": [
     {
-      "id": "interview-through-my-work",
-      "title": "Interview Me Through My Work",
-      "summary": "Recruiter-facing interview simulator that answers in first person from my published portfolio, streams responses live, and shows source-backed project evidence.",
+      "id": "ai-lexandre",
+      "title": "AI-lexandre",
+      "summary": "Recruiter-facing interview assistant that answers in first person from my published portfolio, streams responses live, and shows source-backed evidence.",
       "result": "Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus.",
       "highlights": [
         "Turns the portfolio into an interactive interview product instead of a static list of project cards.",

@@ -21,11 +21,12 @@ export interface CitationView {
   projectId?: string;
 }
 
-export interface ProjectUsage {
+export interface SourceUsage {
   id: string;
   title: string;
   why: string;
   publicUrl?: string;
+  sourceType: string;
 }
 
 export interface InterviewResponsePayload {
@@ -34,7 +35,7 @@ export interface InterviewResponsePayload {
   answer: string;
   confidence: "high" | "medium" | "low";
   citations: CitationView[];
-  projectsUsed: ProjectUsage[];
+  projectsUsed: SourceUsage[];
   followUps: string[];
   retrieval: {
     topK: number;
@@ -55,7 +56,7 @@ export type InterviewStreamEvent =
       mode: "mock" | "openai";
       role: Pick<RolePreset, "id" | "label">;
       citations: CitationView[];
-      projectsUsed: ProjectUsage[];
+      projectsUsed: SourceUsage[];
     }
   | {
       type: "token";
@@ -104,23 +105,23 @@ function citationFromMatch(match: RetrievalMatch): CitationView {
   };
 }
 
-function inferProjectUsage(matches: RetrievalMatch[]): ProjectUsage[] {
-  const ordered = new Map<string, ProjectUsage>();
+function inferSourceUsage(matches: RetrievalMatch[]): SourceUsage[] {
+  const ordered = new Map<string, SourceUsage>();
 
   matches.forEach((match) => {
-    if (match.chunk.sourceType !== "project" && match.chunk.sourceType !== "case-study") return;
     const key = match.chunk.projectId ?? match.chunk.sourceId;
     if (!ordered.has(key)) {
       ordered.set(key, {
         id: key,
         title: match.chunk.title,
         why: match.chunk.section,
-        publicUrl: match.chunk.publicUrl
+        publicUrl: match.chunk.publicUrl,
+        sourceType: match.chunk.sourceType
       });
     }
   });
 
-  return Array.from(ordered.values()).slice(0, 3);
+  return Array.from(ordered.values()).slice(0, 4);
 }
 
 function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMatch[] {
@@ -138,16 +139,8 @@ function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMa
   return selected;
 }
 
-function preferredProjectEvidence(matches: RetrievalMatch[], count: number): RetrievalMatch[] {
-  const projectMatches = matches.filter(
-    (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study"
-  );
-  const preferred = distinctEvidence(projectMatches, count);
-  return preferred.length > 0 ? preferred : distinctEvidence(matches, count);
-}
-
-function defaultFollowUps(primaryProjectTitle?: string): string[] {
-  if (!primaryProjectTitle) {
+function defaultFollowUps(primarySourceTitle?: string): string[] {
+  if (!primarySourceTitle) {
     return [
       "Go deeper on system design.",
       "Ask for a stronger example.",
@@ -156,9 +149,9 @@ function defaultFollowUps(primaryProjectTitle?: string): string[] {
   }
 
   return [
-    `Go deeper on ${primaryProjectTitle}.`,
+    `Go deeper on ${primarySourceTitle}.`,
     "Ask about tradeoffs and failure modes.",
-    "Compare this with another project."
+    "Compare this with another project or experience."
   ];
 }
 
@@ -168,8 +161,16 @@ function confidenceFromEvidence(evidence: RetrievalMatch[]): "high" | "medium" |
   return "low";
 }
 
+function shouldBroadenRetrieval(question: string): boolean {
+  const lowerQuestion = question.toLowerCase();
+  const asksForList = /\b(all|every|list|overview|range)\b/.test(lowerQuestion);
+  const asksForPortfolioSources = /\b(project|projects|experience|experiences|internship|internships|work)\b/.test(lowerQuestion);
+
+  return asksForList && asksForPortfolioSources;
+}
+
 function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[]): string {
-  const [primary, secondary] = preferredProjectEvidence(evidence, 2);
+  const [primary, secondary] = distinctEvidence(evidence, 2);
   const lowerQuestion = question.toLowerCase();
 
   const opening = primary
@@ -177,10 +178,10 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
     : "I do not have enough published evidence loaded to answer that precisely.";
 
   const angle = /tradeoff|failure|challenge|constraint|why/i.test(lowerQuestion)
-    ? "The main reason it matters is that it forced me to make concrete design tradeoffs instead of just building a demo."
+    ? "The main reason it matters is that it forced me to make concrete tradeoffs instead of giving a generic answer."
     : /compare|range|different/i.test(lowerQuestion)
       ? "It is a good example because it shows one part of my profile clearly and lets me contrast it with other work."
-      : "It is a strong fit because it shows how I turn technical work into something concrete and usable.";
+      : "It is a strong fit because it shows how I turn technical work and experience into something concrete and usable.";
 
   const support = secondary
     ? `A second supporting example is ${secondary.chunk.title}, which helps show range beyond that first system.`
@@ -204,16 +205,16 @@ async function streamTextByWord(
 }
 
 function buildResponseBase(config: AppConfig, role: RolePreset, evidence: RetrievalMatch[], topK: number) {
-  const citations = preferredProjectEvidence(evidence, 3).map(citationFromMatch);
-  const projectsUsed = inferProjectUsage(evidence);
-  const primaryProject = projectsUsed[0]?.title;
+  const citations = distinctEvidence(evidence, 4).map(citationFromMatch);
+  const projectsUsed = inferSourceUsage(evidence);
+  const primarySource = projectsUsed[0]?.title;
 
   return {
     mode: config.useMockResponses ? ("mock" as const) : ("openai" as const),
     role,
     citations,
     projectsUsed,
-    followUps: defaultFollowUps(primaryProject),
+    followUps: defaultFollowUps(primarySource),
     retrieval: {
       topK,
       results: evidence.map((match) => ({
@@ -238,10 +239,14 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     topK?: number;
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
-    const topK = params.topK ?? config.retrievalTopK;
+    const broadenRetrieval = !params.topK && shouldBroadenRetrieval(params.question);
+    const topK =
+      params.topK ??
+      (broadenRetrieval ? Math.max(config.retrievalTopK, 14) : config.retrievalTopK);
     const evidence = retrieveEvidence(corpus, params.question, {
       roleId: role.id,
-      topK
+      topK,
+      maxPerSource: broadenRetrieval ? 1 : undefined
     });
 
     return {

@@ -21,7 +21,7 @@ const contentFilePath = path.join(repoRoot, "content.json");
 const generatedCorpusPath = path.join(repoRoot, "packages/interview-core/generated/corpus.json");
 
 const PROJECT_ROLE_TAGS: Record<string, string[]> = {
-  "interview-through-my-work": ["ai-engineer", "ml-engineer", "product-data-scientist"],
+  "ai-lexandre": ["ai-engineer", "ml-engineer", "product-data-scientist"],
   "tomorrow-you": ["ai-engineer", "ml-engineer", "product-data-scientist"],
   helpfullens: ["ml-engineer", "product-data-scientist"],
   "childcare-deserts-nyc": ["optimization-analytics", "research-engineer", "product-data-scientist"],
@@ -30,7 +30,8 @@ const PROJECT_ROLE_TAGS: Record<string, string[]> = {
   "linkedin-note-copilot": ["ai-engineer", "product-data-scientist"],
   "zeit-project": ["optimization-analytics", "product-data-scientist", "ai-engineer"],
   "dna-plasmid-closure": ["research-engineer", "optimization-analytics"],
-  "chanel-europe-analytics-pipeline": ["ml-engineer", "product-data-scientist"]
+  "chanel-europe-analytics-pipeline": ["ml-engineer", "product-data-scientist"],
+  "forvia-camera-radar-fusion-prototype": ["research-engineer", "ml-engineer", "optimization-analytics"]
 };
 
 const TOPIC_KEYWORDS = [

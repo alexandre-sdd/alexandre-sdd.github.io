@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T05:06:56.758Z",
+  "generatedAt": "2026-04-24T05:29:57.903Z",
   "chunkCount": 37,
   "chunks": [
     {
@@ -8,7 +8,7 @@
       "sourceId": "profile",
       "title": "Alexandre SEPULVEDA de DIETRICH profile",
       "section": "Portfolio overview",
-      "text": "Data Scientist and Business Analytics MS candidate. Seeking Summer 2026 Data Science, AI Engineering, and ML internships in NYC. I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.. Highlights: Built an accounting data quality and anomaly detection pipeline at CHANEL Europe. Won the ElevenLabs voice AI track in NYC and built a recruiter-facing interview simulator with grounded citations and live streaming. Impact: Built production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe Shipped AI product MVPs and portfolio-native agent experiences with FastAPI, Next.js, and LLM orchestration Built optimization and simulation models for childcare access and healthcare appointment dynamics",
+      "text": "Data Scientist and Business Analytics MS candidate. Seeking Summer 2026 Data Science, AI Engineering, and ML internships in NYC. I build practical data and AI systems: anomaly detection for finance teams, optimization models for public-policy problems, and product-grade ML tools with modern web stacks.. Highlights: Built an accounting data quality and anomaly detection pipeline at CHANEL Europe. Won the ElevenLabs voice AI track in NYC and built AI-lexandre, a recruiter-facing interview assistant with grounded citations and live streaming. Impact: Built production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe Shipped AI product MVPs and portfolio-native agent experiences with FastAPI, Next.js, and LLM orchestration Built optimization and simulation models for childcare access and healthcare appointment dynamics",
       "citationLabel": "Portfolio overview",
       "publicUrl": "../index.html#home",
       "roleTags": [
@@ -61,14 +61,14 @@
       ]
     },
     {
-      "id": "project:interview-through-my-work:summary",
+      "id": "project:ai-lexandre:summary",
       "sourceType": "project",
-      "sourceId": "interview-through-my-work",
-      "projectId": "interview-through-my-work",
-      "title": "Interview Me Through My Work",
+      "sourceId": "ai-lexandre",
+      "projectId": "ai-lexandre",
+      "title": "AI-lexandre",
       "section": "Project summary",
-      "text": "Summary: Recruiter-facing interview simulator that answers in first person from my published portfolio, streams responses live, and shows source-backed project evidence. Result: Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus. Tags: TypeScript, OpenAI API, Fastify, GitHub Pages.",
-      "citationLabel": "Interview Me Through My Work - summary",
+      "text": "Summary: Recruiter-facing interview assistant that answers in first person from my published portfolio, streams responses live, and shows source-backed evidence. Result: Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus. Tags: TypeScript, OpenAI API, Fastify, GitHub Pages.",
+      "citationLabel": "AI-lexandre - summary",
       "publicUrl": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
       "roleTags": [
         "ai-engineer",
@@ -81,19 +81,16 @@
         "openai api",
         "fastify",
         "github pages",
-        "interview-through-my-work",
-        "interview me through my work",
+        "ai-lexandre",
         "ai",
         "api",
         "openai",
         "retrieval",
-        "interview",
-        "through",
-        "work",
         "project",
         "summary",
         "recruiter-facing",
-        "simulator",
+        "interview",
+        "assistant",
         "that",
         "answers",
         "first",
@@ -116,18 +113,21 @@
         "role-aware",
         "streaming",
         "grounded",
-        "citations"
+        "citations",
+        "over",
+        "own",
+        "corpus."
       ]
     },
     {
-      "id": "project:interview-through-my-work:highlights",
+      "id": "project:ai-lexandre:highlights",
       "sourceType": "project",
-      "sourceId": "interview-through-my-work",
-      "projectId": "interview-through-my-work",
-      "title": "Interview Me Through My Work",
+      "sourceId": "ai-lexandre",
+      "projectId": "ai-lexandre",
+      "title": "AI-lexandre",
       "section": "Project highlights",
       "text": "Turns the portfolio into an interactive interview product instead of a static list of project cards. Builds a local corpus from portfolio projects, case studies, experience, education, and skills, then retrieves role-relevant evidence before answering. Streams answers live in the UI while keeping links back to the source projects and writeups visible.",
-      "citationLabel": "Interview Me Through My Work - highlights",
+      "citationLabel": "AI-lexandre - highlights",
       "publicUrl": "https://github.com/alexandre-sdd/alexandre-sdd.github.io/blob/main/docs/interview-mvp.md",
       "roleTags": [
         "ai-engineer",
@@ -140,17 +140,15 @@
         "openai api",
         "fastify",
         "github pages",
-        "interview-through-my-work",
-        "interview me through my work",
+        "ai-lexandre",
+        "ai",
         "product",
-        "interview",
-        "through",
-        "work",
         "project",
         "highlights",
         "turns",
         "portfolio",
         "interactive",
+        "interview",
         "instead",
         "static",
         "list",
@@ -175,7 +173,9 @@
         "live",
         "ui",
         "while",
-        "keeping"
+        "keeping",
+        "links",
+        "back"
       ]
     },
     {
@@ -1264,7 +1264,9 @@
       "citationLabel": "Forvia Multi-Sensor Localization Research - summary",
       "publicUrl": "../case-study-forvia.html",
       "roleTags": [
-        "ai-engineer"
+        "research-engineer",
+        "ml-engineer",
+        "optimization-analytics"
       ],
       "evidenceStrength": "core",
       "keywords": [
@@ -1320,7 +1322,9 @@
       "citationLabel": "Forvia Multi-Sensor Localization Research - problem and constraints",
       "publicUrl": "../case-study-forvia.html",
       "roleTags": [
-        "ai-engineer"
+        "research-engineer",
+        "ml-engineer",
+        "optimization-analytics"
       ],
       "evidenceStrength": "core",
       "keywords": [
@@ -1377,7 +1381,9 @@
       "citationLabel": "Forvia Multi-Sensor Localization Research - approach and results",
       "publicUrl": "../case-study-forvia.html",
       "roleTags": [
-        "ai-engineer"
+        "research-engineer",
+        "ml-engineer",
+        "optimization-analytics"
       ],
       "evidenceStrength": "core",
       "keywords": [
