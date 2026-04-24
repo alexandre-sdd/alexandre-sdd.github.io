@@ -298,8 +298,12 @@ test("medical field questions use direct healthcare evidence", async () => {
     "Expected direct healthcare source chip"
   );
   assert.ok(
-    json.retrieval.results.slice(0, 4).every((result) => result.reasons.includes("healthcare domain match")),
+    json.retrieval.results.slice(0, 3).every((result) => result.reasons.includes("healthcare domain match")),
     "Expected healthcare evidence to outrank adjacent AI projects"
+  );
+  assert.ok(
+    json.retrieval.results.slice(0, 3).some((result) => /Nantes University Hospital/i.test(result.title)),
+    "Expected Nantes hospital evidence in the primary healthcare retrieval set"
   );
 
   await app.close();

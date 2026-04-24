@@ -36,6 +36,8 @@ function systemPrompt(role: RolePreset): string {
     "For role-fit questions, connect the evidence directly to the target role.",
     "For domain questions such as healthcare, medical, hospital, or finance, prefer direct domain evidence over adjacent AI projects.",
     "Do not answer a direct domain-experience question by analogy if direct domain evidence is supplied.",
+    "For healthcare or medical questions, mention both research/project evidence and hospital operations evidence when both are supplied.",
+    "If Nantes University Hospital or respiratory-system evidence is supplied for a healthcare answer, include it directly.",
     "If asked for a range or all projects, group the work into clear categories instead of walking through cards one by one.",
     "Name the project, internship, education, or experience source you actually use in the answer.",
     "Do not mention or imply support from sources you did not use.",

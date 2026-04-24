@@ -288,6 +288,12 @@ function shouldBroadenRetrieval(question: string): boolean {
   return asksForList && asksForPortfolioSources;
 }
 
+function shouldDiversifyHealthcareEvidence(question: string): boolean {
+  return /\b(care|clinical|clinic|cuimc|doctor|doctors|healthcare|health care|hospital|medical|medicine|nantes|patient|patients|physician|physicians|respiratory)\b/i.test(
+    question
+  );
+}
+
 function inferInterviewIntent(question: string): InterviewIntent {
   const lowerQuestion = question.toLowerCase();
 
@@ -463,7 +469,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     const evidence = retrieveEvidence(corpus, params.question, {
       roleId: role.id,
       topK,
-      maxPerSource: broadenRetrieval ? 1 : undefined
+      maxPerSource: broadenRetrieval || shouldDiversifyHealthcareEvidence(params.question) ? 1 : undefined
     });
 
     return {
