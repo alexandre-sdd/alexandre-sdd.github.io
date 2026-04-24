@@ -25,6 +25,7 @@ export interface ProjectUsage {
   id: string;
   title: string;
   why: string;
+  publicUrl?: string;
 }
 
 export interface InterviewResponsePayload {
@@ -48,12 +49,30 @@ export interface InterviewResponsePayload {
   };
 }
 
-export interface LlmStructuredAnswer {
+export type InterviewStreamEvent =
+  | {
+      type: "meta";
+      mode: "mock" | "openai";
+      role: Pick<RolePreset, "id" | "label">;
+      citations: CitationView[];
+      projectsUsed: ProjectUsage[];
+    }
+  | {
+      type: "token";
+      text: string;
+    }
+  | {
+      type: "done";
+      payload: InterviewResponsePayload;
+    }
+  | {
+      type: "error";
+      message: string;
+    };
+
+export interface LlmAnswer {
   answer: string;
-  citationIds: string[];
-  projectIds: string[];
-  followUps: string[];
-  confidence: "high" | "medium" | "low";
+  confidence?: "high" | "medium" | "low";
 }
 
 export interface LlmGenerationInput {
@@ -64,7 +83,8 @@ export interface LlmGenerationInput {
 }
 
 export interface LlmService {
-  generate(input: LlmGenerationInput): Promise<LlmStructuredAnswer>;
+  generate(input: LlmGenerationInput): Promise<LlmAnswer>;
+  stream?(input: LlmGenerationInput, onToken: (token: string) => Promise<void> | void): Promise<LlmAnswer>;
 }
 
 function buildExcerpt(text: string): string {
@@ -94,7 +114,8 @@ function inferProjectUsage(matches: RetrievalMatch[]): ProjectUsage[] {
       ordered.set(key, {
         id: key,
         title: match.chunk.title,
-        why: match.chunk.section
+        why: match.chunk.section,
+        publicUrl: match.chunk.publicUrl
       });
     }
   });
@@ -125,41 +146,111 @@ function preferredProjectEvidence(matches: RetrievalMatch[], count: number): Ret
   return preferred.length > 0 ? preferred : distinctEvidence(matches, count);
 }
 
-function defaultFollowUps(role: RolePreset): string[] {
+function defaultFollowUps(primaryProjectTitle?: string): string[] {
+  if (!primaryProjectTitle) {
+    return [
+      "Go deeper on system design.",
+      "Ask for a stronger example.",
+      "Challenge the answer on tradeoffs."
+    ];
+  }
+
   return [
-    `Ask me for a deeper ${role.label.toLowerCase()} example.`,
-    "Challenge the answer and ask for a more technical version.",
-    "Ask me to compare this project with another one in the portfolio."
+    `Go deeper on ${primaryProjectTitle}.`,
+    "Ask about tradeoffs and failure modes.",
+    "Compare this with another project."
   ];
 }
 
-function buildMockAnswer(question: string, role: RolePreset, evidence: RetrievalMatch[]): LlmStructuredAnswer {
+function confidenceFromEvidence(evidence: RetrievalMatch[]): "high" | "medium" | "low" {
+  if (evidence.length >= 3 && evidence[0] && evidence[0].score >= 24) return "high";
+  if (evidence.length >= 2) return "medium";
+  return "low";
+}
+
+function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[]): string {
   const [primary, secondary] = preferredProjectEvidence(evidence, 2);
-  const usage = inferProjectUsage(evidence);
+  const lowerQuestion = question.toLowerCase();
 
   const opening = primary
-    ? `For ${role.label.toLowerCase()} interviews, I would usually anchor this answer on ${primary.chunk.title}. ${primary.chunk.text}`
-    : "I do not have enough evidence loaded to answer that confidently yet.";
+    ? `For ${role.label.toLowerCase()} interviews, I usually lead with ${primary.chunk.title}. ${primary.chunk.text}`
+    : "I do not have enough published evidence loaded to answer that precisely.";
 
-  const supporting = secondary
-    ? `A second useful piece of evidence is ${secondary.chunk.title}, which helps show range beyond the first example.`
+  const angle = /tradeoff|failure|challenge|constraint|why/i.test(lowerQuestion)
+    ? "The main reason it matters is that it forced me to make concrete design tradeoffs instead of just building a demo."
+    : /compare|range|different/i.test(lowerQuestion)
+      ? "It is a good example because it shows one part of my profile clearly and lets me contrast it with other work."
+      : "It is a strong fit because it shows how I turn technical work into something concrete and usable.";
+
+  const support = secondary
+    ? `A second supporting example is ${secondary.chunk.title}, which helps show range beyond that first system.`
     : "";
 
-  const tradeoffHint = /tradeoff|why|decision|architecture|system/i.test(question)
-    ? `What makes this relevant is the way it combines product judgment with technical tradeoffs, which is central to the role lens: ${role.recruiterLens}`
-    : `What this demonstrates for the role is ${role.summary}`;
+  return [opening, angle, support].filter(Boolean).join(" ");
+}
+
+async function streamTextByWord(
+  text: string,
+  onToken: (token: string) => Promise<void> | void,
+  delayMs = 10
+): Promise<void> {
+  const chunks = text.match(/\S+\s*/g) ?? [text];
+  for (const chunk of chunks) {
+    await onToken(chunk);
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
+function buildResponseBase(config: AppConfig, role: RolePreset, evidence: RetrievalMatch[], topK: number) {
+  const citations = preferredProjectEvidence(evidence, 3).map(citationFromMatch);
+  const projectsUsed = inferProjectUsage(evidence);
+  const primaryProject = projectsUsed[0]?.title;
 
   return {
-    answer: [opening, supporting, tradeoffHint].filter(Boolean).join(" "),
-    citationIds: preferredProjectEvidence(evidence, 3).map((match) => match.chunk.id),
-    projectIds: usage.map((project) => project.id),
-    followUps: defaultFollowUps(role),
-    confidence: evidence.length >= 3 ? "high" : evidence.length >= 2 ? "medium" : "low"
+    mode: config.useMockResponses ? ("mock" as const) : ("openai" as const),
+    role,
+    citations,
+    projectsUsed,
+    followUps: defaultFollowUps(primaryProject),
+    retrieval: {
+      topK,
+      results: evidence.map((match) => ({
+        id: match.chunk.id,
+        score: match.score,
+        reasons: match.reasons,
+        title: match.chunk.title,
+        section: match.chunk.section,
+        publicUrl: match.chunk.publicUrl
+      }))
+    }
   };
 }
 
 export function createInterviewService(config: AppConfig, llmService: LlmService) {
   const corpus = loadGeneratedCorpus();
+
+  function buildQuestionContext(params: {
+    question: string;
+    roleId?: string;
+    history?: InterviewTurn[];
+    topK?: number;
+  }) {
+    const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
+    const topK = params.topK ?? config.retrievalTopK;
+    const evidence = retrieveEvidence(corpus, params.question, {
+      roleId: role.id,
+      topK
+    });
+
+    return {
+      role,
+      topK,
+      evidence,
+      history: params.history ?? []
+    };
+  }
 
   async function answerQuestion(params: {
     question: string;
@@ -167,53 +258,91 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     history?: InterviewTurn[];
     topK?: number;
   }): Promise<InterviewResponsePayload> {
-    const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
-    const evidence = retrieveEvidence(corpus, params.question, {
-      roleId: role.id,
-      topK: params.topK ?? config.retrievalTopK
-    });
-
+    const context = buildQuestionContext(params);
+    const base = buildResponseBase(config, context.role, context.evidence, context.topK);
     const generation = config.useMockResponses
-      ? buildMockAnswer(params.question, role, evidence)
+      ? {
+          answer: buildMockAnswerText(params.question, context.role, context.evidence),
+          confidence: confidenceFromEvidence(context.evidence)
+        }
       : await llmService.generate({
           question: params.question,
-          role,
-          history: params.history ?? [],
-          evidence
+          role: context.role,
+          history: context.history,
+          evidence: context.evidence
         });
 
-    const citationsById = new Map(evidence.map((match) => [match.chunk.id, citationFromMatch(match)]));
-    const citations = generation.citationIds
-      .map((id) => citationsById.get(id))
-      .filter((citation): citation is CitationView => Boolean(citation));
-    const fallbackCitations = citations.length > 0 ? citations : evidence.slice(0, 3).map(citationFromMatch);
-
-    const projectsUsed = generation.projectIds.length > 0
-      ? generation.projectIds
-          .map((projectId) => inferProjectUsage(evidence).find((project) => project.id === projectId))
-          .filter((project): project is ProjectUsage => Boolean(project))
-      : inferProjectUsage(evidence);
-
     return {
-      mode: config.useMockResponses ? "mock" : "openai",
-      role,
+      ...base,
       answer: generation.answer,
-      confidence: generation.confidence,
-      citations: fallbackCitations,
-      projectsUsed,
-      followUps: generation.followUps.length > 0 ? generation.followUps : defaultFollowUps(role),
-      retrieval: {
-        topK: params.topK ?? config.retrievalTopK,
-        results: evidence.map((match) => ({
-          id: match.chunk.id,
-          score: match.score,
-          reasons: match.reasons,
-          title: match.chunk.title,
-          section: match.chunk.section,
-          publicUrl: match.chunk.publicUrl
-        }))
-      }
+      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };
+  }
+
+  async function streamQuestion(
+    params: {
+      question: string;
+      roleId?: string;
+      history?: InterviewTurn[];
+      topK?: number;
+    },
+    emit: (event: InterviewStreamEvent) => Promise<void> | void
+  ): Promise<InterviewResponsePayload> {
+    const context = buildQuestionContext(params);
+    const base = buildResponseBase(config, context.role, context.evidence, context.topK);
+
+    await emit({
+      type: "meta",
+      mode: base.mode,
+      role: {
+        id: base.role.id,
+        label: base.role.label
+      },
+      citations: base.citations,
+      projectsUsed: base.projectsUsed
+    });
+
+    let generation: LlmAnswer;
+
+    if (config.useMockResponses) {
+      const answer = buildMockAnswerText(params.question, context.role, context.evidence);
+      await streamTextByWord(answer, async (token) => emit({ type: "token", text: token }));
+      generation = {
+        answer,
+        confidence: confidenceFromEvidence(context.evidence)
+      };
+    } else if (llmService.stream) {
+      generation = await llmService.stream(
+        {
+          question: params.question,
+          role: context.role,
+          history: context.history,
+          evidence: context.evidence
+        },
+        async (token) => emit({ type: "token", text: token })
+      );
+    } else {
+      generation = await llmService.generate({
+        question: params.question,
+        role: context.role,
+        history: context.history,
+        evidence: context.evidence
+      });
+      await streamTextByWord(generation.answer, async (token) => emit({ type: "token", text: token }), 0);
+    }
+
+    const payload: InterviewResponsePayload = {
+      ...base,
+      answer: generation.answer,
+      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
+    };
+
+    await emit({
+      type: "done",
+      payload
+    });
+
+    return payload;
   }
 
   function getConfigPayload() {
@@ -246,6 +375,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
   return {
     answerQuestion,
+    streamQuestion,
     getConfigPayload,
     searchEvidence
   };

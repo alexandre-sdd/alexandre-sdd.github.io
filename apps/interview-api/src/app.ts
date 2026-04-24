@@ -17,9 +17,12 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
           async generate() {
             return {
               answer: "",
-              citationIds: [],
-              projectIds: [],
-              followUps: [],
+              confidence: "low" as const
+            };
+          },
+          async stream() {
+            return {
+              answer: "",
               confidence: "low" as const
             };
           }
@@ -76,6 +79,61 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
       return {
         error: "Failed to generate interview answer"
       };
+    }
+  });
+
+  app.post("/v1/interview/stream", async (request, reply) => {
+    try {
+      const body = InterviewRequestSchema.parse(request.body);
+
+      reply.hijack();
+      reply.raw.statusCode = 200;
+      reply.raw.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+      reply.raw.setHeader("Cache-Control", "no-cache, no-transform");
+      reply.raw.setHeader("Connection", "keep-alive");
+
+      const emit = async (event: unknown) => {
+        reply.raw.write(`${JSON.stringify(event)}\n`);
+      };
+
+      await interviewService.streamQuestion(body, emit);
+      reply.raw.end();
+    } catch (error) {
+      if (error instanceof ZodError) {
+        if (!reply.sent) {
+          reply.status(400);
+          return {
+            error: "Invalid interview payload",
+            details: error.flatten()
+          };
+        }
+
+        reply.raw.write(
+          `${JSON.stringify({
+            type: "error",
+            message: "Invalid interview payload"
+          })}\n`
+        );
+        reply.raw.end();
+        return;
+      }
+
+      request.log.error(error);
+
+      if (!reply.sent) {
+        reply.status(500);
+        return {
+          error: "Failed to stream interview answer"
+        };
+      }
+
+      reply.raw.write(
+        `${JSON.stringify({
+          type: "error",
+          message: "Failed to stream interview answer"
+        })}\n`
+      );
+      reply.raw.end();
     }
   });
 

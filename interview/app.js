@@ -13,31 +13,26 @@ const state = {
   mode: "unknown",
   config: FALLBACK_MODE,
   selectedRoleId: "ai-engineer",
-  history: [],
-  lastResponse: null,
-  isConnected: false
+  messages: [],
+  isConnected: false,
+  isStreaming: false,
+  messageCounter: 0,
+  showDevControls: false
 };
 
 const qs = (selector, scope = document) => scope.querySelector(selector);
-const qsa = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+const params = new URLSearchParams(window.location.search);
 
 const els = {
-  apiStatus: qs("#api-status"),
-  apiMode: qs("#api-mode"),
-  corpusStats: qs("#corpus-stats"),
-  apiSettingsForm: qs("#api-settings-form"),
-  apiBaseUrl: qs("#api-base-url"),
-  useLocalApi: qs("#use-local-api"),
   rolePicker: qs("#role-picker"),
-  seededQuestionList: qs("#seeded-question-list"),
   conversation: qs("#conversation"),
   interviewForm: qs("#interview-form"),
   questionInput: qs("#question-input"),
   submitStatus: qs("#submit-status"),
-  evidenceState: qs("#evidence-state"),
-  citationList: qs("#citation-list"),
-  retrievalDebug: qs("#retrieval-debug"),
-  projectUsage: qs("#project-usage")
+  submitButton: qs("#submit-button"),
+  clearThread: qs("#clear-thread"),
+  devPanel: qs("#dev-panel"),
+  devStatus: qs("#dev-status")
 };
 
 function getConfigValue(key) {
@@ -49,12 +44,18 @@ function normalizedApiBase(url) {
 }
 
 function resolveApiBaseUrl() {
+  const fromQuery = params.get("api");
   const saved = localStorage.getItem("interview_api_base_url");
-  return normalizedApiBase(saved || getConfigValue("apiBaseUrl") || getConfigValue("localApiBaseUrl") || "");
+  return normalizedApiBase(fromQuery || saved || getConfigValue("apiBaseUrl") || getConfigValue("localApiBaseUrl") || "");
 }
 
 function apiUrl(path) {
   return `${state.apiBaseUrl}${path}`;
+}
+
+function nextMessageId() {
+  state.messageCounter += 1;
+  return `msg-${state.messageCounter}`;
 }
 
 function setStatus(message, tone = "default") {
@@ -62,160 +63,231 @@ function setStatus(message, tone = "default") {
   els.submitStatus.dataset.tone = tone;
 }
 
-function createChip(label, isActive = false) {
+function featuredRoles() {
+  const featuredIds = getConfigValue("featuredRoleIds") || [];
+  const featured = state.config.roles.filter((role) => featuredIds.includes(role.id));
+  return featured.length > 0 ? featured : state.config.roles.slice(0, 3);
+}
+
+function selectedRole() {
+  return featuredRoles().find((role) => role.id === state.selectedRoleId) || featuredRoles()[0] || null;
+}
+
+function starterQuestions() {
+  const currentRole = selectedRole();
+  const count = getConfigValue("starterQuestionCount") || 3;
+  if (!currentRole) return [];
+
+  return state.config.seededQuestions
+    .filter((item) => item.roleIds.includes(currentRole.id))
+    .slice(0, count);
+}
+
+function createPresetButton(role) {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = `chip${isActive ? " is-active" : ""}`;
-  button.textContent = label;
+  button.className = `preset-button${role.id === state.selectedRoleId ? " is-active" : ""}`;
+  button.textContent = role.label;
+  button.title = role.summary;
+  button.addEventListener("click", () => {
+    state.selectedRoleId = role.id;
+    updatePromptPlaceholder();
+    renderRolePicker();
+    renderConversation();
+  });
   return button;
 }
 
-function createMessage(role, text, options = {}) {
+function createFollowUpChip(text) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "follow-up-chip";
+  button.textContent = text;
+  button.addEventListener("click", () => {
+    els.questionInput.value = text;
+    els.questionInput.focus();
+  });
+  return button;
+}
+
+function createSources(message) {
+  if ((!message.projectsUsed || message.projectsUsed.length === 0) && (!message.citations || message.citations.length === 0)) {
+    return null;
+  }
+
+  const footer = document.createElement("div");
+  footer.className = "message-footer";
+
+  if (message.projectsUsed?.length) {
+    const row = document.createElement("div");
+    row.className = "source-row";
+
+    message.projectsUsed.forEach((project) => {
+      const link = document.createElement(project.publicUrl ? "a" : "span");
+      link.className = "source-chip";
+      link.textContent = project.title;
+      if (project.publicUrl) {
+        link.href = project.publicUrl;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+      }
+      row.appendChild(link);
+    });
+
+    footer.appendChild(row);
+  }
+
+  if (message.followUps?.length) {
+    const followUpRow = document.createElement("div");
+    followUpRow.className = "follow-up-row";
+    message.followUps.slice(0, 2).forEach((item) => followUpRow.appendChild(createFollowUpChip(item)));
+    footer.appendChild(followUpRow);
+  }
+
+  if (message.citations?.length) {
+    const details = document.createElement("details");
+    details.className = "message-details";
+    const summary = document.createElement("summary");
+    summary.textContent = "Source basis";
+    details.appendChild(summary);
+
+    const list = document.createElement("div");
+    list.className = "evidence-list";
+
+    message.citations.forEach((citation) => {
+      const item = document.createElement("article");
+      item.className = "evidence-item";
+      const title = document.createElement("a");
+      title.href = citation.publicUrl;
+      title.target = "_blank";
+      title.rel = "noreferrer";
+      title.textContent = citation.citationLabel;
+      item.appendChild(title);
+
+      const excerpt = document.createElement("p");
+      excerpt.textContent = citation.excerpt;
+      item.appendChild(excerpt);
+
+      list.appendChild(item);
+    });
+
+    details.appendChild(list);
+    footer.appendChild(details);
+  }
+
+  return footer;
+}
+
+function createMessageElement(message) {
   const article = document.createElement("article");
-  article.className = `message message-${role}`;
+  article.className = `message message-${message.role}${message.isStreaming ? " is-streaming" : ""}`;
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = role === "assistant" ? "Alex Agent" : "Interviewer";
+  meta.textContent = message.role === "assistant" ? "Alex" : "Interviewer";
   article.appendChild(meta);
 
   const body = document.createElement("div");
   body.className = "message-body";
-  body.textContent = text;
+  body.textContent = message.content;
   article.appendChild(body);
 
-  if (options.followUps && options.followUps.length > 0) {
-    const row = document.createElement("div");
-    row.className = "message-actions";
-
-    options.followUps.forEach((item) => {
-      const button = createChip(item);
-      button.addEventListener("click", () => {
-        els.questionInput.value = item;
-        els.questionInput.focus();
-      });
-      row.appendChild(button);
-    });
-
-    article.appendChild(row);
+  if (message.role === "assistant") {
+    const sources = createSources(message);
+    if (sources) article.appendChild(sources);
   }
 
   return article;
 }
 
-function renderConversation() {
-  els.conversation.innerHTML = "";
+function createEmptyState() {
+  const wrapper = document.createElement("div");
+  wrapper.className = "empty-state";
 
-  if (state.history.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "placeholder-panel";
-    empty.textContent = "Start with a seeded recruiter question or write your own.";
-    els.conversation.appendChild(empty);
-    return;
-  }
+  const card = document.createElement("div");
+  card.className = "empty-state-card";
 
-  state.history.forEach((turn) => {
-    els.conversation.appendChild(createMessage(turn.role, turn.content, turn.meta));
-  });
-  els.conversation.scrollTop = els.conversation.scrollHeight;
-}
+  const heading = document.createElement("h2");
+  heading.textContent = "Start with a recruiter-style question";
+  card.appendChild(heading);
 
-function renderRolePicker() {
-  els.rolePicker.innerHTML = "";
+  const copy = document.createElement("p");
+  copy.textContent = "Ask about architecture, tradeoffs, failure modes, or which projects best fit the selected role.";
+  card.appendChild(copy);
 
-  state.config.roles.forEach((role) => {
-    const button = createChip(role.label, role.id === state.selectedRoleId);
-    button.title = role.summary;
-    button.addEventListener("click", () => {
-      state.selectedRoleId = role.id;
-      renderRolePicker();
-      renderSeededQuestions();
-    });
-    els.rolePicker.appendChild(button);
-  });
-}
+  const promptRow = document.createElement("div");
+  promptRow.className = "starter-prompts";
 
-function renderSeededQuestions() {
-  els.seededQuestionList.innerHTML = "";
-
-  const questions = state.config.seededQuestions.filter((item) => item.roleIds.includes(state.selectedRoleId));
-  questions.forEach((item) => {
-    const button = createChip(item.label);
+  starterQuestions().forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "starter-button";
+    button.textContent = item.question;
     button.addEventListener("click", () => {
       els.questionInput.value = item.question;
       els.questionInput.focus();
     });
-    els.seededQuestionList.appendChild(button);
+    promptRow.appendChild(button);
   });
+
+  card.appendChild(promptRow);
+  wrapper.appendChild(card);
+
+  return wrapper;
 }
 
-function renderStatus() {
-  els.apiStatus.textContent = state.isConnected ? "Connected" : "Disconnected";
-  els.apiMode.textContent = state.mode;
-  const generatedAt = state.config.corpus.generatedAt ? new Date(state.config.corpus.generatedAt).toLocaleString() : "n/a";
-  els.corpusStats.textContent = `${state.config.corpus.chunkCount} chunks · ${generatedAt}`;
-  els.apiBaseUrl.value = state.apiBaseUrl;
+function renderRolePicker() {
+  els.rolePicker.innerHTML = "";
+  featuredRoles().forEach((role) => els.rolePicker.appendChild(createPresetButton(role)));
 }
 
-function renderEvidence(response) {
-  state.lastResponse = response;
-  els.citationList.innerHTML = "";
-  els.projectUsage.innerHTML = "";
-  els.retrievalDebug.innerHTML = "";
+function renderConversation() {
+  els.conversation.innerHTML = "";
 
-  if (!response) {
-    els.evidenceState.textContent = "Ask a question to inspect citations, project routing, and retrieval traces.";
+  if (state.messages.length === 0) {
+    els.conversation.appendChild(createEmptyState());
     return;
   }
 
-  els.evidenceState.textContent = `${response.confidence.toUpperCase()} confidence · ${response.mode} mode`;
-
-  response.projectsUsed.forEach((project) => {
-    const item = document.createElement("div");
-    item.className = "project-usage-item";
-    item.innerHTML = `<strong>${project.title}</strong><span>${project.why}</span>`;
-    els.projectUsage.appendChild(item);
+  state.messages.forEach((message) => {
+    els.conversation.appendChild(createMessageElement(message));
   });
 
-  response.citations.forEach((citation) => {
-    const card = document.createElement("article");
-    card.className = "citation-item";
+  els.conversation.scrollTop = els.conversation.scrollHeight;
+}
 
-    const title = document.createElement("a");
-    title.className = "citation-title";
-    title.textContent = citation.citationLabel;
-    title.href = citation.publicUrl;
-    title.target = "_blank";
-    title.rel = "noreferrer";
-    card.appendChild(title);
-
-    const meta = document.createElement("div");
-    meta.className = "citation-meta";
-    meta.textContent = `${citation.title} · ${citation.section}`;
-    card.appendChild(meta);
-
-    const excerpt = document.createElement("p");
-    excerpt.textContent = citation.excerpt;
-    card.appendChild(excerpt);
-
-    els.citationList.appendChild(card);
-  });
-
-  if (getConfigValue("enableRetrievalDebug")) {
-    response.retrieval.results.forEach((result) => {
-      const row = document.createElement("div");
-      row.className = "debug-row";
-      row.innerHTML = `
-        <strong>${result.title}</strong>
-        <span>${result.section}</span>
-        <span>Score: ${result.score}</span>
-        <span>${result.reasons.join(", ")}</span>
-      `;
-      els.retrievalDebug.appendChild(row);
-    });
-  } else {
-    els.retrievalDebug.textContent = "Retrieval debug disabled.";
+function renderDevPanel() {
+  if (!state.showDevControls) {
+    els.devPanel.classList.add("is-hidden");
+    return;
   }
+
+  els.devPanel.classList.remove("is-hidden");
+  els.devStatus.textContent = `API: ${state.apiBaseUrl || "unset"} · mode: ${state.mode} · connected: ${state.isConnected ? "yes" : "no"}`;
+}
+
+function updatePromptPlaceholder() {
+  const role = selectedRole();
+  const placeholders = {
+    "ai-engineer": "Ask about architecture, LLM choices, reliability, or shipping tradeoffs.",
+    "ml-engineer": "Ask about modeling decisions, evaluation, data quality, or production relevance.",
+    "optimization-analytics": "Ask about solvers, constraints, scheduling tradeoffs, or decision support."
+  };
+
+  els.questionInput.placeholder = placeholders[role?.id] || "Ask about systems, tradeoffs, or project fit.";
+}
+
+function setStreamingState(isStreaming) {
+  state.isStreaming = isStreaming;
+  els.submitButton.disabled = isStreaming;
+  els.questionInput.disabled = isStreaming;
+}
+
+function upsertMessage(id, updater) {
+  const message = state.messages.find((item) => item.id === id);
+  if (!message) return;
+  updater(message);
+  renderConversation();
 }
 
 async function checkHealth() {
@@ -231,32 +303,109 @@ async function loadConfig() {
 }
 
 async function reconnect() {
-  renderEvidence(null);
   try {
     const [health, config] = await Promise.all([checkHealth(), loadConfig()]);
     state.isConnected = true;
     state.mode = health.mode;
     state.config = config;
-    state.selectedRoleId = config.defaultRoleId || state.selectedRoleId;
+
+    const currentFeatured = featuredRoles();
+    if (!currentFeatured.some((role) => role.id === state.selectedRoleId)) {
+      state.selectedRoleId = currentFeatured[0]?.id || config.defaultRoleId || state.selectedRoleId;
+    }
+
     renderRolePicker();
-    renderSeededQuestions();
-    renderStatus();
+    renderConversation();
+    updatePromptPlaceholder();
+    setStatus("");
   } catch (error) {
     state.isConnected = false;
     state.mode = "unreachable";
     state.config = FALLBACK_MODE;
     renderRolePicker();
-    renderSeededQuestions();
-    renderStatus();
-    renderEvidence(null);
-    els.evidenceState.textContent = "API unavailable. Start the local server or point this page to Railway.";
+    renderConversation();
+    setStatus("The interview service is unavailable.", "danger");
     console.error(error);
+  }
+
+  renderDevPanel();
+}
+
+function readNdjsonLine(line) {
+  if (!line.trim()) return null;
+  try {
+    return JSON.parse(line);
+  } catch {
+    return null;
   }
 }
 
-async function askQuestion(question) {
-  setStatus("Thinking...");
+async function streamQuestion(question, assistantId, history) {
+  const response = await fetch(apiUrl("/v1/interview/stream"), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      question,
+      roleId: state.selectedRoleId,
+      history
+    })
+  });
 
+  if (!response.ok || !response.body) {
+    throw new Error("Streaming unavailable.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      const event = readNdjsonLine(line);
+      if (!event) continue;
+
+      if (event.type === "meta") {
+        upsertMessage(assistantId, (message) => {
+          message.projectsUsed = event.projectsUsed;
+          message.citations = event.citations;
+        });
+      }
+
+      if (event.type === "token") {
+        upsertMessage(assistantId, (message) => {
+          message.content += event.text;
+          message.isStreaming = true;
+        });
+      }
+
+      if (event.type === "done") {
+        upsertMessage(assistantId, (message) => {
+          message.content = event.payload.answer;
+          message.projectsUsed = event.payload.projectsUsed;
+          message.citations = event.payload.citations;
+          message.followUps = event.payload.followUps;
+          message.isStreaming = false;
+        });
+        state.mode = event.payload.mode;
+      }
+
+      if (event.type === "error") {
+        throw new Error(event.message || "Stream failed.");
+      }
+    }
+  }
+}
+
+async function askQuestion(question, history) {
   const response = await fetch(apiUrl("/v1/interview/respond"), {
     method: "POST",
     headers: {
@@ -265,7 +414,7 @@ async function askQuestion(question) {
     body: JSON.stringify({
       question,
       roleId: state.selectedRoleId,
-      history: state.history.map(({ role, content }) => ({ role, content }))
+      history
     })
   });
 
@@ -276,75 +425,100 @@ async function askQuestion(question) {
   return response.json();
 }
 
-async function handleSubmit(event) {
-  event.preventDefault();
-  const question = els.questionInput.value.trim();
-  if (!question) return;
+async function submitQuestion(question) {
+  const history = state.messages.map((message) => ({
+    role: message.role,
+    content: message.content
+  }));
 
-  state.history.push({
+  const userMessage = {
+    id: nextMessageId(),
     role: "user",
     content: question
-  });
+  };
+
+  const assistantMessage = {
+    id: nextMessageId(),
+    role: "assistant",
+    content: "",
+    citations: [],
+    projectsUsed: [],
+    followUps: [],
+    isStreaming: true
+  };
+
+  state.messages.push(userMessage, assistantMessage);
   renderConversation();
-  els.questionInput.value = "";
+  setStreamingState(true);
+  setStatus("Thinking...");
 
   try {
-    const payload = await askQuestion(question);
-    state.history.push({
-      role: "assistant",
-      content: payload.answer,
-      meta: {
-        followUps: payload.followUps
-      }
-    });
-    renderConversation();
-    renderEvidence(payload);
-    setStatus("Answer ready.", "success");
-  } catch (error) {
-    state.history.push({
-      role: "assistant",
-      content: "The simulator could not reach the API. Check the backend URL or start the local service."
-    });
-    renderConversation();
-    setStatus("Request failed.", "danger");
-    console.error(error);
+    await streamQuestion(question, assistantMessage.id, history);
+    setStatus("", "success");
+  } catch (streamError) {
+    try {
+      const payload = await askQuestion(question, history);
+      upsertMessage(assistantMessage.id, (message) => {
+        message.content = payload.answer;
+        message.citations = payload.citations;
+        message.projectsUsed = payload.projectsUsed;
+        message.followUps = payload.followUps;
+        message.isStreaming = false;
+      });
+      state.mode = payload.mode;
+      setStatus("", "success");
+    } catch (error) {
+      upsertMessage(assistantMessage.id, (message) => {
+        message.content = "The interview service could not answer right now.";
+        message.isStreaming = false;
+      });
+      setStatus("Request failed.", "danger");
+      console.error(error);
+    }
+    console.error(streamError);
+  } finally {
+    setStreamingState(false);
+    renderDevPanel();
   }
 }
 
-function handleApiSettings(event) {
+async function handleSubmit(event) {
   event.preventDefault();
-  state.apiBaseUrl = normalizedApiBase(els.apiBaseUrl.value);
-  localStorage.setItem("interview_api_base_url", state.apiBaseUrl);
-  reconnect();
+  if (state.isStreaming) return;
+
+  const question = els.questionInput.value.trim();
+  if (!question) return;
+
+  els.questionInput.value = "";
+  await submitQuestion(question);
+}
+
+function handleKeydown(event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    els.interviewForm.requestSubmit();
+  }
+}
+
+function clearThread() {
+  if (state.isStreaming) return;
+  state.messages = [];
+  renderConversation();
+  setStatus("");
 }
 
 function bindEvents() {
-  els.apiSettingsForm.addEventListener("submit", handleApiSettings);
   els.interviewForm.addEventListener("submit", handleSubmit);
-  els.useLocalApi.addEventListener("click", () => {
-    state.apiBaseUrl = normalizedApiBase(getConfigValue("localApiBaseUrl") || "http://127.0.0.1:8787");
-    localStorage.setItem("interview_api_base_url", state.apiBaseUrl);
-    els.apiBaseUrl.value = state.apiBaseUrl;
-    reconnect();
-  });
-}
-
-function seedWelcomeMessage() {
-  state.history = [
-    {
-      role: "assistant",
-      content:
-        "I answer as Alexandre using grounded portfolio evidence. Pick a role lens, then ask a recruiter-style question and inspect the evidence panel for citations."
-    }
-  ];
-  renderConversation();
+  els.questionInput.addEventListener("keydown", handleKeydown);
+  els.clearThread.addEventListener("click", clearThread);
 }
 
 function init() {
   state.apiBaseUrl = resolveApiBaseUrl();
+  state.showDevControls = params.has("dev") || Boolean(getConfigValue("showDevControls"));
+
   bindEvents();
-  seedWelcomeMessage();
-  renderStatus();
+  updatePromptPlaceholder();
   reconnect();
 }
 
