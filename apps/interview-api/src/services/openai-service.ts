@@ -35,6 +35,8 @@ function systemPrompt(role: RolePreset): string {
     "For technical questions, include the architecture, constraint, evaluation, or failure mode that shows judgment.",
     "For role-fit questions, connect the evidence directly to the target role.",
     "If asked for a range or all projects, group the work into clear categories instead of walking through cards one by one.",
+    "Name the project, internship, education, or experience source you actually use in the answer.",
+    "Do not mention or imply support from sources you did not use.",
     "Write natural interview-ready prose, not JSON.",
     "Do not use markdown, bullet points, or decorative formatting.",
     "Keep normal answers around 100 to 170 words. Broad overview answers may be slightly longer.",

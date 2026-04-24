@@ -111,6 +111,30 @@ const PORTFOLIO_GROUPS = [
   }
 ];
 
+const SOURCE_TOKEN_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "at",
+  "based",
+  "case",
+  "data",
+  "for",
+  "from",
+  "in",
+  "of",
+  "on",
+  "project",
+  "research",
+  "study",
+  "system",
+  "systems",
+  "the",
+  "to",
+  "using",
+  "with"
+]);
+
 function buildExcerpt(text: string): string {
   return text.length <= 220 ? text : `${text.slice(0, 217).trim()}...`;
 }
@@ -147,6 +171,71 @@ function inferSourceUsage(matches: RetrievalMatch[]): SourceUsage[] {
   return Array.from(ordered.values()).slice(0, 4);
 }
 
+function normalizeReferenceText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function sourceTokens(text: string): string[] {
+  return normalizeReferenceText(text)
+    .split(" ")
+    .filter((token) => token.length > 0);
+}
+
+function meaningfulSourceTokens(text: string): string[] {
+  return sourceTokens(text).filter((token) => token.length > 2 && !SOURCE_TOKEN_STOP_WORDS.has(token));
+}
+
+function sourceCandidateLabels(match: RetrievalMatch): string[] {
+  return [
+    match.chunk.title,
+    match.chunk.citationLabel.replace(/\s+-\s+.+$/, ""),
+    match.chunk.projectId?.replace(/-/g, " "),
+    match.chunk.sourceId.replace(/[:_-]+/g, " ")
+  ].filter((label): label is string => Boolean(label));
+}
+
+function hasExactSourceLabel(answerText: string, match: RetrievalMatch): boolean {
+  const normalizedAnswer = ` ${normalizeReferenceText(answerText)} `;
+
+  return sourceCandidateLabels(match).some((label) => {
+    const normalizedLabel = normalizeReferenceText(label);
+    if (!normalizedLabel) return false;
+    return normalizedAnswer.includes(` ${normalizedLabel} `);
+  });
+}
+
+function hasSourceTokenOverlap(answerTokens: Set<string>, match: RetrievalMatch): boolean {
+  const titleTokens = meaningfulSourceTokens(match.chunk.title);
+  if (titleTokens.length === 1) return answerTokens.has(titleTokens[0]);
+  if (titleTokens.length >= 2) {
+    const matchedCount = titleTokens.filter((token) => answerTokens.has(token)).length;
+    return matchedCount >= 2 && matchedCount / titleTokens.length >= 0.66;
+  }
+
+  return false;
+}
+
+function hasBrandLikeSourceReference(answerTokens: Set<string>, match: RetrievalMatch): boolean {
+  if (!["case-study", "education", "experience"].includes(match.chunk.sourceType)) return false;
+
+  const firstSourceToken = meaningfulSourceTokens(match.chunk.sourceId)[0];
+  return Boolean(firstSourceToken && firstSourceToken.length >= 5 && answerTokens.has(firstSourceToken));
+}
+
+function sourceAppearsInAnswer(answerText: string, match: RetrievalMatch): boolean {
+  const answerTokens = new Set(sourceTokens(answerText));
+  return (
+    hasExactSourceLabel(answerText, match) ||
+    hasSourceTokenOverlap(answerTokens, match) ||
+    hasBrandLikeSourceReference(answerTokens, match)
+  );
+}
+
 function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMatch[] {
   const selected: RetrievalMatch[] = [];
   const seen = new Set<string>();
@@ -160,6 +249,13 @@ function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMa
   }
 
   return selected;
+}
+
+function displayEvidenceForAnswer(answer: string, evidence: RetrievalMatch[]): RetrievalMatch[] {
+  const concreteEvidence = answerEvidence(evidence);
+  const referencedEvidence = concreteEvidence.filter((match) => sourceAppearsInAnswer(answer, match));
+  const displayEvidence = referencedEvidence.length > 0 ? referencedEvidence : concreteEvidence;
+  return distinctEvidence(displayEvidence, referencedEvidence.length > 0 ? 4 : 1);
 }
 
 function defaultFollowUps(primarySourceTitle?: string): string[] {
@@ -314,16 +410,9 @@ async function streamTextByWord(
 }
 
 function buildResponseBase(config: AppConfig, role: RolePreset, evidence: RetrievalMatch[], topK: number) {
-  const citations = distinctEvidence(evidence, 4).map(citationFromMatch);
-  const projectsUsed = inferSourceUsage(evidence);
-  const primarySource = projectsUsed[0]?.title;
-
   return {
     mode: config.useMockResponses ? ("mock" as const) : ("openai" as const),
     role,
-    citations,
-    projectsUsed,
-    followUps: defaultFollowUps(primarySource),
     retrieval: {
       topK,
       results: evidence.map((match) => ({
@@ -335,6 +424,18 @@ function buildResponseBase(config: AppConfig, role: RolePreset, evidence: Retrie
         publicUrl: match.chunk.publicUrl
       }))
     }
+  };
+}
+
+function buildSourceDisplay(answer: string, evidence: RetrievalMatch[]) {
+  const displayEvidence = displayEvidenceForAnswer(answer, evidence);
+  const projectsUsed = inferSourceUsage(displayEvidence);
+  const primarySource = projectsUsed[0]?.title;
+
+  return {
+    citations: displayEvidence.map(citationFromMatch),
+    projectsUsed,
+    followUps: defaultFollowUps(primarySource)
   };
 }
 
@@ -430,6 +531,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     return {
       ...base,
+      ...buildSourceDisplay(generation.answer, context.evidence),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };
@@ -454,8 +556,8 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
         id: base.role.id,
         label: base.role.label
       },
-      citations: base.citations,
-      projectsUsed: base.projectsUsed
+      citations: [],
+      projectsUsed: []
     });
 
     let generation: LlmAnswer;
@@ -491,6 +593,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     const payload: InterviewResponsePayload = {
       ...base,
+      ...buildSourceDisplay(generation.answer, context.evidence),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };

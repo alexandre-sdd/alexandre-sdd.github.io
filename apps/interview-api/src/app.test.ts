@@ -114,6 +114,91 @@ test("openai mode falls back to grounded answers when the provider fails", async
   await app.close();
 });
 
+test("response source chips only include sources named in the final answer", async () => {
+  const answer =
+    "One failure mode I had to design around in AI-lexandre was confident but poorly grounded output, so I made retrieval and citations explicit before answering.";
+  const app = buildApp(
+    {
+      useMockResponses: false,
+      openaiApiKey: "test-key",
+      retrievalTopK: 6
+    },
+    {
+      async generate() {
+        return {
+          answer,
+          confidence: "high" as const
+        };
+      },
+      async stream(_input, onToken) {
+        await onToken(answer);
+        return {
+          answer,
+          confidence: "high" as const
+        };
+      }
+    }
+  );
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Pick one failure mode you actually had to design around. What did you change?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    projectsUsed: Array<{ title: string }>;
+    citations: Array<{ title: string }>;
+  };
+
+  assert.deepEqual(
+    json.projectsUsed.map((source) => source.title),
+    ["AI-lexandre"]
+  );
+  assert.deepEqual(
+    json.citations.map((citation) => citation.title),
+    ["AI-lexandre"]
+  );
+
+  const streamResponse = await app.inject({
+    method: "POST",
+    url: "/v1/interview/stream",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Pick one failure mode you actually had to design around. What did you change?"
+    }
+  });
+
+  assert.equal(streamResponse.statusCode, 200);
+  const doneLine = streamResponse.body
+    .split("\n")
+    .find((line) => line.includes('"type":"done"'));
+  assert.ok(doneLine);
+
+  const doneEvent = JSON.parse(doneLine) as {
+    payload: {
+      projectsUsed: Array<{ title: string }>;
+      citations: Array<{ title: string }>;
+    };
+  };
+
+  assert.deepEqual(
+    doneEvent.payload.projectsUsed.map((source) => source.title),
+    ["AI-lexandre"]
+  );
+  assert.deepEqual(
+    doneEvent.payload.citations.map((citation) => citation.title),
+    ["AI-lexandre"]
+  );
+
+  await app.close();
+});
+
 test("mock answers use interviewer-oriented framing", async () => {
   const app = buildApp({
     useMockResponses: true,
