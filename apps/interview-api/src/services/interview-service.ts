@@ -88,6 +88,29 @@ export interface LlmService {
   stream?(input: LlmGenerationInput, onToken: (token: string) => Promise<void> | void): Promise<LlmAnswer>;
 }
 
+type InterviewIntent = "behavioral" | "comparison" | "inventory" | "role-fit" | "technical" | "general";
+
+const PORTFOLIO_GROUPS = [
+  {
+    label: "AI product systems",
+    projectIds: ["ai-lexandre", "tomorrow-you", "codebase-analyzer", "linkedin-note-copilot"]
+  },
+  {
+    label: "applied ML and data quality",
+    projectIds: ["chanel-europe-analytics-pipeline", "helpfullens"]
+  },
+  {
+    label: "optimization and research",
+    projectIds: [
+      "zeit-project",
+      "childcare-deserts-nyc",
+      "appointment-scheduling-dynamics",
+      "dna-plasmid-closure",
+      "forvia-camera-radar-fusion-prototype"
+    ]
+  }
+];
+
 function buildExcerpt(text: string): string {
   return text.length <= 220 ? text : `${text.slice(0, 217).trim()}...`;
 }
@@ -142,16 +165,16 @@ function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMa
 function defaultFollowUps(primarySourceTitle?: string): string[] {
   if (!primarySourceTitle) {
     return [
-      "Go deeper on system design.",
-      "Ask for a stronger example.",
-      "Challenge the answer on tradeoffs."
+      "What was your exact role?",
+      "What tradeoff would you defend?",
+      "What would you improve next?"
     ];
   }
 
   return [
-    `Go deeper on ${primarySourceTitle}.`,
-    "Ask about tradeoffs and failure modes.",
-    "Compare this with another project or experience."
+    `What was your exact role in ${primarySourceTitle}?`,
+    "What tradeoff mattered most?",
+    "What would you improve next?"
   ];
 }
 
@@ -169,25 +192,111 @@ function shouldBroadenRetrieval(question: string): boolean {
   return asksForList && asksForPortfolioSources;
 }
 
-function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[]): string {
-  const [primary, secondary] = distinctEvidence(evidence, 2);
+function inferInterviewIntent(question: string): InterviewIntent {
   const lowerQuestion = question.toLowerCase();
 
-  const opening = primary
-    ? `For ${role.label.toLowerCase()} interviews, I usually lead with ${primary.chunk.title}. ${primary.chunk.text}`
-    : "I do not have enough published evidence loaded to answer that precisely.";
+  if (shouldBroadenRetrieval(question)) return "inventory";
+  if (/\b(compare|contrast|different|range|sides)\b/.test(lowerQuestion)) return "comparison";
+  if (/\b(fit|hire|role|internship specifically|why you|strong candidate)\b/.test(lowerQuestion)) return "role-fit";
+  if (/\b(time|stakeholder|ambigu|conflict|challenge|failure|mistake|pressure|requirements|worked with)\b/.test(lowerQuestion)) {
+    return "behavioral";
+  }
+  if (
+    /\b(architecture|system design|pipeline|model|evaluation|tradeoff|failure mode|scale|latency|constraint|solver|data quality|agent|agents|voice|workflow|workflows|api|llm)\b/.test(
+      lowerQuestion
+    )
+  ) {
+    return "technical";
+  }
 
-  const angle = /tradeoff|failure|challenge|constraint|why/i.test(lowerQuestion)
-    ? "The main reason it matters is that it forced me to make concrete tradeoffs instead of giving a generic answer."
-    : /compare|range|different/i.test(lowerQuestion)
-      ? "It is a good example because it shows one part of my profile clearly and lets me contrast it with other work."
-      : "It is a strong fit because it shows how I turn technical work and experience into something concrete and usable.";
+  return "general";
+}
 
-  const support = secondary
-    ? `A second supporting example is ${secondary.chunk.title}, which helps show range beyond that first system.`
-    : "";
+function cleanEvidenceText(text: string): string {
+  return text
+    .replace(/\bSummary:\s*/gi, "")
+    .replace(/\bContext:\s*/gi, "Context: ")
+    .replace(/\bProblem:\s*/gi, "Problem: ")
+    .replace(/\bApproach:\s*/gi, "I approached it by ")
+    .replace(/\bResult:\s*/gi, "The result was ")
+    .replace(/\bResults:\s*/gi, "The result was ")
+    .replace(/\bTags:\s*[^.]+\.?$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  return [opening, angle, support].filter(Boolean).join(" ");
+function truncateForInterview(text: string, maxLength = 360): string {
+  const cleaned = cleanEvidenceText(text);
+  if (cleaned.length <= maxLength) return cleaned;
+
+  const slice = cleaned.slice(0, maxLength);
+  const sentenceEnd = Math.max(slice.lastIndexOf(". "), slice.lastIndexOf("; "));
+  const cut = sentenceEnd > 180 ? slice.slice(0, sentenceEnd + 1) : slice;
+  return `${cut.trim()}...`;
+}
+
+function formatList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function buildInventoryAnswer(role: RolePreset, evidence: RetrievalMatch[]): string {
+  const projectEvidence = distinctEvidence(evidence, evidence.length).filter(
+    (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study"
+  );
+  const byProjectId = new Map(projectEvidence.map((match) => [match.chunk.projectId ?? match.chunk.sourceId, match.chunk.title]));
+  const grouped = PORTFOLIO_GROUPS.map((group) => {
+    const titles = group.projectIds.map((id) => byProjectId.get(id)).filter((title): title is string => Boolean(title));
+    return titles.length > 0 ? `${group.label}: ${formatList(titles)}` : "";
+  }).filter(Boolean);
+
+  if (grouped.length === 0) {
+    return "I would frame the portfolio by the role requirements first, then use the strongest available evidence for the interviewer instead of listing unrelated work.";
+  }
+
+  return [
+    `I would frame my portfolio in three interviewer-friendly buckets for a ${role.label} conversation.`,
+    `${grouped.join("; ")}.`,
+    "The throughline is that I can move from ambiguous technical problems to usable systems, while explaining the tradeoffs and evidence behind each project."
+  ].join(" ");
+}
+
+function answerEvidence(matches: RetrievalMatch[]): RetrievalMatch[] {
+  const concrete = matches.filter((match) => match.chunk.sourceType !== "overview" && match.chunk.sourceType !== "skills");
+  return concrete.length > 0 ? concrete : matches;
+}
+
+function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[]): string {
+  const intent = inferInterviewIntent(question);
+  if (intent === "inventory") return buildInventoryAnswer(role, evidence);
+
+  const [primary, secondary] = distinctEvidence(answerEvidence(evidence), 2);
+
+  if (!primary) return "I do not have enough published evidence loaded to answer that precisely.";
+
+  const example = truncateForInterview(primary.chunk.text);
+  const openingByIntent: Record<InterviewIntent, string> = {
+    behavioral: `A good interview example is ${primary.chunk.title}, because it gives me a concrete situation, action, and outcome to discuss.`,
+    comparison: `I would start with ${primary.chunk.title} and then compare it with another source of evidence if the interviewer wants range.`,
+    general: `The clearest answer is ${primary.chunk.title}.`,
+    inventory: "",
+    "role-fit": `For a ${role.label} screen, I would anchor the answer in ${primary.chunk.title}.`,
+    technical: `The strongest technical example is ${primary.chunk.title}, because it lets me talk about implementation choices and tradeoffs.`
+  };
+  const takeawayByIntent: Record<InterviewIntent, string> = {
+    behavioral: "The interviewer-relevant takeaway is that I can operate with constraints, make the work usable, and explain what I learned without overselling it.",
+    comparison: "The useful discussion is the contrast: what each example proves, where the constraints differed, and how I adapted my approach.",
+    general: `What it shows for ${role.label} is that I can connect technical execution to a concrete work product.`,
+    inventory: "",
+    "role-fit": `That maps to ${role.label} because it shows the kind of evidence a hiring manager can probe: scope, decisions, tradeoffs, and results.`,
+    technical: "In an interview, I would emphasize the decision path: the constraint, the system or model choice, the tradeoff, and how I made the output usable."
+  };
+  const support = secondary ? `If the interviewer wanted a second signal, I would connect it to ${secondary.chunk.title}.` : "";
+
+  return [openingByIntent[intent], `The portfolio evidence is: ${example}`, takeawayByIntent[intent], support]
+    .filter(Boolean)
+    .join(" ");
 }
 
 async function streamTextByWord(

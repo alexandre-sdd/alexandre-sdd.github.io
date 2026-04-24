@@ -228,11 +228,11 @@ function createEmptyState() {
   card.className = "empty-state-card";
 
   const heading = document.createElement("h2");
-  heading.textContent = "Start with a recruiter-style question";
+  heading.textContent = "Start like an interviewer";
   card.appendChild(heading);
 
   const copy = document.createElement("p");
-  copy.textContent = "Ask about architecture, tradeoffs, failure modes, or which projects best fit the selected role.";
+  copy.textContent = "Ask for exact role, technical judgment, tradeoffs, outcomes, and what I would improve next.";
   card.appendChild(copy);
 
   const promptRow = document.createElement("div");
@@ -289,12 +289,12 @@ function renderDevPanel() {
 function updatePromptPlaceholder() {
   const role = selectedRole();
   const placeholders = {
-    "ai-engineer": "Ask about architecture, LLM choices, reliability, or shipping tradeoffs.",
-    "ml-engineer": "Ask about modeling decisions, evaluation, data quality, or production relevance.",
-    "optimization-analytics": "Ask about solvers, constraints, scheduling tradeoffs, or decision support."
+    "ai-engineer": "Ask what I built, why the architecture worked, and what failure mode I handled.",
+    "ml-engineer": "Ask what data decision, evaluation choice, or production constraint mattered most.",
+    "optimization-analytics": "Ask what constraint, solver choice, or scheduling tradeoff changed the answer."
   };
 
-  els.questionInput.placeholder = placeholders[role?.id] || "Ask about systems, tradeoffs, or project fit.";
+  els.questionInput.placeholder = placeholders[role?.id] || "Ask what my exact role was, what tradeoff mattered, or why the work fits.";
 }
 
 function setStreamingState(isStreaming) {

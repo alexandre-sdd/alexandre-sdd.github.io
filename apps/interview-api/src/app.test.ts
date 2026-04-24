@@ -57,6 +57,34 @@ test("interview response returns grounded citations in mock mode", async () => {
   await app.close();
 });
 
+test("mock answers use interviewer-oriented framing", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 5
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Tell me about your strongest AI engineering project with voice and agent workflows."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+  };
+
+  assert.match(json.answer, /^The strongest technical example is Tomorrow You/);
+  assert.match(json.answer, /In an interview, I would emphasize the decision path/);
+  assert.doesNotMatch(json.answer, /Summary:|Tags:/);
+
+  await app.close();
+});
+
 test("interview response can cite internship and experience evidence", async () => {
   const app = buildApp({
     useMockResponses: true,

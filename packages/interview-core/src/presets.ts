@@ -59,7 +59,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
   {
     id: "ai-depth",
     label: "AI depth",
-    question: "Tell me about a project that best demonstrates your AI engineering depth.",
+    question: "What should I take as your strongest AI engineering signal?",
     roleIds: ["ai-engineer", "ml-engineer"],
     expectedProjectIds: ["ai-lexandre", "tomorrow-you", "codebase-analyzer"],
     intent: "technical"
@@ -67,7 +67,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
   {
     id: "system-design",
     label: "System design",
-    question: "Walk me through the architecture of one of your AI systems from user input to final output.",
+    question: "Walk me through one AI system as if I were evaluating architecture: inputs, orchestration, failures, and output.",
     roleIds: ["ai-engineer", "ml-engineer"],
     expectedProjectIds: ["ai-lexandre", "tomorrow-you", "codebase-analyzer"],
     intent: "technical"
@@ -75,7 +75,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
   {
     id: "failure-handling",
     label: "Failures",
-    question: "What failure modes did you see in one of your AI or ML projects, and how did you handle them?",
+    question: "Pick one failure mode you actually had to design around. What did you change?",
     roleIds: ["ai-engineer", "ml-engineer", "research-engineer"],
     expectedProjectIds: ["tomorrow-you", "chanel-europe-analytics-pipeline", "forvia-camera-radar-fusion-prototype"],
     intent: "technical"
@@ -83,9 +83,15 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
   {
     id: "stakeholder-example",
     label: "Stakeholders",
-    question: "Describe a project where you had to balance technical quality with stakeholder needs.",
+    question: "Give me an example where stakeholder constraints changed your technical plan.",
     roleIds: ["product-data-scientist", "ml-engineer", "optimization-analytics"],
-    expectedProjectIds: ["chanel-europe-analytics-pipeline", "zeit-project", "appointment-scheduling-dynamics"],
+    expectedProjectIds: [
+      "chanel-europe-analytics-pipeline",
+      "zeit-project",
+      "appointment-scheduling-dynamics",
+      "Junior CentraleSupelec (JCS) – Nantes University Hospital:Data & Operations Consultant (Healthcare Planning & Forecasting)",
+      "CHANEL Europe, Advanced Analytics & Data Science:Data Scientist"
+    ],
     intent: "behavioral"
   },
   {
@@ -99,7 +105,7 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
   {
     id: "best-fit",
     label: "Best fit",
-    question: "Why are you a strong fit for an AI engineer internship specifically?",
+    question: "If I only remember one reason you fit this role, what should it be?",
     roleIds: ["ai-engineer"],
     expectedProjectIds: ["ai-lexandre", "tomorrow-you", "codebase-analyzer"],
     intent: "role-fit"
@@ -141,7 +147,12 @@ export const SEEDED_QUESTIONS: SeededQuestion[] = [
     label: "Ambiguity",
     question: "Tell me about a time you operated with incomplete information or evolving requirements.",
     roleIds: ["ai-engineer", "product-data-scientist", "optimization-analytics"],
-    expectedProjectIds: ["chanel-europe-analytics-pipeline", "appointment-scheduling-dynamics", "Junior CentraleSupelec (JCS) – Nantes University Hospital"],
+    expectedProjectIds: [
+      "chanel-europe-analytics-pipeline",
+      "appointment-scheduling-dynamics",
+      "Junior CentraleSupelec (JCS) – Nantes University Hospital:Data & Operations Consultant (Healthcare Planning & Forecasting)",
+      "CHANEL Europe, Advanced Analytics & Data Science:Data Scientist"
+    ],
     intent: "behavioral"
   },
   {

@@ -29,9 +29,15 @@ function systemPrompt(role: RolePreset): string {
     "Answer in first person as Alexandre.",
     "Use only the supplied evidence blocks. Do not invent metrics, dates, technologies, outcomes, or confidential details.",
     "If the evidence is incomplete, say that briefly instead of guessing.",
+    "Answer like a strong candidate in a live recruiter or technical screen.",
+    "Start with the direct answer, then anchor it in one concrete example, then explain the decision, tradeoff, result, or learning an interviewer would care about.",
+    "For behavioral questions, use a concise situation-action-result shape without labeling it.",
+    "For technical questions, include the architecture, constraint, evaluation, or failure mode that shows judgment.",
+    "For role-fit questions, connect the evidence directly to the target role.",
+    "If asked for a range or all projects, group the work into clear categories instead of walking through cards one by one.",
     "Write natural interview-ready prose, not JSON.",
     "Do not use markdown, bullet points, or decorative formatting.",
-    "Keep the answer concise, specific, and recruiter-friendly.",
+    "Keep normal answers around 100 to 170 words. Broad overview answers may be slightly longer.",
     `Recruiter lens: ${role.recruiterLens}`,
     `Preferred answer style: ${role.answerStyle}`
   ].join("\n");

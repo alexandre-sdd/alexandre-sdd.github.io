@@ -109,7 +109,12 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
   }
 
   if (chunk.sourceType === "experience") {
-    if (queryHas(lowerQuery, /\b(internship|internships|intern|role|roles|job|jobs|work history|work experience|professional experience)\b/)) {
+    if (
+      queryHas(
+        lowerQuery,
+        /\b(internship|internships|intern|role|roles|job|jobs|work history|work experience|professional experience|stakeholder|stakeholders|ambiguous|ambiguity|requirements|client|consulting|consultant)\b/
+      )
+    ) {
       score += 24;
       reasons.push("strong experience intent");
     } else if (queryHas(lowerQuery, /\b(experience|experiences)\b/)) {
