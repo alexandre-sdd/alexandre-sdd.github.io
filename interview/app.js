@@ -47,8 +47,10 @@ function normalizedApiBase(url) {
 
 function resolveApiBaseUrl() {
   const fromQuery = params.get("api");
-  const saved = localStorage.getItem("interview_api_base_url");
-  return normalizedApiBase(fromQuery || saved || getConfigValue("apiBaseUrl") || getConfigValue("localApiBaseUrl") || "");
+  if (fromQuery) return normalizedApiBase(fromQuery);
+
+  localStorage.removeItem("interview_api_base_url");
+  return normalizedApiBase(getConfigValue("apiBaseUrl") || getConfigValue("localApiBaseUrl") || "");
 }
 
 function apiUrl(path) {

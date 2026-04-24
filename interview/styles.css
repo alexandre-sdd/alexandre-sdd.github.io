@@ -19,6 +19,28 @@
   padding: 8px 0 4px;
 }
 
+.portfolio-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text-secondary);
+  font-weight: 700;
+  line-height: 1;
+  padding: 10px 16px;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.portfolio-back-link:hover,
+.portfolio-back-link:focus-visible {
+  transform: translateY(-1px);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
 .intro-block h1 {
   font-family: "Source Serif 4", serif;
   font-size: clamp(2.3rem, 5vw, 4.3rem);

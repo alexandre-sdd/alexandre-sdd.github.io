@@ -57,6 +57,63 @@ test("interview response returns grounded citations in mock mode", async () => {
   await app.close();
 });
 
+test("openai mode falls back to grounded answers when the provider fails", async () => {
+  const failingLlm = {
+    async generate() {
+      throw new Error("provider unavailable");
+    },
+    async stream() {
+      throw new Error("provider unavailable");
+    }
+  };
+  const app = buildApp(
+    {
+      useMockResponses: false,
+      openaiApiKey: "test-key",
+      retrievalTopK: 5
+    },
+    failingLlm
+  );
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Tell me about your strongest AI engineering project with voice and agent workflows."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    mode: string;
+    answer: string;
+    citations: Array<{ title: string }>;
+  };
+
+  assert.equal(json.mode, "openai");
+  assert.ok(json.answer.includes("Tomorrow You"));
+  assert.ok(json.citations.length >= 1);
+
+  const streamResponse = await app.inject({
+    method: "POST",
+    url: "/v1/interview/stream",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Tell me about your strongest AI engineering project with voice and agent workflows."
+    }
+  });
+
+  assert.equal(streamResponse.statusCode, 200);
+  assert.match(streamResponse.body, /"type":"token"/);
+  assert.match(streamResponse.body, /"type":"done"/);
+  assert.match(streamResponse.body, /Tomorrow You/);
+  assert.doesNotMatch(streamResponse.body, /"type":"error"/);
+
+  await app.close();
+});
+
 test("mock answers use interviewer-oriented framing", async () => {
   const app = buildApp({
     useMockResponses: true,

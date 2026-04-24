@@ -341,6 +341,13 @@ function buildResponseBase(config: AppConfig, role: RolePreset, evidence: Retrie
 export function createInterviewService(config: AppConfig, llmService: LlmService) {
   const corpus = loadGeneratedCorpus();
 
+  function fallbackGeneration(question: string, role: RolePreset, evidence: RetrievalMatch[]): LlmAnswer {
+    return {
+      answer: buildMockAnswerText(question, role, evidence),
+      confidence: confidenceFromEvidence(evidence)
+    };
+  }
+
   function buildQuestionContext(params: {
     question: string;
     roleId?: string;
@@ -366,6 +373,41 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     };
   }
 
+  async function generateAnswer(input: LlmGenerationInput): Promise<LlmAnswer> {
+    try {
+      return await llmService.generate(input);
+    } catch {
+      return fallbackGeneration(input.question, input.role, input.evidence);
+    }
+  }
+
+  async function streamAnswer(
+    input: LlmGenerationInput,
+    onToken: (token: string) => Promise<void> | void
+  ): Promise<LlmAnswer> {
+    let emittedToken = false;
+    const guardedOnToken = async (token: string) => {
+      emittedToken = true;
+      await onToken(token);
+    };
+
+    try {
+      if (llmService.stream) {
+        return await llmService.stream(input, guardedOnToken);
+      }
+
+      const generation = await llmService.generate(input);
+      await streamTextByWord(generation.answer, guardedOnToken, 0);
+      return generation;
+    } catch (error) {
+      if (emittedToken) throw error;
+
+      const fallback = fallbackGeneration(input.question, input.role, input.evidence);
+      await streamTextByWord(fallback.answer, guardedOnToken, 0);
+      return fallback;
+    }
+  }
+
   async function answerQuestion(params: {
     question: string;
     roleId?: string;
@@ -379,7 +421,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
           answer: buildMockAnswerText(params.question, context.role, context.evidence),
           confidence: confidenceFromEvidence(context.evidence)
         }
-      : await llmService.generate({
+      : await generateAnswer({
           question: params.question,
           role: context.role,
           history: context.history,
@@ -426,7 +468,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
         confidence: confidenceFromEvidence(context.evidence)
       };
     } else if (llmService.stream) {
-      generation = await llmService.stream(
+      generation = await streamAnswer(
         {
           question: params.question,
           role: context.role,
@@ -436,13 +478,15 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
         async (token) => emit({ type: "token", text: token })
       );
     } else {
-      generation = await llmService.generate({
-        question: params.question,
-        role: context.role,
-        history: context.history,
-        evidence: context.evidence
-      });
-      await streamTextByWord(generation.answer, async (token) => emit({ type: "token", text: token }), 0);
+      generation = await streamAnswer(
+        {
+          question: params.question,
+          role: context.role,
+          history: context.history,
+          evidence: context.evidence
+        },
+        async (token) => emit({ type: "token", text: token })
+      );
     }
 
     const payload: InterviewResponsePayload = {
