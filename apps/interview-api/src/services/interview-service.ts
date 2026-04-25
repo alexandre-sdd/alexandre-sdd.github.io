@@ -228,13 +228,16 @@ function hasBrandLikeSourceReference(answerTokens: Set<string>, match: Retrieval
   return Boolean(firstSourceToken && firstSourceToken.length >= 5 && answerTokens.has(firstSourceToken));
 }
 
-function sourceAppearsInAnswer(answerText: string, match: RetrievalMatch): boolean {
+function sourceReferenceScore(answerText: string, match: RetrievalMatch): number {
   const answerTokens = new Set(sourceTokens(answerText));
-  return (
-    hasExactSourceLabel(answerText, match) ||
-    hasSourceTokenOverlap(answerTokens, match) ||
-    hasBrandLikeSourceReference(answerTokens, match)
-  );
+  if (hasExactSourceLabel(answerText, match)) return 3;
+  if (hasSourceTokenOverlap(answerTokens, match)) return 2;
+  if (hasBrandLikeSourceReference(answerTokens, match)) return 1;
+  return 0;
+}
+
+function sourceAppearsInAnswer(answerText: string, match: RetrievalMatch): boolean {
+  return sourceReferenceScore(answerText, match) > 0;
 }
 
 function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMatch[] {
@@ -254,7 +257,11 @@ function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMa
 
 function displayEvidenceForAnswer(answer: string, evidence: RetrievalMatch[]): RetrievalMatch[] {
   const concreteEvidence = answerEvidence(evidence);
-  const referencedEvidence = concreteEvidence.filter((match) => sourceAppearsInAnswer(answer, match));
+  const referencedEvidence = concreteEvidence
+    .map((match, index) => ({ match, index, score: sourceReferenceScore(answer, match) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((item) => item.match);
   const displayEvidence = referencedEvidence.length > 0 ? referencedEvidence : concreteEvidence;
   return distinctEvidence(displayEvidence, referencedEvidence.length > 0 ? 4 : 1);
 }
@@ -322,6 +329,18 @@ function shouldDiversifyHealthcareEvidence(question: string): boolean {
   );
 }
 
+function isQuantitativeFitQuestion(question: string): boolean {
+  return /\b(classical quant|financial engineering|pricing|quant|quants|quantitative|risk|trading)\b/i.test(question);
+}
+
+function isBackgroundBreadthQuestion(question: string): boolean {
+  const lowerQuestion = question.toLowerCase();
+  const asksForBreadth = /\b(beyond|broader|else|not just|other than|outside|range)\b/.test(lowerQuestion);
+  const asksForFit = /\b(ai engineer|ai engineering|background|career|fit|position|role|roles|suited|suitable)\b/.test(lowerQuestion);
+
+  return isQuantitativeFitQuestion(question) || (asksForBreadth && asksForFit);
+}
+
 function ordinalSourceFromSummary(question: string, conversationSummary = ""): string {
   const lowerQuestion = question.toLowerCase();
   const ordinal = /\b(second|2nd)\b/.test(lowerQuestion)
@@ -355,7 +374,8 @@ function inferInterviewIntent(question: string): InterviewIntent {
 
   if (shouldBroadenRetrieval(question)) return "inventory";
   if (/\b(compare|contrast|different|range|sides)\b/.test(lowerQuestion)) return "comparison";
-  if (/\b(fit|hire|role|internship specifically|why you|strong candidate)\b/.test(lowerQuestion)) return "role-fit";
+  if (/\b(fit|hire|position|role|suited|suitable|internship specifically|why you|strong candidate)\b/.test(lowerQuestion)) return "role-fit";
+  if (isBackgroundBreadthQuestion(question)) return "role-fit";
   if (/\b(time|stakeholder|ambigu|conflict|challenge|failure|mistake|pressure|requirements|worked with)\b/.test(lowerQuestion)) {
     return "behavioral";
   }
@@ -378,6 +398,8 @@ function cleanEvidenceText(text: string): string {
     .replace(/\bApproach:\s*/gi, "I approached it by ")
     .replace(/\bResult:\s*/gi, "The result was ")
     .replace(/\bResults:\s*/gi, "The result was ")
+    .replace(/\bCoursework category:\s*/gi, "")
+    .replace(/\bCourses and applied work:\s*/gi, "")
     .replace(/\bTags:\s*[^.]+\.?$/i, "")
     .replace(/\s+/g, " ")
     .trim();
@@ -420,6 +442,75 @@ function buildInventoryAnswer(role: RolePreset, evidence: RetrievalMatch[]): str
   ].join(" ");
 }
 
+function buildBackgroundFitAnswer(question: string, evidence: RetrievalMatch[]): string {
+  const lowerQuestion = question.toLowerCase();
+  const outsideAi = /\b(beyond|not just|other than|outside)\b/.test(lowerQuestion) && /\bai engineer|ai engineering\b/.test(lowerQuestion);
+  const quantQuestion = isQuantitativeFitQuestion(question);
+  const quantAdjacentWorkPattern =
+    /\b(accounting|analytics|anomaly|chanel|commercial|cuimc|finance|forecasting|healthcare|hospital|optimization|operations|probabilistic|research|scheduling|sigma|simulation|statistical|tracking)\b/i;
+  const aiProjectIds = new Set(["ai-lexandre", "tomorrow-you", "codebase-analyzer", "linkedin-note-copilot"]);
+
+  const scoreBackgroundWork = (match: RetrievalMatch) => {
+    const sourceTypeScore = match.chunk.sourceType === "experience" ? 42 : 34;
+    const searchText = `${match.chunk.title} ${match.chunk.text} ${match.chunk.keywords.join(" ")}`;
+    const quantBoost = quantQuestion && quantAdjacentWorkPattern.test(searchText) ? 20 : 0;
+    const outsideAiPenalty = outsideAi && match.chunk.projectId && aiProjectIds.has(match.chunk.projectId) ? -18 : 0;
+
+    return sourceTypeScore + quantBoost + outsideAiPenalty + Math.min(match.score / 20, 4);
+  };
+
+  const experienceEvidence = distinctEvidence(
+    evidence
+      .filter((match) => match.chunk.sourceType === "experience")
+      .sort((a, b) => scoreBackgroundWork(b) - scoreBackgroundWork(a)),
+    2
+  );
+  const projectEvidence = distinctEvidence(
+    evidence
+      .filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study")
+      .sort((a, b) => scoreBackgroundWork(b) - scoreBackgroundWork(a)),
+    2
+  );
+  const educationEvidence = distinctEvidence(
+    evidence.filter((match) => match.chunk.sourceType === "education"),
+    2
+  );
+  const [primaryEducation] = educationEvidence;
+  const workEvidence = [
+    experienceEvidence[0],
+    projectEvidence[0],
+    experienceEvidence[1] ?? projectEvidence[1]
+  ].filter((match): match is RetrievalMatch => Boolean(match));
+  const [primaryWork, secondaryWork, tertiaryWork] = workEvidence;
+  const educationExample = primaryEducation ? truncateForInterview(primaryEducation.chunk.text, 220) : "";
+  const isQuantQuestion = isQuantitativeFitQuestion(question);
+
+  if (isQuantQuestion && !primaryWork && !primaryEducation) {
+    return "I would not position myself as a pure finance quant without evidence for market research or pricing work, but I do have a strong quantitative and technical foundation for data, AI, optimization, and systems roles.";
+  }
+
+  const workTitle = (match: RetrievalMatch) =>
+    match.chunk.sourceType === "experience"
+      ? `experience in ${match.chunk.title}`
+      : `project work in ${match.chunk.title}`;
+  const workSignals = [
+    primaryWork ? `The main evidence should be ${workTitle(primaryWork)}.` : "",
+    secondaryWork ? `I would also point to ${workTitle(secondaryWork)}.` : "",
+    tertiaryWork ? `${tertiaryWork.chunk.title} adds a third signal.` : ""
+  ].filter(Boolean);
+  const educationSignal = primaryEducation
+    ? `The coursework should sit behind that as foundation: ${primaryEducation.chunk.title} covered ${educationExample}`
+    : "";
+
+  const opening = isQuantQuestion
+    ? "Quant was one example: I would be careful about pure trading or derivatives-pricing roles, but I should not frame myself as a light technical candidate."
+    : "Yes. I should not frame myself only as an AI Engineer; the evidence supports a broader technical profile.";
+  const roleRange =
+    "The strongest adjacent lanes are ML or data science, optimization and operations research, research engineering, analytics or product data science, systems-oriented software work, and domain analytics in healthcare or finance operations.";
+
+  return [opening, roleRange, workSignals.join(" "), educationSignal].filter(Boolean).join(" ");
+}
+
 function answerEvidence(matches: RetrievalMatch[]): RetrievalMatch[] {
   const concrete = matches.filter((match) => match.chunk.sourceType !== "overview" && match.chunk.sourceType !== "skills");
   return concrete.length > 0 ? concrete : matches;
@@ -436,6 +527,10 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
   const lowerQuestion = question.toLowerCase();
   const example = truncateForInterview(primary.chunk.text);
   const isFollowUp = history.length > 0;
+
+  if (!isFollowUp && isBackgroundBreadthQuestion(question)) {
+    return buildBackgroundFitAnswer(question, evidence);
+  }
 
   if (isFollowUp && /\b(tradeoff|trade-off|trade off)\b/.test(lowerQuestion)) {
     return [
@@ -540,16 +635,21 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
     const broadenRetrieval = !params.topK && shouldBroadenRetrieval(params.question);
+    const broadenBackgroundFit = !params.topK && isBackgroundBreadthQuestion(params.question);
     const topK =
       params.topK ??
-      (broadenRetrieval ? Math.max(config.retrievalTopK, 14) : config.retrievalTopK);
+      (broadenRetrieval
+        ? Math.max(config.retrievalTopK, 14)
+        : broadenBackgroundFit
+          ? Math.max(config.retrievalTopK, 16)
+          : config.retrievalTopK);
     const history = params.history ?? [];
     const conversationSummary = params.conversationSummary?.trim() || "";
     const retrievalQuery = buildRetrievalQuery(params.question, history, conversationSummary);
     const evidence = retrieveEvidence(corpus, retrievalQuery, {
       roleId: role.id,
       topK,
-      maxPerSource: broadenRetrieval || shouldDiversifyHealthcareEvidence(params.question) ? 1 : undefined
+      maxPerSource: broadenRetrieval || broadenBackgroundFit || shouldDiversifyHealthcareEvidence(params.question) ? 1 : undefined
     });
 
     return {

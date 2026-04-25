@@ -235,6 +235,74 @@ test("medical field queries retrieve direct healthcare evidence before adjacent 
   );
 });
 
+test("quant fit queries retrieve work evidence with coursework support", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "Would you be suited for a quants position?", {
+    roleId: "ai-engineer",
+    topK: 16,
+    maxPerSource: 1
+  });
+
+  assert.ok(
+    ["project", "case-study", "experience"].includes(matches[0]?.chunk.sourceType ?? ""),
+    "Expected quant fit retrieval to lead with work evidence"
+  );
+  assert.ok(
+    matches.some((match) => match.chunk.sourceType === "education" && match.reasons.includes("background education support")),
+    "Expected quant fit retrieval to include coursework as supporting evidence"
+  );
+  assert.ok(
+    matches.some((match) => match.reasons.includes("background project match") || match.reasons.includes("background experience match")),
+    "Expected quant fit retrieval to include project or experience evidence"
+  );
+});
+
+test("direct coursework questions retrieve education first", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "What coursework did you take in machine learning?", {
+    roleId: "ai-engineer",
+    topK: 4
+  });
+
+  assert.equal(matches[0]?.chunk.sourceType, "education");
+  assert.match(matches[0]?.chunk.section, /^Coursework - /);
+  assert.ok(
+    matches.slice(0, 3).every((match) => match.reasons.includes("direct education match")),
+    "Expected direct coursework queries to prioritize education chunks"
+  );
+});
+
+test("broad role-fit queries retrieve background evidence beyond AI projects", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "Based on my background, what roles could fit me outside AI engineer?", {
+    roleId: "ai-engineer",
+    topK: 16,
+    maxPerSource: 1
+  });
+  const sourceTypes = new Set(matches.map((match) => match.chunk.sourceType));
+
+  assert.ok(
+    ["project", "case-study", "experience"].includes(matches[0]?.chunk.sourceType ?? ""),
+    "Expected broader role-fit retrieval to lead with work evidence"
+  );
+  assert.ok(sourceTypes.has("education"), "Expected coursework evidence for broader role-fit questions");
+  assert.ok(sourceTypes.has("experience"), "Expected experience evidence for broader role-fit questions");
+  assert.ok(
+    sourceTypes.has("project") || sourceTypes.has("case-study"),
+    "Expected project or case-study evidence for broader role-fit questions"
+  );
+  assert.ok(
+    matches.some((match) => /optimization|statistics|machine learning|analytics|systems/i.test(match.chunk.text)),
+    "Expected background retrieval to include technical breadth evidence"
+  );
+});
+
 test("AI engineering query retrieves Tomorrow You evidence near the top", () => {
   const content = loadPortfolioContent();
   const corpus = buildCorpusFromContent(content);

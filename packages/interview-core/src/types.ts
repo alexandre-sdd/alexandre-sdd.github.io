@@ -82,6 +82,17 @@ export interface EducationRecord {
   location: string;
   dates: string;
   details: string[];
+  courseworkMemory?: CourseworkMemoryGroup[];
+}
+
+export interface CourseworkMemoryGroup {
+  category: string;
+  courses: CourseworkMemoryCourse[];
+}
+
+export interface CourseworkMemoryCourse {
+  title: string;
+  notes: string;
 }
 
 export interface SkillGroupRecord {

@@ -404,6 +404,7 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
   gap: 18px;
+  align-items: stretch;
 }
 
 .featured-card {
@@ -412,6 +413,9 @@ img {
   border: 1px solid var(--outline);
   overflow: hidden;
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .featured-card img {
@@ -420,12 +424,15 @@ img {
   object-fit: cover;
   border-bottom: 1px solid var(--outline-soft);
   background: var(--surface-alt);
+  flex: 0 0 auto;
 }
 
 .featured-body {
   padding: 16px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  flex: 1 1 auto;
 }
 
 .featured-body h4 {
@@ -462,6 +469,11 @@ img {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.featured-body .artifacts-row,
+.card > .artifacts-row {
+  margin-top: auto;
 }
 
 .artifact-link {
@@ -509,6 +521,7 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
+  align-items: stretch;
 }
 
 .card {
@@ -516,9 +529,11 @@ img {
   border-radius: var(--radius);
   border: 1px solid var(--outline-soft);
   padding: 16px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   box-shadow: var(--shadow);
+  height: 100%;
 }
 
 .card h4,

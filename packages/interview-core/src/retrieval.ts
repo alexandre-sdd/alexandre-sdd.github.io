@@ -43,6 +43,12 @@ const LEARNING_QUERY_PATTERN =
 const SOURCE_KNOWLEDGE_QUERY_PATTERN =
   /\b(api|architecture|audit|backend|component|components|data model|demo flow|diagnostic|diagnostics|endpoint|endpoints|frontend|implementation|layout|route|routes|runtime|schema|source|storage|technical trace)\b/;
 
+const QUANTITATIVE_ROLE_QUERY_PATTERN =
+  /\b(classical quant|financial engineering|market|markets|pricing|quant|quants|quantitative|risk|trading)\b/;
+
+const ROLE_BREADTH_QUERY_PATTERN =
+  /\b(ai engineer|ai engineering|background|beyond|broader|career|fit|not just|outside|position|role|roles|suited|suitable|what else)\b/;
+
 function tokenize(value: string): string[] {
   return value
     .toLowerCase()
@@ -59,6 +65,20 @@ function matchCount(haystack: string[], needles: string[]): number {
 
 function queryHas(query: string, pattern: RegExp): boolean {
   return pattern.test(query.toLowerCase());
+}
+
+function isBackgroundFitQuery(lowerQuery: string): boolean {
+  if (QUANTITATIVE_ROLE_QUERY_PATTERN.test(lowerQuery)) return true;
+  const asksForBreadth = /\b(beyond|broader|not just|outside|what else)\b/.test(lowerQuery);
+  const asksForRoleFit = /\b(ai engineer|ai engineering|background|career|fit|position|role|roles|suited|suitable)\b/.test(lowerQuery);
+
+  return ROLE_BREADTH_QUERY_PATTERN.test(lowerQuery) && asksForRoleFit && (asksForBreadth || /\b(fit|position|role|roles|suited|suitable)\b/.test(lowerQuery));
+}
+
+function isDirectEducationQuery(lowerQuery: string): boolean {
+  return /\b(class|classes|course|courses|coursework|course work|degree|education|gpa|learned in class|school|university|college)\b/.test(
+    lowerQuery
+  );
 }
 
 function baseSourceWeight(chunk: CorpusChunk): number {
@@ -135,6 +155,40 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     reasons.push("repository knowledge match");
   }
 
+  if (chunk.sourceType === "education" && isDirectEducationQuery(lowerQuery)) {
+    score += lowerSection.startsWith("coursework -") ? 44 : 20;
+    reasons.push("direct education match");
+  } else if (chunk.sourceType === "education" && isBackgroundFitQuery(lowerQuery)) {
+    score += lowerSection.startsWith("coursework -") ? 24 : 12;
+    reasons.push("background education support");
+
+    if (
+      QUANTITATIVE_ROLE_QUERY_PATTERN.test(lowerQuery) &&
+      /\b(calculus|linear algebra|optimization|probability|statistics|stochastic|simulation)\b/.test(chunkSearchText(chunk))
+    ) {
+      score += 10;
+      reasons.push("quantitative coursework support");
+    }
+  }
+
+  if (chunk.sourceType === "skills" && isBackgroundFitQuery(lowerQuery)) {
+    score += 8;
+    reasons.push("background skills support");
+  }
+
+  if (chunk.sourceType === "experience" && isBackgroundFitQuery(lowerQuery)) {
+    score += 34;
+    reasons.push("background experience match");
+  }
+
+  if (
+    (chunk.sourceType === "project" || chunk.sourceType === "case-study") &&
+    isBackgroundFitQuery(lowerQuery)
+  ) {
+    score += 30;
+    reasons.push("background project match");
+  }
+
   if (/\b(learn|learned|lesson|lessons)\b/.test(lowerQuery) && lowerSection === "failures and lessons") {
     score += 18;
     reasons.push("lessons section match");
@@ -187,7 +241,7 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     reasons.push("project intent");
   }
 
-  if (chunk.sourceType === "education" && queryHas(lowerQuery, /\b(education|school|degree|coursework|university|college|gpa)\b/)) {
+  if (chunk.sourceType === "education" && queryHas(lowerQuery, /\b(education|school|degree|coursework|course work|university|college|gpa)\b/)) {
     score += 8;
     reasons.push("education intent");
   }
@@ -197,7 +251,7 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     reasons.push("skills intent");
   }
 
-  if (rolePreset) {
+  if (rolePreset && !isBackgroundFitQuery(lowerQuery)) {
     const roleKeywordHits = matchCount(keywordTokens, rolePreset.keywords.map((keyword) => keyword.toLowerCase()));
     if (chunk.roleTags.includes(rolePreset.id)) {
       score += 8;

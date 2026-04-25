@@ -43,37 +43,49 @@ const TOPIC_KEYWORDS = [
   "anomaly",
   "api",
   "automation",
+  "calculus",
   "clustering",
   "dashboard",
   "data quality",
   "decision support",
+  "distributed systems",
   "evaluation",
   "experiment",
   "fastapi",
   "feature engineering",
+  "finance",
   "forecasting",
+  "game theory",
   "gurobi",
   "healthcare",
   "hospital",
+  "high performance computing",
   "llm",
   "machine learning",
   "medical",
   "next.js",
   "openai",
   "optimization",
+  "operations research",
   "or-tools",
   "patient",
   "physician",
   "pipeline",
+  "probability",
   "product",
   "python",
+  "quantitative",
   "research",
   "respiratory",
+  "risk",
   "retrieval",
   "scheduling",
   "simulation",
+  "signal processing",
   "sql",
+  "statistics",
   "stakeholder",
+  "stochastic simulation",
   "typescript",
   "voice"
 ];
@@ -116,6 +128,14 @@ function toInterviewRelativeUrl(url: string | undefined, fallback = "../index.ht
 
 function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function slugify(value: string): string {
+  return normalizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 60);
 }
 
 function tokenize(value: string): string[] {
@@ -452,6 +472,33 @@ function inferExperienceRoleTags(experience: ExperienceRecord): string[] {
   return Array.from(tags);
 }
 
+function inferEducationRoleTags(category: string, text: string): string[] {
+  const lower = `${category} ${text}`.toLowerCase();
+  const tags = new Set<string>(["product-data-scientist"]);
+
+  if (/(ai|machine learning|data science|intelligent|analytics|forecasting|prediction)/.test(lower)) {
+    tags.add("ai-engineer");
+    tags.add("ml-engineer");
+  }
+  if (/(optimization|operations research|simulation|probability|statistics|games|control|decision)/.test(lower)) {
+    tags.add("optimization-analytics");
+    tags.add("research-engineer");
+  }
+  if (/(algorithm|complexity|software|systems|cloud|distributed|hpc|security|critical|iot)/.test(lower)) {
+    tags.add("ai-engineer");
+    tags.add("research-engineer");
+  }
+  if (/(mathematics|physics|signal|pde|engineering|modeling)/.test(lower)) {
+    tags.add("research-engineer");
+    tags.add("optimization-analytics");
+  }
+  if (/(business|finance|marketing|entrepreneurship|economics)/.test(lower)) {
+    tags.add("product-data-scientist");
+  }
+
+  return Array.from(tags);
+}
+
 function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, index: number): void {
   addChunk(chunks, {
     id: `education:${index}`,
@@ -465,6 +512,34 @@ function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, i
     roleTags: ["ai-engineer", "ml-engineer", "research-engineer", "optimization-analytics"],
     evidenceStrength: "supporting",
     keywords: [education.school, education.degree]
+  });
+
+  education.courseworkMemory?.forEach((group, groupIndex) => {
+    const courseText = group.courses.map((course) => `${course.title}: ${course.notes}`).join(" ");
+    const text = `Coursework category: ${group.category}. Courses and applied work: ${courseText}`;
+    const slug = slugify(group.category) || `group-${groupIndex + 1}`;
+
+    addChunk(chunks, {
+      id: `education:${index}:coursework:${slug}`,
+      sourceType: "education",
+      sourceId: education.school,
+      title: `${education.degree} at ${education.school}`,
+      section: `Coursework - ${group.category}`,
+      text,
+      citationLabel: `${education.degree} coursework - ${education.school}`,
+      publicUrl: "../index.html#education",
+      roleTags: inferEducationRoleTags(group.category, text),
+      evidenceStrength: "supporting",
+      keywords: inferKeywords(text, [
+        education.school,
+        education.degree,
+        group.category,
+        "coursework",
+        "course work",
+        "technical foundation",
+        "quantitative foundation"
+      ])
+    });
   });
 }
 

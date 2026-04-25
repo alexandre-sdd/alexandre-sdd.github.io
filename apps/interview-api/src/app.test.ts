@@ -510,6 +510,93 @@ test("medical field questions use direct healthcare evidence", async () => {
   await app.close();
 });
 
+test("quant fit questions lead with work evidence and use coursework as support", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Would you be suited for a quants position?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+    projectsUsed: Array<{ title: string; sourceType: string }>;
+    retrieval: { results: Array<{ title: string; section: string; reasons: string[] }> };
+  };
+
+  assert.doesNotMatch(json.answer, /Codebase Analyzer/);
+  assert.match(json.answer, /main evidence should be|experience in|project work/i);
+  assert.match(json.answer, /coursework should sit behind|foundation/i);
+  assert.ok(
+    json.citations.some((citation) => citation.sourceType === "education"),
+    "Expected education coursework citation as support"
+  );
+  assert.ok(
+    json.citations.some((citation) => ["experience", "project", "case-study"].includes(citation.sourceType)),
+    "Expected work evidence citation"
+  );
+  assert.doesNotMatch(json.retrieval.results[0]?.section ?? "", /^Coursework - /);
+
+  await app.close();
+});
+
+test("broader fit questions map roles outside AI engineering", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 8
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Based on my background, what roles could fit me outside AI engineer?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+    retrieval: { results: Array<{ sourceType?: string; section: string; reasons: string[] }> };
+  };
+
+  assert.match(json.answer, /not frame myself only as an AI Engineer/i);
+  assert.match(json.answer, /ML or data science|optimization and operations research|research engineering|product data science/i);
+  assert.match(json.answer, /main evidence should be/i);
+  assert.match(json.answer, /coursework should sit behind/i);
+  assert.ok(
+    json.citations.some((citation) => citation.sourceType === "education"),
+    "Expected education evidence as supporting context"
+  );
+  assert.ok(
+    json.citations.some((citation) => citation.sourceType === "experience"),
+    "Expected experience evidence in broader role-fit citations"
+  );
+  assert.ok(
+    json.citations.some((citation) => citation.sourceType === "project" || citation.sourceType === "case-study"),
+    "Expected project or case-study evidence in broader role-fit citations"
+  );
+  assert.ok(
+    json.retrieval.results.some((result) => result.reasons.includes("background education support")),
+    "Expected broader fit retrieval to include education support"
+  );
+
+  await app.close();
+});
+
 test("broad project overview can retrieve every project and case study", async () => {
   const app = buildApp({
     useMockResponses: true,

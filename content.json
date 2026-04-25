@@ -1043,6 +1043,98 @@
       "details": [
         "GPA: 3.93/4.00",
         "Coursework: AI Engineering, Marketing Analytics, Business Analytics, Data Analytics, Probability Statistics and Simulation"
+      ],
+      "courseworkMemory": [
+        {
+          "category": "Data Science, Machine Learning and AI",
+          "courses": [
+            {
+              "title": "Data Analytics",
+              "notes": "Practical data analysis in Python, including data acquisition, cleaning, database querying, machine learning, visualization, and real-dataset project work."
+            },
+            {
+              "title": "Business Analytics",
+              "notes": "Analytics opportunity framing, machine learning, A/B testing, causal inference, ethics, and optimization for data-driven business decisions."
+            },
+            {
+              "title": "AI Engineering Applications",
+              "notes": "Contemporary applications of artificial intelligence and operations research, with emphasis on applied AI use cases and engineering problems."
+            },
+            {
+              "title": "MSBA Quantitative Bootcamp",
+              "notes": "Review of core quantitative foundations for analytics, including linear algebra, calculus, statistics, and probability."
+            },
+            {
+              "title": "Python for Analytics",
+              "notes": "Python programming fundamentals for analytics coursework and data-focused implementation."
+            }
+          ]
+        },
+        {
+          "category": "Probability, Statistics and Simulation",
+          "courses": [
+            {
+              "title": "Probability, Statistics and Simulation",
+              "notes": "Probability theory, independence, conditioning, random variables, law of large numbers, central limit theorem, stochastic simulation, estimation, hypothesis testing, and regression."
+            }
+          ]
+        },
+        {
+          "category": "Optimization, Operations Research and Decision Science",
+          "courses": [
+            {
+              "title": "Optimization Models and Methods",
+              "notes": "Deterministic optimization models, including linear programming, simplex methods, integer programming, dynamic programming, and nonlinear optimization."
+            },
+            {
+              "title": "Performance, Objectives and Results Using Data Analytics",
+              "notes": "OKRs, measurement frameworks, A/B testing, validation, correlation, product metrics, and practical data-driven decision-making."
+            }
+          ]
+        },
+        {
+          "category": "Business, Economics, Finance and Marketing",
+          "courses": [
+            {
+              "title": "Business Analytics",
+              "notes": "Bridge between analytics, machine learning, experimentation, optimization, and business value creation."
+            },
+            {
+              "title": "MS Marketing Analytics",
+              "notes": "Quantitative marketing analysis, customer value, segmentation, targeting, positioning, campaign measurement, and data-driven marketing decisions."
+            },
+            {
+              "title": "MS Digital Marketing",
+              "notes": "Digital marketing channels, online customer acquisition, search, social media, campaign design, and measurement."
+            }
+          ]
+        },
+        {
+          "category": "Entrepreneurship and Innovation",
+          "courses": [
+            {
+              "title": "Foundations of Entrepreneurship",
+              "notes": "Entrepreneurial process, opportunity identification, startup creation, venture evaluation, and entrepreneurial skills."
+            },
+            {
+              "title": "Think Bigger",
+              "notes": "Structured ideation methodology grounded in cognitive science and creative problem-solving."
+            }
+          ]
+        },
+        {
+          "category": "Projects and Applied Work",
+          "courses": [
+            {
+              "title": "Analytics in Practice",
+              "notes": "Client-facing analytics project involving requirement identification, data cleaning, statistical, operations research, and machine learning techniques, and client-ready delivery."
+            },
+            {
+              "title": "Business Analytics Seminar",
+              "notes": "Practitioner and research seminar exposure to real-world analytics applications and synthesis of professional insights."
+            }
+          ]
+        }
       ]
     },
     {
@@ -1053,6 +1145,242 @@
       "details": [
         "GPA: 3.93/4.00",
         "Coursework: Algorithms and Networks, Machine Learning, HPC and Cloud Computing, Signal Processing, Game Theory"
+      ],
+      "courseworkMemory": [
+        {
+          "category": "Data Science, Machine Learning and AI",
+          "courses": [
+            {
+              "title": "Machine Learning",
+              "notes": "General machine learning framework, data preparation, statistical learning theory, risk, overfitting, regularization, supervised and unsupervised learning, SVMs, kernels, boosting, bagging, and decision trees."
+            },
+            {
+              "title": "Statistics and Learning",
+              "notes": "Statistical theory connected to machine learning, including estimation, hypothesis testing, probabilistic reasoning, and learning models."
+            },
+            {
+              "title": "Prediction of Wind Farm Production Using IoT Data",
+              "notes": "Applied project combining IoT data and predictive modeling to forecast wind farm production from sensor data."
+            },
+            {
+              "title": "Design of Intelligent Systems for Automated Air Traffic Control",
+              "notes": "Applied intelligent-systems project for air traffic control, focused on AI, decision systems, and modeling complex operational environments."
+            }
+          ]
+        },
+        {
+          "category": "Probability, Statistics and Simulation",
+          "courses": [
+            {
+              "title": "Convergence, Integration and Probability",
+              "notes": "Advanced mathematical course covering convergence, integration, probability theory, and measure-theoretic reasoning."
+            },
+            {
+              "title": "Statistics and Learning",
+              "notes": "Statistical inference and learning algorithms, reinforcing both theoretical and applied data analysis foundations."
+            }
+          ]
+        },
+        {
+          "category": "Optimization, Operations Research and Decision Science",
+          "courses": [
+            {
+              "title": "Optimization",
+              "notes": "Mathematical optimization, including linear, nonlinear, and dynamic optimization for constrained decision problems."
+            },
+            {
+              "title": "Control Theory",
+              "notes": "Dynamic systems, feedback, stability, transfer functions, frequency response, and controller design."
+            },
+            {
+              "title": "Modeling Strategic Interactions through Games",
+              "notes": "Game-theoretic modeling of strategic interactions, incentives, and competitive decision-making."
+            },
+            {
+              "title": "Computational Approach to Games",
+              "notes": "Algorithmic and computational methods for analyzing games."
+            },
+            {
+              "title": "Evolutionary Games",
+              "notes": "Game dynamics, evolutionary models, adaptive systems, and strategic behavior over time."
+            }
+          ]
+        },
+        {
+          "category": "Computer Science, Software and Systems",
+          "courses": [
+            {
+              "title": "Information Systems and Programming",
+              "notes": "Information systems, Python programming, databases, SQL, computer architecture, operating systems, networks, and information security."
+            },
+            {
+              "title": "Algorithmics and Complexity",
+              "notes": "Data structures, graph algorithms, shortest paths, minimum spanning trees, maximum flows, dynamic programming, and complexity theory."
+            },
+            {
+              "title": "High Performance Computing",
+              "notes": "Parallel computing, distributed systems, Linux environments, scalability, and performance analysis."
+            },
+            {
+              "title": "Cloud Computing and Distributed Computing",
+              "notes": "Virtualization, cloud service models, containers, orchestration, microservices, Hadoop, Spark, distributed storage, and cloud-native applications."
+            },
+            {
+              "title": "Networks and Security",
+              "notes": "Network principles, cryptography, hashing, encryption, digital signatures, key exchange, and security mechanisms."
+            },
+            {
+              "title": "Electronic Systems",
+              "notes": "Analog and digital electronics, sensors, actuators, microcontrollers, circuit prototyping, and embedded systems."
+            },
+            {
+              "title": "Principles of Information Theory and Communication Networks for IoT",
+              "notes": "Information theory, communication networks, connected devices, data transmission, connectivity, and IoT systems."
+            },
+            {
+              "title": "The Internet of Things",
+              "notes": "Connected objects, sensors, data transmission, cloud processing, and IoT applications."
+            },
+            {
+              "title": "Design and Verification of Critical Systems",
+              "notes": "Formal modeling, verification, safety-critical systems, temporal logic, and model checking."
+            },
+            {
+              "title": "Complex Industrial Systems and Critical Software-Intensive Systems",
+              "notes": "Modeling and analysis of complex industrial and software-intensive systems, with systems engineering and safety-aware software design."
+            }
+          ]
+        },
+        {
+          "category": "Mathematics, Physics and Engineering Sciences",
+          "courses": [
+            {
+              "title": "Partial Differential Equations",
+              "notes": "Classical PDEs including heat, wave, Laplace, Poisson, Schrodinger, and Maxwell equations for advanced mathematical modeling."
+            },
+            {
+              "title": "Model Representations and Analysis",
+              "notes": "Mathematical and graphical representations of complex systems for engineering analysis."
+            },
+            {
+              "title": "Signal Processing",
+              "notes": "Discrete-time signals, Fourier and Z transforms, frequency-domain analysis, and digital filters."
+            },
+            {
+              "title": "Quantum and Statistical Physics",
+              "notes": "Quantum mechanics and statistical physics, including quantization, harmonic oscillators, radiation fields, entropy, and physical systems."
+            },
+            {
+              "title": "Electrical Energy",
+              "notes": "Electrical machines, motors, generators, energy conversion, magnetic circuits, and power systems."
+            },
+            {
+              "title": "Transport Phenomena",
+              "notes": "Diffusion, heat conduction, convection, fluid dynamics, conservation laws, dimensional analysis, and Navier-Stokes equations."
+            }
+          ]
+        },
+        {
+          "category": "Business, Economics, Finance and Marketing",
+          "courses": [
+            {
+              "title": "Economics of Innovation and Growth",
+              "notes": "Innovation-led growth, competition, firm dynamics, R&D policy, patents, and technological progress."
+            },
+            {
+              "title": "Economics",
+              "notes": "Microeconomics and macroeconomics, including markets, competition, policy, inflation, unemployment, and trade."
+            },
+            {
+              "title": "Business Management",
+              "notes": "Management, operations, strategy, organizational behavior, marketing, finance, information systems, and business law."
+            },
+            {
+              "title": "Corporate Accounting and Finance",
+              "notes": "Accounting documents, financial statements, financial analysis, and corporate finance fundamentals."
+            },
+            {
+              "title": "Business Games",
+              "notes": "Business simulations for decision-making, leadership, negotiation, teamwork, and strategy."
+            }
+          ]
+        },
+        {
+          "category": "Entrepreneurship and Innovation",
+          "courses": [
+            {
+              "title": "Start-Up Week",
+              "notes": "Intensive entrepreneurial project experience involving team ideation, prototyping, and pitching."
+            },
+            {
+              "title": "Economics of Innovation and Growth",
+              "notes": "Economic analysis of innovation, R&D, patents, competition, and technology-driven growth."
+            }
+          ]
+        },
+        {
+          "category": "Sustainability, Climate and Urban Systems",
+          "courses": [
+            {
+              "title": "Climate Sciences",
+              "notes": "Climate systems, atmospheric phenomena, and human impact on climate."
+            },
+            {
+              "title": "Circular Economy and Industrial Ecology Methods",
+              "notes": "Circular economy, industrial symbiosis, material flows, environmental impact assessment, and sustainable production systems."
+            },
+            {
+              "title": "Circular Economy Industrial Project",
+              "notes": "Applied industrial project focused on circular economy and industrial ecology methods."
+            },
+            {
+              "title": "Building the City: Town Planning, Architecture and Engineering",
+              "notes": "Urban planning, architecture, infrastructure, and engineering for city development."
+            }
+          ]
+        },
+        {
+          "category": "Social Sciences, Law and Humanities",
+          "courses": [
+            {
+              "title": "Science, Technology, Society",
+              "notes": "Interaction between science, technology, society, policy, economics, ethics, and sustainability."
+            },
+            {
+              "title": "Sociology of Organizations",
+              "notes": "Organizational structures, cultures, bureaucracy, decision-making, power, change, and conflict."
+            },
+            {
+              "title": "Philosophy",
+              "notes": "Critical thinking, reasoning, argumentation, ethics, and analytical reflection."
+            },
+            {
+              "title": "Law",
+              "notes": "Legal and ethical environment of business, regulatory systems, liability, contracts, and legal reasoning."
+            }
+          ]
+        },
+        {
+          "category": "Projects and Applied Work",
+          "courses": [
+            {
+              "title": "Semester 6 Project",
+              "notes": "Built a CRM-style student-club application with Power Apps and Power Automate connected to a SharePoint database."
+            },
+            {
+              "title": "Semester 7 Project: Enhanced Synchronization in Mechanical Ventilation",
+              "notes": "Developed a Matlab application for patient-ventilator synchronization, abnormal respiratory cycle detection, parameter estimation, literature review, respiratory cycle segmentation, manual labeling, phase-space curvature feature extraction, classification, and robust regression."
+            },
+            {
+              "title": "Semester 8 Project: Forvia Tracking",
+              "notes": "Built a camera-radar fusion system for object localization and tracking in autonomous and connected vehicles using computer vision, radar signal processing, probabilistic modeling, and real-time tracking pipelines."
+            },
+            {
+              "title": "Circular Economy Industrial Project",
+              "notes": "Applied industrial sustainability project using circular economy and industrial ecology methods."
+            }
+          ]
+        }
       ]
     },
     {
