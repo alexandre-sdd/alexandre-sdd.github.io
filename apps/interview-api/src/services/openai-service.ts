@@ -23,6 +23,10 @@ function buildHistoryBlock(history: InterviewTurn[]): string {
   return history.map((turn, index) => `${index + 1}. ${turn.role.toUpperCase()}: ${turn.content}`).join("\n");
 }
 
+function lastAssistantAnswer(history: InterviewTurn[]): string {
+  return [...history].reverse().find((turn) => turn.role === "assistant")?.content.trim() ?? "";
+}
+
 function systemPrompt(role: RolePreset): string {
   return [
     "You are generating interview answers for Alexandre Sepulveda de Dietrich.",
@@ -33,6 +37,8 @@ function systemPrompt(role: RolePreset): string {
     "Start with the direct answer, then anchor it in one concrete example, then explain the decision, tradeoff, result, or learning an interviewer would care about.",
     "If conversation history is present, treat the question as a follow-up, not a fresh interview reset.",
     "For follow-ups, do not restate the same project summary, result, or generic framing already given. Add a new angle, mechanism, consequence, validation detail, or lesson.",
+    "For follow-ups, do not reintroduce the project with an 'In [project]' recap unless the interviewer explicitly asks for context.",
+    "For follow-ups, use at most one project-name reference and keep the answer tighter than the first answer.",
     "If the interviewer asks a short follow-up like 'What tradeoff mattered most?', answer the tradeoff directly and briefly, then add what changed because of that choice.",
     "For behavioral questions, use a concise situation-action-result shape without labeling it.",
     "For technical questions, include the architecture, constraint, evaluation, or failure mode that shows judgment.",
@@ -53,9 +59,18 @@ function systemPrompt(role: RolePreset): string {
 }
 
 function userPrompt(input: LlmGenerationInput): string {
+  const priorAssistantAnswer = lastAssistantAnswer(input.history);
   const followUpGuidance =
     input.history.length > 0
-      ? "This is a follow-up. Build on the prior answer and avoid repeating details already stated unless one short reference is necessary."
+      ? [
+          "This is a follow-up, so assume the prior answer remains active context.",
+          "Do not paraphrase or recap the prior answer. Answer only the new angle the interviewer asked for.",
+          "Target shape: direct answer, concrete consequence, interviewer-relevant takeaway.",
+          "Aim for 70 to 120 words unless the question asks for a broad explanation.",
+          priorAssistantAnswer ? `Prior assistant answer to avoid repeating: ${priorAssistantAnswer}` : ""
+        ]
+          .filter(Boolean)
+          .join(" ")
       : "This is the first answer in the thread.";
 
   return [
