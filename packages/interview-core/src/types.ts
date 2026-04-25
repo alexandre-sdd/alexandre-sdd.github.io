@@ -7,12 +7,25 @@ export type SourceType =
   | "skills";
 
 export type EvidenceStrength = "core" | "supporting";
+export type EvidenceLevel = "public" | "sanitized" | "limited";
 
 export interface LinkMap {
   email: string;
   github: string;
   linkedin: string;
   resume: string;
+}
+
+export interface LearningProfile {
+  role: string;
+  decisions: string[];
+  tradeoffs: string[];
+  failures: string[];
+  lessons: string[];
+  skills: string[];
+  evidenceLevel: EvidenceLevel;
+  evidenceNotes: string;
+  nextImprovements: string[];
 }
 
 export interface ProjectRecord {
@@ -25,6 +38,7 @@ export interface ProjectRecord {
   featured?: boolean;
   thumbnail?: string;
   artifacts?: Record<string, string>;
+  learning?: LearningProfile;
 }
 
 export interface CaseStudyRecord {
@@ -43,6 +57,7 @@ export interface CaseStudyRecord {
   techStack?: string[];
   artifacts?: Record<string, string>;
   nextImprovements?: string[];
+  learning?: LearningProfile;
 }
 
 export interface ExperienceRecord {
@@ -51,6 +66,7 @@ export interface ExperienceRecord {
   location: string;
   dates: string;
   highlights: string[];
+  learning?: LearningProfile;
 }
 
 export interface EducationRecord {

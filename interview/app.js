@@ -21,6 +21,8 @@ const state = {
 };
 
 const STREAM_RENDER_DELAY_MS = 22;
+const MAX_HISTORY_MESSAGES = 8;
+const SUMMARY_SOURCE_LIMIT = 5;
 const PROCESS_STEPS = {
   retrieve: "Finding relevant portfolio evidence.",
   ground: "Preparing source-backed context.",
@@ -432,7 +434,44 @@ function readNdjsonLine(line) {
   }
 }
 
-async function streamQuestion(question, assistantId, history) {
+function buildConversationMemory() {
+  const completeMessages = state.messages.filter((message) => message.content && !message.isStreaming);
+  const history = completeMessages.slice(-MAX_HISTORY_MESSAGES).map((message) => ({
+    role: message.role,
+    content: message.content
+  }));
+  const olderMessages = completeMessages.slice(0, Math.max(0, completeMessages.length - MAX_HISTORY_MESSAGES));
+  const assistantMessages = completeMessages.filter((message) => message.role === "assistant");
+  const latestSources =
+    [...assistantMessages].reverse().find((message) => message.projectsUsed?.length)?.projectsUsed || [];
+  const sourceTitles = [];
+
+  latestSources.forEach((source) => {
+    if (source?.title && !sourceTitles.includes(source.title)) {
+      sourceTitles.push(source.title);
+    }
+  });
+
+  const summaryParts = [];
+  if (sourceTitles.length) {
+    summaryParts.push(`Recent sources in order: ${sourceTitles.slice(0, SUMMARY_SOURCE_LIMIT).map((title, index) => `${index + 1}. ${title}`).join("; ")}.`);
+  }
+  if (olderMessages.length) {
+    const earlierTopics = olderMessages
+      .filter((message) => message.role === "user")
+      .map((message) => message.content)
+      .slice(-3)
+      .join(" | ");
+    if (earlierTopics) summaryParts.push(`Earlier interviewer topics: ${earlierTopics}.`);
+  }
+
+  return {
+    history,
+    conversationSummary: summaryParts.join(" ").slice(0, 1600)
+  };
+}
+
+async function streamQuestion(question, assistantId, memory) {
   const response = await fetch(apiUrl("/v1/interview/stream"), {
     method: "POST",
     headers: {
@@ -441,7 +480,8 @@ async function streamQuestion(question, assistantId, history) {
     body: JSON.stringify({
       question,
       roleId: state.selectedRoleId,
-      history
+      history: memory.history,
+      conversationSummary: memory.conversationSummary
     })
   });
 
@@ -499,7 +539,7 @@ async function streamQuestion(question, assistantId, history) {
   }
 }
 
-async function askQuestion(question, history) {
+async function askQuestion(question, memory) {
   const response = await fetch(apiUrl("/v1/interview/respond"), {
     method: "POST",
     headers: {
@@ -508,7 +548,8 @@ async function askQuestion(question, history) {
     body: JSON.stringify({
       question,
       roleId: state.selectedRoleId,
-      history
+      history: memory.history,
+      conversationSummary: memory.conversationSummary
     })
   });
 
@@ -520,10 +561,7 @@ async function askQuestion(question, history) {
 }
 
 async function submitQuestion(question) {
-  const history = state.messages.map((message) => ({
-    role: message.role,
-    content: message.content
-  }));
+  const memory = buildConversationMemory();
 
   const userMessage = {
     id: nextMessageId(),
@@ -549,12 +587,12 @@ async function submitQuestion(question) {
   const stopProcessTimeline = startProcessTimeline(assistantMessage.id);
 
   try {
-    await streamQuestion(question, assistantMessage.id, history);
+    await streamQuestion(question, assistantMessage.id, memory);
     setStatus("", "success");
   } catch (streamError) {
     try {
       setStatus("Preparing answer...");
-      const payloadPromise = askQuestion(question, history);
+      const payloadPromise = askQuestion(question, memory);
       setMessageProcess(assistantMessage.id, PROCESS_STEPS.ground);
       await wait(260);
       setMessageProcess(assistantMessage.id, PROCESS_STEPS.draft);

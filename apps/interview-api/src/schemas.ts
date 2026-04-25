@@ -9,6 +9,7 @@ export const InterviewRequestSchema = z.object({
   question: z.string().min(8).max(2000),
   roleId: z.string().min(2).optional(),
   history: z.array(InterviewTurnSchema).max(8).optional(),
+  conversationSummary: z.string().max(1600).optional(),
   topK: z.number().int().min(3).max(15).optional()
 });
 

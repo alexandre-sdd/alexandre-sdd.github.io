@@ -37,6 +37,9 @@ const HEALTHCARE_QUERY_PATTERN =
 const HEALTHCARE_SOURCE_PATTERN =
   /\b(cuimc|clinical|columbia doctors|doctor|doctors|emergency|healthcare|health care|hospital|medical|medicine|nantes|outpatient|patient|patients|physician|physicians|respiratory)\b/;
 
+const LEARNING_QUERY_PATTERN =
+  /\b(decision|decisions|decide|failure|fail|failed|fails|grounded|grounding|harden|improve|improved|improvement|learn|learned|lesson|lessons|role|scope|tradeoff|tradeoffs|trade-off|trade-offs|what did you change|what would you change)\b/;
+
 function tokenize(value: string): string[] {
   return value
     .toLowerCase()
@@ -78,6 +81,7 @@ function chunkSearchText(chunk: CorpusChunk): string {
 
 function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): RetrievalMatch {
   const lowerQuery = query.toLowerCase();
+  const lowerSection = chunk.section.toLowerCase();
   const queryTokens = tokenize(query);
   const titleTokens = tokenize(chunk.title);
   const sectionTokens = tokenize(chunk.section);
@@ -118,6 +122,31 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     reasons.push("core evidence");
   }
 
+  if (LEARNING_QUERY_PATTERN.test(lowerQuery) && /role and scope|decisions and tradeoffs|failures and lessons|evidence and next improvements/.test(lowerSection)) {
+    score += 24;
+    reasons.push("learning evidence match");
+  }
+
+  if (/\b(learn|learned|lesson|lessons)\b/.test(lowerQuery) && lowerSection === "failures and lessons") {
+    score += 18;
+    reasons.push("lessons section match");
+  }
+
+  if (/\b(decision|decisions|decide|tradeoff|tradeoffs|trade-off|trade-offs)\b/.test(lowerQuery) && lowerSection === "decisions and tradeoffs") {
+    score += 18;
+    reasons.push("decision section match");
+  }
+
+  if (/\b(failure|fail|failed|fails|grounded|grounding|what did you change)\b/.test(lowerQuery) && lowerSection === "failures and lessons") {
+    score += 20;
+    reasons.push("failure section match");
+  }
+
+  if (/\b(exact role|your role|my role|scope)\b/.test(lowerQuery) && lowerSection === "role and scope") {
+    score += 18;
+    reasons.push("role scope section match");
+  }
+
   if (
     ["project", "case-study", "experience"].includes(chunk.sourceType) &&
     HEALTHCARE_QUERY_PATTERN.test(lowerQuery) &&
@@ -131,7 +160,7 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
     if (
       queryHas(
         lowerQuery,
-        /\b(internship|internships|intern|role|roles|job|jobs|work history|work experience|professional experience|stakeholder|stakeholders|ambiguous|ambiguity|requirements|client|consulting|consultant)\b/
+        /\b(internship|internships|intern|job|jobs|work history|work experience|professional experience|stakeholder|stakeholders|ambiguous|ambiguity|requirements|client|consulting|consultant)\b/
       )
     ) {
       score += 24;

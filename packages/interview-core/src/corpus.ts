@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +10,7 @@ import type {
   EducationRecord,
   ExperienceRecord,
   GeneratedCorpus,
+  LearningProfile,
   PortfolioContent,
   ProjectRecord,
   SkillGroupRecord
@@ -149,6 +151,104 @@ function addChunk(
   });
 }
 
+function contentFingerprint(content: PortfolioContent): string {
+  return `content:${crypto.createHash("sha256").update(JSON.stringify(content)).digest("hex").slice(0, 12)}`;
+}
+
+function joinLearning(items: string[]): string {
+  return items.filter(Boolean).join(" ");
+}
+
+function addLearningChunks(
+  chunks: CorpusChunk[],
+  params: {
+    idPrefix: string;
+    sourceType: CorpusChunk["sourceType"];
+    sourceId: string;
+    projectId?: string;
+    title: string;
+    publicUrl: string;
+    roleTags: string[];
+    learning?: LearningProfile;
+    keywords: string[];
+  }
+): void {
+  if (!params.learning) return;
+
+  const keywords = [
+    ...params.keywords,
+    "learning",
+    "lessons learned",
+    "role",
+    "scope",
+    "decision",
+    "tradeoff",
+    "failure",
+    "improvement",
+    ...params.learning.skills
+  ];
+
+  addChunk(chunks, {
+    id: `${params.idPrefix}:learning-role`,
+    sourceType: params.sourceType,
+    sourceId: params.sourceId,
+    projectId: params.projectId,
+    title: params.title,
+    section: "Role and scope",
+    text: `Role: ${params.learning.role} Skills learned or used: ${params.learning.skills.join(", ")}.`,
+    citationLabel: `${params.title} - role and scope`,
+    publicUrl: params.publicUrl,
+    roleTags: params.roleTags,
+    evidenceStrength: "core",
+    keywords
+  });
+
+  addChunk(chunks, {
+    id: `${params.idPrefix}:learning-decisions`,
+    sourceType: params.sourceType,
+    sourceId: params.sourceId,
+    projectId: params.projectId,
+    title: params.title,
+    section: "Decisions and tradeoffs",
+    text: `Decisions: ${joinLearning(params.learning.decisions)} Tradeoffs: ${joinLearning(params.learning.tradeoffs)}`,
+    citationLabel: `${params.title} - decisions and tradeoffs`,
+    publicUrl: params.publicUrl,
+    roleTags: params.roleTags,
+    evidenceStrength: "core",
+    keywords
+  });
+
+  addChunk(chunks, {
+    id: `${params.idPrefix}:learning-lessons`,
+    sourceType: params.sourceType,
+    sourceId: params.sourceId,
+    projectId: params.projectId,
+    title: params.title,
+    section: "Failures and lessons",
+    text: `Failure modes: ${joinLearning(params.learning.failures)} Lessons learned: ${joinLearning(params.learning.lessons)}`,
+    citationLabel: `${params.title} - failures and lessons`,
+    publicUrl: params.publicUrl,
+    roleTags: params.roleTags,
+    evidenceStrength: "core",
+    keywords
+  });
+
+  addChunk(chunks, {
+    id: `${params.idPrefix}:learning-evidence`,
+    sourceType: params.sourceType,
+    sourceId: params.sourceId,
+    projectId: params.projectId,
+    title: params.title,
+    section: "Evidence and next improvements",
+    text: `Evidence level: ${params.learning.evidenceLevel}. Evidence notes: ${params.learning.evidenceNotes} Next improvements: ${joinLearning(params.learning.nextImprovements)}`,
+    citationLabel: `${params.title} - evidence and next improvements`,
+    publicUrl: params.publicUrl,
+    roleTags: params.roleTags,
+    evidenceStrength: "supporting",
+    keywords
+  });
+}
+
 function addOverviewChunks(chunks: CorpusChunk[], content: PortfolioContent): void {
   addChunk(chunks, {
     id: "overview:profile",
@@ -207,6 +307,18 @@ function addProjectChunks(chunks: CorpusChunk[], project: ProjectRecord): void {
       keywords: baseKeywords
     });
   }
+
+  addLearningChunks(chunks, {
+    idPrefix: `project:${project.id}`,
+    sourceType: "project",
+    sourceId: project.id,
+    projectId: project.id,
+    title: project.title,
+    publicUrl: projectEvidenceUrl(project),
+    roleTags,
+    learning: project.learning,
+    keywords: baseKeywords
+  });
 }
 
 function addCaseStudyChunks(chunks: CorpusChunk[], caseStudy: CaseStudyRecord): void {
@@ -258,20 +370,47 @@ function addCaseStudyChunks(chunks: CorpusChunk[], caseStudy: CaseStudyRecord): 
     evidenceStrength: "core",
     keywords: [...baseKeywords, "approach", "results"]
   });
+
+  addLearningChunks(chunks, {
+    idPrefix: `case-study:${caseStudy.id}`,
+    sourceType: "case-study",
+    sourceId: caseStudy.id,
+    projectId: caseStudy.id,
+    title: caseStudy.title,
+    publicUrl,
+    roleTags,
+    learning: caseStudy.learning,
+    keywords: baseKeywords
+  });
 }
 
 function addExperienceChunks(chunks: CorpusChunk[], experience: ExperienceRecord, index: number): void {
+  const sourceId = `${experience.company}:${experience.role}`;
+  const title = `${experience.role} at ${experience.company}`;
+  const roleTags = inferExperienceRoleTags(experience);
+
   addChunk(chunks, {
     id: `experience:${index}`,
     sourceType: "experience",
-    sourceId: `${experience.company}:${experience.role}`,
-    title: `${experience.role} at ${experience.company}`,
+    sourceId,
+    title,
     section: "Experience highlights",
     text: `${experience.dates} in ${experience.location}. ${experience.highlights.join(" ")}`,
     citationLabel: `${experience.role} - ${experience.company}`,
     publicUrl: "../index.html#experience",
-    roleTags: inferExperienceRoleTags(experience),
+    roleTags,
     evidenceStrength: "supporting",
+    keywords: [experience.company, experience.role]
+  });
+
+  addLearningChunks(chunks, {
+    idPrefix: `experience:${index}`,
+    sourceType: "experience",
+    sourceId,
+    title,
+    publicUrl: "../index.html#experience",
+    roleTags,
+    learning: experience.learning,
     keywords: [experience.company, experience.role]
   });
 }
@@ -331,7 +470,7 @@ export function buildCorpusFromContent(content: PortfolioContent): GeneratedCorp
   content.skills.forEach((group, index) => addSkillChunks(chunks, group, index));
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: contentFingerprint(content),
     chunkCount: chunks.length,
     chunks
   };

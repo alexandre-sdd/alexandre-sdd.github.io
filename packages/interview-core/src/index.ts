@@ -3,8 +3,10 @@ export { DEFAULT_ROLE_ID, ROLE_PRESETS, ROLE_PRESET_MAP, SEEDED_QUESTIONS } from
 export { retrieveEvidence } from "./retrieval.js";
 export type {
   CorpusChunk,
+  EvidenceLevel,
   GeneratedCorpus,
   InterviewTurn,
+  LearningProfile,
   PortfolioContent,
   RetrievalMatch,
   RetrievalOptions,

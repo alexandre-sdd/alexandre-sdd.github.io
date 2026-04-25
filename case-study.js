@@ -105,6 +105,22 @@ const renderList = (selector, items = [], fallbackTodo) => {
   container.appendChild(todo);
 };
 
+const renderLearning = (learning = {}) => {
+  const role = qs('#case-learning-role');
+  const evidence = qs('#case-learning-evidence');
+
+  if (role) role.textContent = clean(learning.role) || 'Role details are not available yet.';
+  if (evidence) {
+    const level = clean(learning.evidenceLevel);
+    const notes = clean(learning.evidenceNotes);
+    evidence.textContent = [level ? `Evidence: ${level}.` : '', notes].filter(Boolean).join(' ');
+  }
+
+  renderList('#case-learning-decisions', learning.decisions, 'TODO: Add key decisions.');
+  renderList('#case-learning-tradeoffs', learning.tradeoffs, 'TODO: Add tradeoffs.');
+  renderList('#case-learning-lessons', learning.lessons, 'TODO: Add lessons learned.');
+};
+
 const renderMedia = (mediaItems = [], caseTitle = 'case study') => {
   const mediaGrid = qs('#case-media-grid');
   if (!mediaGrid) return;
@@ -197,6 +213,7 @@ const renderCaseStudy = async () => {
   renderList('#case-results', caseStudy.results, 'TODO: Add factual results.');
   renderList('#case-tech-stack', caseStudy.techStack, 'TODO: Add tech stack details.');
   renderList('#case-next-improvements', caseStudy.nextImprovements, 'TODO: Add next-iteration improvements.');
+  renderLearning(caseStudy.learning);
 
   renderMedia(caseStudy.media, clean(caseStudy.title) || 'case study');
 };

@@ -44,6 +44,47 @@ test("corpus includes every local portfolio source type used by the interviewer"
   });
 });
 
+test("every work item has a learning profile with decisions or lessons", () => {
+  const content = loadPortfolioContent();
+  const workItems = [...content.projects, ...content.caseStudies, ...content.experience];
+
+  workItems.forEach((item) => {
+    assert.ok(item.learning, `Missing learning profile for ${"title" in item ? item.title : item.company}`);
+    assert.ok(
+      item.learning.decisions.length > 0 || item.learning.lessons.length > 0,
+      `Learning profile needs at least one decision or lesson for ${"title" in item ? item.title : item.company}`
+    );
+    assert.ok(item.learning.role.length > 0);
+    assert.ok(item.learning.evidenceNotes.length > 0);
+  });
+});
+
+test("corpus includes learning-specific chunks for every work item", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  content.projects.forEach((project) => {
+    assert.ok(
+      corpus.chunks.some((chunk) => chunk.id === `project:${project.id}:learning-lessons`),
+      `Missing learning chunk for ${project.id}`
+    );
+  });
+
+  content.caseStudies.forEach((caseStudy) => {
+    assert.ok(
+      corpus.chunks.some((chunk) => chunk.id === `case-study:${caseStudy.id}:learning-decisions`),
+      `Missing case-study learning chunk for ${caseStudy.id}`
+    );
+  });
+
+  content.experience.forEach((experience, index) => {
+    assert.ok(
+      corpus.chunks.some((chunk) => chunk.id === `experience:${index}:learning-role`),
+      `Missing experience learning chunk for ${experience.company}`
+    );
+  });
+});
+
 test("each project and case-study title retrieves its own local evidence", () => {
   const content = loadPortfolioContent();
   const corpus = buildCorpusFromContent(content);
@@ -58,6 +99,34 @@ test("each project and case-study title retrieves its own local evidence", () =>
       `Expected title query for ${item.id} to retrieve its own evidence`
     );
   });
+});
+
+test("learning questions retrieve learning chunks before generic summaries", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "What did you learn from Tomorrow You?", {
+    roleId: "ai-engineer",
+    topK: 3
+  });
+
+  assert.equal(matches[0]?.chunk.projectId, "tomorrow-you");
+  assert.equal(matches[0]?.chunk.section, "Failures and lessons");
+});
+
+test("failure questions prefer failure and lesson evidence", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "Pick one failure mode you actually had to design around. What did you change?", {
+    roleId: "ai-engineer",
+    topK: 5
+  });
+
+  assert.ok(
+    matches.slice(0, 3).some((match) => match.chunk.section === "Failures and lessons"),
+    "Expected failure queries to retrieve failures and lessons evidence near the top"
+  );
 });
 
 test("broad project inventory queries can retrieve every project and case study", () => {

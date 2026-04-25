@@ -80,6 +80,7 @@ export interface LlmGenerationInput {
   question: string;
   role: RolePreset;
   history: InterviewTurn[];
+  conversationSummary?: string;
   evidence: RetrievalMatch[];
 }
 
@@ -321,6 +322,34 @@ function shouldDiversifyHealthcareEvidence(question: string): boolean {
   );
 }
 
+function ordinalSourceFromSummary(question: string, conversationSummary = ""): string {
+  const lowerQuestion = question.toLowerCase();
+  const ordinal = /\b(second|2nd)\b/.test(lowerQuestion)
+    ? 2
+    : /\b(third|3rd)\b/.test(lowerQuestion)
+      ? 3
+      : /\b(first|1st)\b/.test(lowerQuestion)
+        ? 1
+        : 0;
+
+  if (!ordinal || !conversationSummary) return "";
+
+  const pattern = new RegExp(`${ordinal}\\.\\s*([^.;]+)`, "i");
+  return conversationSummary.match(pattern)?.[1]?.trim() ?? "";
+}
+
+function buildRetrievalQuery(question: string, history: InterviewTurn[] = [], conversationSummary = ""): string {
+  if (history.length === 0 && !conversationSummary) return question;
+
+  const sourceHint = ordinalSourceFromSummary(question, conversationSummary);
+  const recentHistory = history
+    .slice(-4)
+    .map((turn) => turn.content)
+    .join(" ");
+
+  return [sourceHint, question, conversationSummary, recentHistory].filter(Boolean).join("\n");
+}
+
 function inferInterviewIntent(question: string): InterviewIntent {
   const lowerQuestion = question.toLowerCase();
 
@@ -506,6 +535,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     question: string;
     roleId?: string;
     history?: InterviewTurn[];
+    conversationSummary?: string;
     topK?: number;
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
@@ -513,7 +543,10 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     const topK =
       params.topK ??
       (broadenRetrieval ? Math.max(config.retrievalTopK, 14) : config.retrievalTopK);
-    const evidence = retrieveEvidence(corpus, params.question, {
+    const history = params.history ?? [];
+    const conversationSummary = params.conversationSummary?.trim() || "";
+    const retrievalQuery = buildRetrievalQuery(params.question, history, conversationSummary);
+    const evidence = retrieveEvidence(corpus, retrievalQuery, {
       roleId: role.id,
       topK,
       maxPerSource: broadenRetrieval || shouldDiversifyHealthcareEvidence(params.question) ? 1 : undefined
@@ -523,7 +556,8 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       role,
       topK,
       evidence,
-      history: params.history ?? []
+      history,
+      conversationSummary
     };
   }
 
@@ -573,6 +607,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     question: string;
     roleId?: string;
     history?: InterviewTurn[];
+    conversationSummary?: string;
     topK?: number;
   }): Promise<InterviewResponsePayload> {
     const context = buildQuestionContext(params);
@@ -586,6 +621,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
           question: params.question,
           role: context.role,
           history: context.history,
+          conversationSummary: context.conversationSummary,
           evidence: context.evidence
         });
 
@@ -602,6 +638,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       question: string;
       roleId?: string;
       history?: InterviewTurn[];
+      conversationSummary?: string;
       topK?: number;
     },
     emit: (event: InterviewStreamEvent) => Promise<void> | void
@@ -635,6 +672,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
           question: params.question,
           role: context.role,
           history: context.history,
+          conversationSummary: context.conversationSummary,
           evidence: context.evidence
         },
         async (token) => emit({ type: "token", text: token })
@@ -645,6 +683,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
           question: params.question,
           role: context.role,
           history: context.history,
+          conversationSummary: context.conversationSummary,
           evidence: context.evidence
         },
         async (token) => emit({ type: "token", text: token })

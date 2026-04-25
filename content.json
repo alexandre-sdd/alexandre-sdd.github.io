@@ -55,6 +55,41 @@
         "demo": "./interview/",
         "writeup": "./ai-lexandre-system.html",
         "slides": ""
+      },
+      "learning": {
+        "role": "Designed and built the portfolio-native interview assistant, from content corpus and retrieval logic to the static chat UI and Railway-ready API.",
+        "decisions": [
+          "Kept content.json as the source of truth so the public portfolio and interview assistant stay aligned.",
+          "Separated the GitHub Pages frontend from the Fastify API so the static site stays simple while the answer runtime can evolve independently.",
+          "Filtered visible citations to sources actually referenced in the final answer."
+        ],
+        "tradeoffs": [
+          "Accepted more orchestration around retrieval, prompting, streaming, and citations to reduce unsupported answers.",
+          "Kept the first version as a lightweight local corpus instead of adding a database before the evidence model was stable."
+        ],
+        "failures": [
+          "Early answers could sound confident while relying on thin or mismatched evidence.",
+          "Short follow-up questions initially caused repeated project summaries instead of a new answer angle."
+        ],
+        "lessons": [
+          "A portfolio AI assistant needs evidence design as much as prompt design.",
+          "Source visibility makes failure modes easier to debug because the user can see what the answer used.",
+          "Follow-up handling needs explicit memory and retrieval context, not just a chat transcript."
+        ],
+        "skills": [
+          "RAG",
+          "Fastify",
+          "OpenAI Responses API",
+          "TypeScript",
+          "Streaming UI",
+          "Citation design"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add a richer learning memory layer across every project and experience.",
+          "Use recent conversation summary during retrieval for vague follow-up questions."
+        ]
       }
     },
     {
@@ -80,6 +115,41 @@
         "demo": "./tomorrow-you-maintenance.html",
         "writeup": "https://github.com/alexandre-sdd/tomorrow-you/blob/main/architecture.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built the end-to-end hackathon prototype across structured intake, scenario generation, voice interaction, and web/API integration.",
+        "decisions": [
+          "Structured the experience as stages from interview intake to generated future scenarios to interactive future-self conversations.",
+          "Used Mistral AI and ElevenLabs with FastAPI and Next.js to make the prototype demonstrable within the hackathon window.",
+          "Prioritized an end-to-end user flow over a narrow model experiment."
+        ],
+        "tradeoffs": [
+          "Chose a more orchestrated workflow instead of relying on one broad prompt so each stage could be inspected and improved.",
+          "Accepted prototype-level reliability constraints to ship a complete live experience quickly."
+        ],
+        "failures": [
+          "Multi-step AI flows can lose coherence if intermediate outputs are not structured enough.",
+          "Voice interaction adds latency and state-management failure modes on top of the reasoning pipeline."
+        ],
+        "lessons": [
+          "A convincing AI product prototype depends on interaction design as much as model choice.",
+          "Structured intake is the best way to keep personalized generation grounded.",
+          "Hackathon scope forces clear decisions about which reliability issues to solve now and which to document for migration."
+        ],
+        "skills": [
+          "Agent workflows",
+          "Voice AI",
+          "FastAPI",
+          "Next.js",
+          "Mistral AI",
+          "ElevenLabs"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Complete the demo migration and API reroute.",
+          "Add more explicit evaluation prompts for scenario coherence and user safety."
+        ]
       }
     },
     {
@@ -104,6 +174,41 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/HelpfulLens/blob/main/final_report/latex_skeleton_team.pdf",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built the applied-ML pipeline for Yelp review helpfulness modeling, including cleaning, feature engineering, exploratory analysis, and report artifacts.",
+        "decisions": [
+          "Kept data preparation reproducible so modeling experiments could be traced back to cleaned inputs.",
+          "Combined lightweight sentiment features with optional transformer-based enrichment.",
+          "Packaged the project as an applied-ML repo with notebooks and reports rather than only a final model."
+        ],
+        "tradeoffs": [
+          "Balanced feature richness with reproducibility and dependency simplicity.",
+          "Used the project to show modeling workflow discipline more than production deployment."
+        ],
+        "failures": [
+          "Raw review data required careful cleaning before model comparisons were meaningful.",
+          "Text features can improve signal while also making the pipeline heavier to reproduce."
+        ],
+        "lessons": [
+          "Applied ML work is only credible when data preparation is explicit.",
+          "EDA and feature documentation make model results easier to interpret later.",
+          "A smaller reproducible workflow is more useful than a complex notebook that cannot be rerun."
+        ],
+        "skills": [
+          "Python",
+          "NLP",
+          "Sentiment features",
+          "Feature engineering",
+          "EDA",
+          "Applied ML"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add clearer model comparison tables and validation notes.",
+          "Package the pipeline with a smaller sample dataset for easier reproduction."
+        ]
       }
     },
     {
@@ -129,6 +234,40 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/childcare_deserts_nyc/blob/main/report/opti_group_8_report.pdf",
         "slides": ""
+      },
+      "learning": {
+        "role": "Formulated and implemented the optimization workflow for evaluating childcare expansion and new-site planning scenarios in NYC.",
+        "decisions": [
+          "Split the work into staged notebooks so cleaning, parameter estimation, benchmark scenarios, and realistic scenarios stayed auditable.",
+          "Compared idealized and realistic planning assumptions instead of presenting a single optimization answer.",
+          "Exported report-ready tables and figures from the solver workflow."
+        ],
+        "tradeoffs": [
+          "Used a structured notebook pipeline for transparency rather than hiding the workflow behind a polished app.",
+          "Balanced mathematical formulation with policy interpretability for non-technical readers."
+        ],
+        "failures": [
+          "Spacing, budget, and facility-expansion constraints can change which solutions look good.",
+          "An idealized optimum can be misleading unless realistic deployment limits are modeled."
+        ],
+        "lessons": [
+          "Optimization projects need scenario design, not just solver output.",
+          "Policy-oriented models should make assumptions visible because assumptions drive recommendations.",
+          "Exported artifacts help turn a notebook into a defensible report."
+        ],
+        "skills": [
+          "Gurobi",
+          "Operations research",
+          "Urban analytics",
+          "Scenario modeling",
+          "Python"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add sensitivity analysis for cost and spacing assumptions.",
+          "Build a lightweight map view for solution comparison."
+        ]
       }
     },
     {
@@ -152,6 +291,40 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/codebase-analyzer/blob/main/docs/PRODUCT.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built the current MVP structure for a developer onboarding tool, including repo ingestion, API shape, generated artifacts, and a lightweight UI.",
+        "decisions": [
+          "Focused the MVP on concrete onboarding outputs: architecture diagrams, structure reports, explanations, and starter tasks.",
+          "Used a Fastify API plus web UI so local and GitHub repository inputs can share one workflow.",
+          "Kept the product framed around developer comprehension instead of generic code summarization."
+        ],
+        "tradeoffs": [
+          "Kept the first version broad enough to explore user value before over-optimizing analysis depth.",
+          "Accepted WIP status while preserving clear docs and product framing."
+        ],
+        "failures": [
+          "Codebase analysis can become noisy if outputs are not tied to developer tasks.",
+          "A repository crawler needs guardrails so generated explanations do not overstate architectural certainty."
+        ],
+        "lessons": [
+          "Developer AI tools need output contracts that map to real onboarding actions.",
+          "A useful analysis product should explain confidence and limitations, not just produce diagrams.",
+          "Repo structure alone is not enough; the tool needs task-oriented interpretation."
+        ],
+        "skills": [
+          "Developer tools",
+          "Fastify",
+          "TypeScript",
+          "LLM workflows",
+          "Architecture analysis"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add confidence levels for generated architecture claims.",
+          "Add regression fixtures for known repository shapes."
+        ]
       }
     },
     {
@@ -175,6 +348,40 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/research_cuimc_queuing/blob/main/Documents/generated_notes/knowledge_appointment_dynamics.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built healthcare scheduling research artifacts around simulation, policy comparison, and reusable modeling notes under Prof. Carri Chan.",
+        "decisions": [
+          "Modeled delay-sensitive appointment dynamics with cancellations and no-shows instead of treating scheduling as static capacity allocation.",
+          "Compared FCFS, reserved-capacity, and booking-window policies to expose operational tradeoffs.",
+          "Built reusable simulation and notebook artifacts to support research iteration."
+        ],
+        "tradeoffs": [
+          "Used simulation to capture operational dynamics that would be hard to express in a single closed-form model.",
+          "Separated current modeling evidence from future calibration work to avoid overclaiming results."
+        ],
+        "failures": [
+          "Healthcare scheduling policies can look strong under one metric while hurting another.",
+          "Without calibration, simulation results must be framed as research evidence rather than production conclusions."
+        ],
+        "lessons": [
+          "Operations research in healthcare requires explicit links between access, utilization, financial metrics, and patient behavior.",
+          "Research code is more valuable when it is packaged for repeated policy experiments.",
+          "Model credibility depends on stating what is calibrated now and what remains planned."
+        ],
+        "skills": [
+          "Simulation",
+          "Healthcare operations",
+          "Policy comparison",
+          "Python",
+          "Research engineering"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Calibrate simulation behavior to Columbia Doctors workflows and available data.",
+          "Add clearer experiment tracking for policy comparisons."
+        ]
       }
     },
     {
@@ -198,6 +405,40 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/organisation_tools/blob/main/Linkedin_cold_msg_extenstion/README.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built the browser-extension workflow and backend generation service for personalized LinkedIn connection notes.",
+        "decisions": [
+          "Used a Chrome extension so the workflow lived where the user already reads profiles.",
+          "Separated profile capture from note generation through a FastAPI backend.",
+          "Made inputs configurable so notes could reflect both the profile and the sender context."
+        ],
+        "tradeoffs": [
+          "Optimized for a narrow workflow that could be shipped quickly instead of a broad CRM product.",
+          "Accepted a simple backend architecture because the product value was in workflow fit."
+        ],
+        "failures": [
+          "Personalized outreach becomes generic if the system does not capture enough profile-specific context.",
+          "Browser automation creates UX edge cases around page state and profile parsing."
+        ],
+        "lessons": [
+          "Small automation tools are strongest when they remove one repeated task completely.",
+          "LLM output quality depends heavily on the input capture UX.",
+          "A scoped workflow can be a better portfolio signal than a large but unfinished utility set."
+        ],
+        "skills": [
+          "Chrome extensions",
+          "FastAPI",
+          "OpenAI API",
+          "Workflow automation",
+          "Prompt design"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add stronger profile parsing validation.",
+          "Add saved templates for different networking contexts."
+        ]
       }
     },
     {
@@ -223,6 +464,41 @@
         "demo": "https://zeit-project-production.up.railway.app/",
         "writeup": "https://github.com/alexandre-sdd/zeit-project/blob/main/README.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Built and deployed the scheduling assistant prototype across API endpoints, solver workflow, seeded demo state, persistence, and tests.",
+        "decisions": [
+          "Modeled scheduling around hard events, due dates, work windows, and explicit unscheduled-task feedback.",
+          "Added seed and reset flows so the public demo stayed deterministic for reviewers.",
+          "Kept API and UI flows testable before expanding the scheduling feature set."
+        ],
+        "tradeoffs": [
+          "Chose predictable scheduling constraints over a more flexible but harder-to-debug assistant behavior.",
+          "Prioritized a deployable demo with known seeded data over full calendar-product scope."
+        ],
+        "failures": [
+          "Scheduling tools lose trust quickly if tasks disappear silently or constraints are hidden.",
+          "A demo without deterministic reset behavior is hard for reviewers to evaluate consistently."
+        ],
+        "lessons": [
+          "Decision-support products need to show infeasibility clearly, not only successful schedules.",
+          "Seeded demos make backend projects much easier to evaluate externally.",
+          "Optimization logic is stronger when paired with user-facing explanations."
+        ],
+        "skills": [
+          "FastAPI",
+          "OR-Tools",
+          "Scheduling",
+          "SQLAlchemy",
+          "Testing",
+          "Deployment"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add calendar import/export support.",
+          "Expose richer explanations for why tasks were left unscheduled."
+        ]
       }
     },
     {
@@ -246,6 +522,40 @@
         "demo": "",
         "writeup": "https://github.com/alexandre-sdd/EI_evolutionary_games/blob/main/docs/project_report.md",
         "slides": ""
+      },
+      "learning": {
+        "role": "Implemented the genetic algorithm, trajectory model, visualization tooling, and packaged documentation for the plasmid closure problem.",
+        "decisions": [
+          "Used evolutionary search to learn dinucleotide rotation parameters that produce closed 3D DNA trajectories.",
+          "Paired the optimization routine with visualization so candidate solutions could be inspected geometrically.",
+          "Positioned the work as scientific computing and research engineering rather than a product demo."
+        ],
+        "tradeoffs": [
+          "Accepted stochastic optimization behavior in exchange for a flexible search process over geometric parameters.",
+          "Focused on interpretable modeling artifacts rather than production packaging."
+        ],
+        "failures": [
+          "Evolutionary algorithms require careful evaluation because good-looking candidates can still fail closure criteria.",
+          "Scientific visualizations need to be tied back to objective values to avoid qualitative overclaiming."
+        ],
+        "lessons": [
+          "Optimization work benefits from visual debugging when the objective is geometric.",
+          "Scientific computing projects need both mathematical framing and reproducible code.",
+          "Coursework projects can still show research-engineering depth when packaged clearly."
+        ],
+        "skills": [
+          "Genetic algorithms",
+          "Scientific computing",
+          "3D geometry",
+          "Python",
+          "Optimization"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Add more experiment logs for parameter sensitivity.",
+          "Document convergence behavior across repeated runs."
+        ]
       }
     }
   ],
@@ -303,7 +613,41 @@
       "nextImprovements": [
         "Add formal model and data drift monitoring dashboards.",
         "Package reusable quality checks for faster rollout across adjacent finance datasets."
-      ]
+      ],
+      "learning": {
+        "role": "Led the method design and implementation for a hierarchy-aware anomaly detection workflow during the CHANEL Europe data science internship.",
+        "decisions": [
+          "Separated amount anomalies from categorical-combination anomalies so finance users could inspect different risk signals.",
+          "Used hierarchy-aware categorical representations to preserve parent-child business structure.",
+          "Designed ranked outputs with interpretable reason signals for analyst review."
+        ],
+        "tradeoffs": [
+          "Balanced model sophistication with interpretability because the output needed to fit finance review workflows.",
+          "Kept public artifacts method-focused to respect confidentiality while still showing technical depth."
+        ],
+        "failures": [
+          "Global thresholds missed anomalies that were only suspicious within a specific business context.",
+          "High-cardinality hierarchical categories made naive encoding and distance measures less reliable."
+        ],
+        "lessons": [
+          "Business context can be the difference between noise and a useful anomaly signal.",
+          "Trustworthy data quality tools need explanations that match how analysts investigate records.",
+          "Confidential work can still be portfolio-ready when method, constraints, and evidence boundaries are explicit."
+        ],
+        "skills": [
+          "Anomaly detection",
+          "Mixed-type data",
+          "Hierarchical categories",
+          "Finance analytics",
+          "Stakeholder workflow design"
+        ],
+        "evidenceLevel": "sanitized",
+        "evidenceNotes": "Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted.",
+        "nextImprovements": [
+          "Add formal model and data drift monitoring dashboards.",
+          "Package reusable quality checks for faster rollout across adjacent finance datasets."
+        ]
+      }
     },
     {
       "id": "forvia-camera-radar-fusion-prototype",
@@ -357,7 +701,41 @@
       "nextImprovements": [
         "Evaluate robustness under additional lighting and motion conditions.",
         "Add confidence scoring and failure-case analysis for each tracking sequence."
-      ]
+      ],
+      "learning": {
+        "role": "Built the fusion prototype and research artifacts for combining camera-derived priors with array measurements in controlled localization experiments.",
+        "decisions": [
+          "Converted camera outputs into a spatial prior that could be fused with array-based likelihood maps.",
+          "Used an optimal-transport-based objective to reconcile sensing modalities with different noise and resolution characteristics.",
+          "Kept validation focused on controlled experiments rather than claiming production readiness."
+        ],
+        "tradeoffs": [
+          "Accepted controlled-scope validation so the research question could be tested cleanly.",
+          "Used a mathematically richer fusion method to better represent uncertainty across modalities."
+        ],
+        "failures": [
+          "Single-sensor localization was not robust enough on its own.",
+          "Misalignment, synchronization, lighting, and motion conditions could degrade the fusion signal."
+        ],
+        "lessons": [
+          "Sensor fusion is as much about uncertainty alignment as algorithm choice.",
+          "Research prototypes need clear boundaries around test conditions.",
+          "Confidence and failure-case analysis should be designed into localization experiments early."
+        ],
+        "skills": [
+          "Computer vision",
+          "Sensor fusion",
+          "Optimal transport",
+          "Experimental validation",
+          "Research reporting"
+        ],
+        "evidenceLevel": "public",
+        "evidenceNotes": "Public portfolio artifacts are available; details are limited to material that can be shared openly.",
+        "nextImprovements": [
+          "Evaluate robustness under additional lighting and motion conditions.",
+          "Add confidence scoring and failure-case analysis for each tracking sequence."
+        ]
+      }
     }
   ],
   "experience": [
@@ -369,7 +747,39 @@
       "highlights": [
         "Developing a discrete-event simulation of outpatient appointment scheduling to study the link between delays, no-shows, cancellations, and patient access.",
         "Evaluating policies such as FCFS, reserved capacity, booking windows, and overbooking across utilization and financial metrics."
-      ]
+      ],
+      "learning": {
+        "role": "Research assistant developing simulation and policy-comparison tools for outpatient appointment scheduling research.",
+        "decisions": [
+          "Modeled appointment scheduling as a dynamic system with delays, no-shows, cancellations, and access effects.",
+          "Compared policy families rather than optimizing one isolated metric."
+        ],
+        "tradeoffs": [
+          "Used simulation to represent operational behavior while keeping calibration limits explicit.",
+          "Balanced utilization, access, and financial metrics instead of treating one as sufficient."
+        ],
+        "failures": [
+          "A policy can improve one metric while creating hidden access or workload costs.",
+          "Research conclusions can overreach if calibration status is not made explicit."
+        ],
+        "lessons": [
+          "Healthcare operations models need to expose tradeoffs between patient access and operational feasibility.",
+          "Reusable experiment code is essential for credible policy comparison."
+        ],
+        "skills": [
+          "Discrete-event simulation",
+          "Healthcare operations",
+          "Policy evaluation",
+          "Python",
+          "Research methods"
+        ],
+        "evidenceLevel": "sanitized",
+        "evidenceNotes": "Sanitized research description; patient data and internal workflows are not public.",
+        "nextImprovements": [
+          "Add calibrated experiments once data access and workflow assumptions are finalized.",
+          "Document policy comparison results with clearer metric dashboards."
+        ]
+      }
     },
     {
       "company": "Junior CentraleSupelec (JCS) – Nantes University Hospital",
@@ -381,7 +791,41 @@
         "Scoping hospital operations tools for emergency patient-flow forecasting and physician scheduling optimization.",
         "Eliciting stakeholder needs and translating operational rules, staffing constraints, and workflow requirements into modeling specifications for a complex scheduling system involving about 80 physicians.",
         "Building decision-support models for patient-flow forecasting and schedule generation under workload, overtime, prioritization, and feasibility constraints."
-      ]
+      ],
+      "learning": {
+        "role": "Consultant translating hospital operations requirements into forecasting and scheduling model specifications, including a respiratory-system planning component.",
+        "decisions": [
+          "Started with stakeholder requirements and operational rules before selecting modeling approaches.",
+          "Separated emergency patient-flow forecasting, physician scheduling, and respiratory-system planning into connected decision-support components.",
+          "Modeled workload, overtime, prioritization, and feasibility constraints explicitly."
+        ],
+        "tradeoffs": [
+          "Balanced model ambition with the need for explainable specifications that hospital stakeholders could validate.",
+          "Kept the public description high-level to avoid exposing hospital operational details."
+        ],
+        "failures": [
+          "Hospital planning models can fail if they ignore staffing rules and workflow constraints.",
+          "Ambiguous requirements need structured elicitation before optimization can be trusted."
+        ],
+        "lessons": [
+          "Healthcare decision-support work starts with operations discovery, not code.",
+          "Stakeholder language must be translated into constraints before a model becomes useful.",
+          "Sensitive domains require clear boundaries around what can be shown publicly."
+        ],
+        "skills": [
+          "Healthcare planning",
+          "Requirements elicitation",
+          "Forecasting",
+          "Scheduling optimization",
+          "Operations consulting"
+        ],
+        "evidenceLevel": "sanitized",
+        "evidenceNotes": "Sanitized consulting description; hospital data, internal workflows, and stakeholder details are confidential.",
+        "nextImprovements": [
+          "Validate model specifications against representative operational scenarios.",
+          "Build review artifacts that clinicians and planners can critique without reading code."
+        ]
+      }
     },
     {
       "company": "SIGMA Group, Commercial Excellence Europe",
@@ -392,7 +836,41 @@
         "Reconciled fragmented commercial, budget, and ERP-style data across 6 countries and about 60 resellers to build a consistent European reporting layer.",
         "Built 5 dashboards standardizing GP, NSV, and volume KPIs, giving negotiation teams a consolidated cross-country view.",
         "Created mapping tables and repeatable transformation logic to align inconsistent identifiers, naming conventions, and local business definitions across sources."
-      ]
+      ],
+      "learning": {
+        "role": "Data analyst building cross-country reporting and transformation logic for commercial excellence teams.",
+        "decisions": [
+          "Created mapping tables to reconcile inconsistent identifiers, naming conventions, and business definitions.",
+          "Standardized GP, NSV, and volume KPIs across countries and resellers.",
+          "Built dashboards around negotiation-team needs rather than only source-system structure."
+        ],
+        "tradeoffs": [
+          "Prioritized consistent reporting definitions over preserving every local reporting convention.",
+          "Balanced dashboard speed with traceable transformation logic."
+        ],
+        "failures": [
+          "Fragmented source data can make simple KPI comparisons misleading.",
+          "Dashboard adoption depends on trust in mappings, not just visual polish."
+        ],
+        "lessons": [
+          "Data products often start with definitions and reconciliation before modeling.",
+          "Cross-country analytics requires explicit handling of local business rules.",
+          "Reusable transformation logic is more valuable than one-off reporting fixes."
+        ],
+        "skills": [
+          "Commercial analytics",
+          "Dashboarding",
+          "Data reconciliation",
+          "KPI standardization",
+          "Stakeholder reporting"
+        ],
+        "evidenceLevel": "sanitized",
+        "evidenceNotes": "Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted.",
+        "nextImprovements": [
+          "Add stronger automated checks around mapping completeness.",
+          "Document KPI lineage so future dashboards can reuse the reporting layer."
+        ]
+      }
     },
     {
       "company": "CHANEL Europe, Advanced Analytics & Data Science",
@@ -403,7 +881,42 @@
         "Led end-to-end development of CRAFT, an anomaly detection system over 30M+ accounting entries, from business scoping to near-production deployment for corporate finance teams.",
         "Developed explainable anomaly-detection pipelines for hierarchical mixed data, integrating business rules, evolving mappings, and stakeholder-validated review workflows.",
         "Designed clustering and multivariate forecasting methods for 300+ monthly sales series, enabling cluster-level forecasting templates in small-data settings."
-      ]
+      ],
+      "learning": {
+        "role": "Data scientist leading anomaly detection, review workflow, and forecasting work for European finance and business analytics use cases.",
+        "decisions": [
+          "Scoped CRAFT end to end from business problem through near-production anomaly-detection workflow.",
+          "Integrated business rules, evolving mappings, and stakeholder validation into the modeling pipeline.",
+          "Used clustering and multivariate forecasting methods to support template generation in small-data sales settings."
+        ],
+        "tradeoffs": [
+          "Balanced technical model depth with explainability needed by finance teams.",
+          "Kept portfolio evidence sanitized while preserving the method and decision logic."
+        ],
+        "failures": [
+          "Accounting anomaly systems can fail when they ignore hierarchical business context.",
+          "Small-data forecasting requires careful grouping because individual series can be too sparse."
+        ],
+        "lessons": [
+          "Production-relevant ML requires business scoping, review workflows, and data quality work before modeling pays off.",
+          "Explainability is a product requirement when outputs drive finance review.",
+          "Confidential projects need explicit evidence boundaries in public storytelling."
+        ],
+        "skills": [
+          "Anomaly detection",
+          "Forecasting",
+          "Clustering",
+          "Finance analytics",
+          "Stakeholder validation",
+          "Data pipelines"
+        ],
+        "evidenceLevel": "sanitized",
+        "evidenceNotes": "Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted.",
+        "nextImprovements": [
+          "Add fuller public method diagrams where confidentiality allows.",
+          "Show more sanitized examples of how stakeholder feedback shaped model outputs."
+        ]
+      }
     }
   ],
   "education": [

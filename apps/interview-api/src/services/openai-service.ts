@@ -80,6 +80,8 @@ function userPrompt(input: LlmGenerationInput): string {
     `Role preset: ${input.role.label}`,
     `Role summary: ${input.role.summary}`,
     `Conversation guidance: ${followUpGuidance}`,
+    "Conversation summary:",
+    input.conversationSummary?.trim() || "No earlier-thread summary.",
     "Conversation history:",
     buildHistoryBlock(input.history),
     "Evidence:",

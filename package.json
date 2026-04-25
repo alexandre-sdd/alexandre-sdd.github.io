@@ -13,7 +13,8 @@
     "clean": "rm -rf apps/interview-api/dist packages/interview-core/dist packages/interview-core/generated",
     "dev:api": "npm run dev --workspace @portfolio/interview-api",
     "start": "npm run start --workspace @portfolio/interview-api",
-    "test": "npm run test --workspace @portfolio/interview-core && npm run test --workspace @portfolio/interview-api"
+    "test": "npm run test --workspace @portfolio/interview-core && npm run test --workspace @portfolio/interview-api && npm run test:frontend",
+    "test:frontend": "node --test test/*.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

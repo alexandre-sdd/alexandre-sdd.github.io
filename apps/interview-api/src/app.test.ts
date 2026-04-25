@@ -311,6 +311,45 @@ test("mock follow-up answers avoid restarting the project summary", async () => 
   await app.close();
 });
 
+test("compact memory summary supports longer follow-up threads", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const history = Array.from({ length: 8 }, (_, index) => ({
+    role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+    content:
+      index % 2 === 0
+        ? `Earlier interviewer question ${index + 1}`
+        : "I compared Tomorrow You first and Codebase Analyzer second as AI systems with different reliability lessons."
+  }));
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "What did you learn from the second one?",
+      conversationSummary: "Recent sources in order: 1. Tomorrow You; 2. Codebase Analyzer.",
+      history
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    retrieval: { results: Array<{ title: string; section: string }> };
+  };
+
+  assert.equal(json.retrieval.results[0]?.title, "Codebase Analyzer");
+  assert.match(json.answer, /^Building on/);
+  assert.doesNotMatch(json.answer, /^The clearest answer is/);
+
+  await app.close();
+});
+
 test("mock answers use interviewer-oriented framing", async () => {
   const app = buildApp({
     useMockResponses: true,
