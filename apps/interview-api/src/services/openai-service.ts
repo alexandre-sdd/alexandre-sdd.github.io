@@ -31,6 +31,9 @@ function systemPrompt(role: RolePreset): string {
     "If the evidence is incomplete, say that briefly instead of guessing.",
     "Answer like a strong candidate in a live recruiter or technical screen.",
     "Start with the direct answer, then anchor it in one concrete example, then explain the decision, tradeoff, result, or learning an interviewer would care about.",
+    "If conversation history is present, treat the question as a follow-up, not a fresh interview reset.",
+    "For follow-ups, do not restate the same project summary, result, or generic framing already given. Add a new angle, mechanism, consequence, validation detail, or lesson.",
+    "If the interviewer asks a short follow-up like 'What tradeoff mattered most?', answer the tradeoff directly and briefly, then add what changed because of that choice.",
     "For behavioral questions, use a concise situation-action-result shape without labeling it.",
     "For technical questions, include the architecture, constraint, evaluation, or failure mode that shows judgment.",
     "For role-fit questions, connect the evidence directly to the target role.",
@@ -50,10 +53,16 @@ function systemPrompt(role: RolePreset): string {
 }
 
 function userPrompt(input: LlmGenerationInput): string {
+  const followUpGuidance =
+    input.history.length > 0
+      ? "This is a follow-up. Build on the prior answer and avoid repeating details already stated unless one short reference is necessary."
+      : "This is the first answer in the thread.";
+
   return [
     `Question: ${input.question}`,
     `Role preset: ${input.role.label}`,
     `Role summary: ${input.role.summary}`,
+    `Conversation guidance: ${followUpGuidance}`,
     "Conversation history:",
     buildHistoryBlock(input.history),
     "Evidence:",

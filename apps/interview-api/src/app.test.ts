@@ -199,6 +199,118 @@ test("response source chips only include sources named in the final answer", asy
   await app.close();
 });
 
+test("failure-mode answers suggest non-repetitive follow-ups", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Pick one failure mode you actually had to design around. What did you change?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    followUps: string[];
+  };
+
+  assert.ok(json.followUps.includes("How did you validate the fix?"));
+  assert.ok(!json.followUps.includes("What tradeoff mattered most?"));
+
+  await app.close();
+});
+
+test("tradeoff follow-ups build on prior history", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "What tradeoff mattered most?",
+      history: [
+        {
+          role: "user",
+          content: "Pick one failure mode you actually had to design around. What did you change?"
+        },
+        {
+          role: "assistant",
+          content:
+            "I designed around confident but poorly grounded output in AI-lexandre by adding role-aware retrieval and source-backed citations."
+        }
+      ]
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    followUps: string[];
+  };
+
+  assert.deepEqual(json.followUps, [
+    "How did that choice affect users?",
+    "What signal told you it worked?",
+    "What would you change next?"
+  ]);
+
+  await app.close();
+});
+
+test("mock follow-up answers avoid restarting the project summary", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "How did you validate the fix?",
+      history: [
+        {
+          role: "user",
+          content: "Pick one failure mode you actually had to design around. What did you change?"
+        },
+        {
+          role: "assistant",
+          content:
+            "I designed around confident but poorly grounded output in AI-lexandre by adding role-aware retrieval and source-backed citations."
+        }
+      ]
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    followUps: string[];
+  };
+
+  assert.match(json.answer, /^Building on that example/);
+  assert.doesNotMatch(json.answer, /^The clearest answer is/);
+  assert.deepEqual(json.followUps, [
+    "What evidence would you show?",
+    "What would you harden next?",
+    "How would you explain the impact?"
+  ]);
+
+  await app.close();
+});
+
 test("mock answers use interviewer-oriented framing", async () => {
   const app = buildApp({
     useMockResponses: true,

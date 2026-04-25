@@ -258,7 +258,34 @@ function displayEvidenceForAnswer(answer: string, evidence: RetrievalMatch[]): R
   return distinctEvidence(displayEvidence, referencedEvidence.length > 0 ? 4 : 1);
 }
 
-function defaultFollowUps(primarySourceTitle?: string): string[] {
+function defaultFollowUps(primarySourceTitle?: string, question = "", history: InterviewTurn[] = []): string[] {
+  const lowerQuestion = question.toLowerCase();
+  const sourceSuffix = primarySourceTitle ? ` in ${primarySourceTitle}` : "";
+
+  if (/\b(failure|fail|failed|hallucination|drift|grounded|grounding|unsupported|what did you change)\b/.test(lowerQuestion)) {
+    return [
+      `How did you detect that failure${sourceSuffix}?`,
+      "How did you validate the fix?",
+      "What would you harden next?"
+    ];
+  }
+
+  if (history.length > 0 && /\b(tradeoff|trade-off|trade off)\b/.test(lowerQuestion)) {
+    return [
+      "How did that choice affect users?",
+      "What signal told you it worked?",
+      "What would you change next?"
+    ];
+  }
+
+  if (history.length > 0) {
+    return [
+      "What evidence would you show?",
+      "What would you harden next?",
+      "How would you explain the impact?"
+    ];
+  }
+
   if (!primarySourceTitle) {
     return [
       "What was your exact role?",
@@ -369,7 +396,7 @@ function answerEvidence(matches: RetrievalMatch[]): RetrievalMatch[] {
   return concrete.length > 0 ? concrete : matches;
 }
 
-function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[]): string {
+function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[], history: InterviewTurn[] = []): string {
   const intent = inferInterviewIntent(question);
   if (intent === "inventory") return buildInventoryAnswer(role, evidence);
 
@@ -377,7 +404,34 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
 
   if (!primary) return "I do not have enough published evidence loaded to answer that precisely.";
 
+  const lowerQuestion = question.toLowerCase();
   const example = truncateForInterview(primary.chunk.text);
+  const isFollowUp = history.length > 0;
+
+  if (isFollowUp && /\b(tradeoff|trade-off|trade off)\b/.test(lowerQuestion)) {
+    return [
+      `Building on that example, the tradeoff I would focus on is control versus flexibility in ${primary.chunk.title}.`,
+      `The evidence I can ground that in is: ${example}`,
+      "The interviewer-relevant point is that I chose the more controlled path when the cost of an unsupported or hard-to-audit answer was higher than the cost of narrowing the system's behavior."
+    ].join(" ");
+  }
+
+  if (isFollowUp && /\b(validate|validated|validation|test|tested|signal|worked|measure|measured)\b/.test(lowerQuestion)) {
+    return [
+      `Building on that example, I would be careful not to overclaim validation beyond the evidence I have for ${primary.chunk.title}.`,
+      `The defensible evidence is: ${example}`,
+      "In an interview, I would separate the shipped signal from the next hardening step: add targeted regression questions, check source-answer alignment, and track unsupported-answer cases."
+    ].join(" ");
+  }
+
+  if (isFollowUp) {
+    return [
+      `Building on the prior answer, I would keep the focus on the new angle rather than restating ${primary.chunk.title}.`,
+      `The relevant evidence is: ${example}`,
+      `For ${role.label}, the useful takeaway is how that detail changes the decision, reliability, or user-facing outcome.`
+    ].join(" ");
+  }
+
   const openingByIntent: Record<InterviewIntent, string> = {
     behavioral: `A good interview example is ${primary.chunk.title}, because it gives me a concrete situation, action, and outcome to discuss.`,
     comparison: `I would start with ${primary.chunk.title} and then compare it with another source of evidence if the interviewer wants range.`,
@@ -433,7 +487,7 @@ function buildResponseBase(config: AppConfig, role: RolePreset, evidence: Retrie
   };
 }
 
-function buildSourceDisplay(answer: string, evidence: RetrievalMatch[]) {
+function buildSourceDisplay(answer: string, evidence: RetrievalMatch[], question = "", history: InterviewTurn[] = []) {
   const displayEvidence = displayEvidenceForAnswer(answer, evidence);
   const projectsUsed = inferSourceUsage(displayEvidence);
   const primarySource = projectsUsed[0]?.title;
@@ -441,19 +495,12 @@ function buildSourceDisplay(answer: string, evidence: RetrievalMatch[]) {
   return {
     citations: displayEvidence.map(citationFromMatch),
     projectsUsed,
-    followUps: defaultFollowUps(primarySource)
+    followUps: defaultFollowUps(primarySource, question, history)
   };
 }
 
 export function createInterviewService(config: AppConfig, llmService: LlmService) {
   const corpus = loadGeneratedCorpus();
-
-  function fallbackGeneration(question: string, role: RolePreset, evidence: RetrievalMatch[]): LlmAnswer {
-    return {
-      answer: buildMockAnswerText(question, role, evidence),
-      confidence: confidenceFromEvidence(evidence)
-    };
-  }
 
   function buildQuestionContext(params: {
     question: string;
@@ -480,11 +527,18 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     };
   }
 
+  function fallbackGenerationFromInput(input: LlmGenerationInput): LlmAnswer {
+    return {
+      answer: buildMockAnswerText(input.question, input.role, input.evidence, input.history),
+      confidence: confidenceFromEvidence(input.evidence)
+    };
+  }
+
   async function generateAnswer(input: LlmGenerationInput): Promise<LlmAnswer> {
     try {
       return await llmService.generate(input);
     } catch {
-      return fallbackGeneration(input.question, input.role, input.evidence);
+      return fallbackGenerationFromInput(input);
     }
   }
 
@@ -509,7 +563,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     } catch (error) {
       if (emittedToken) throw error;
 
-      const fallback = fallbackGeneration(input.question, input.role, input.evidence);
+      const fallback = fallbackGenerationFromInput(input);
       await streamTextByWord(fallback.answer, guardedOnToken, 0);
       return fallback;
     }
@@ -525,7 +579,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     const base = buildResponseBase(config, context.role, context.evidence, context.topK);
     const generation = config.useMockResponses
       ? {
-          answer: buildMockAnswerText(params.question, context.role, context.evidence),
+          answer: buildMockAnswerText(params.question, context.role, context.evidence, context.history),
           confidence: confidenceFromEvidence(context.evidence)
         }
       : await generateAnswer({
@@ -537,7 +591,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     return {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence),
+      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };
@@ -569,7 +623,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     let generation: LlmAnswer;
 
     if (config.useMockResponses) {
-      const answer = buildMockAnswerText(params.question, context.role, context.evidence);
+      const answer = buildMockAnswerText(params.question, context.role, context.evidence, context.history);
       await streamTextByWord(answer, async (token) => emit({ type: "token", text: token }));
       generation = {
         answer,
@@ -599,7 +653,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     const payload: InterviewResponsePayload = {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence),
+      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };
