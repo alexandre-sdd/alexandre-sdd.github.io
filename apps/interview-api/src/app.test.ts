@@ -597,6 +597,264 @@ test("broader fit questions map roles outside AI engineering", async () => {
   await app.close();
 });
 
+test("functional interview scenarios cover recruiter-facing behavior", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+  const content = loadPortfolioContent();
+
+  const longHistory = Array.from({ length: 8 }, (_, index) => ({
+    role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+    content:
+      index % 2 === 0
+        ? `Earlier interviewer question ${index + 1}`
+        : "I compared Tomorrow You first and Codebase Analyzer second as AI systems with different reliability lessons."
+  }));
+
+  const scenarios: Array<{
+    name: string;
+    payload: Record<string, unknown>;
+    assertResult: (json: {
+      answer: string;
+      citations: Array<{ title: string; sourceType: string }>;
+      followUps: string[];
+      projectsUsed: Array<{ title: string; sourceType: string }>;
+      retrieval: { topK: number; results: Array<{ title: string; section: string }> };
+    }) => void;
+  }> = [
+    {
+      name: "voice and agent project routes to Tomorrow You",
+      payload: {
+        roleId: "ai-engineer",
+        question: "Tell me about your strongest AI engineering project with voice and agent workflows."
+      },
+      assertResult(json) {
+        assert.match(json.answer, /Tomorrow You/);
+        assert.ok(json.citations.some((citation) => citation.title === "Tomorrow You"));
+        assert.doesNotMatch(json.answer, /Summary:|Tags:/);
+      }
+    },
+    {
+      name: "failure prompt retrieves concrete failure evidence",
+      payload: {
+        roleId: "ai-engineer",
+        question: "Pick one failure mode you actually had to design around. What did you change?"
+      },
+      assertResult(json) {
+        assert.match(json.answer, /Failure modes|failure|coherence|grounded|structured/i);
+        assert.ok(json.citations.some((citation) => citation.sourceType === "project"));
+        assert.ok(!json.followUps.includes("What tradeoff mattered most?"));
+      }
+    },
+    {
+      name: "tradeoff follow-up does not restart the project intro",
+      payload: {
+        roleId: "ai-engineer",
+        question: "What tradeoff mattered most?",
+        history: [
+          {
+            role: "user",
+            content: "Pick one failure mode you actually had to design around. What did you change?"
+          },
+          {
+            role: "assistant",
+            content:
+              "I designed around confident but poorly grounded output in AI-lexandre by adding role-aware retrieval and source-backed citations."
+          }
+        ]
+      },
+      assertResult(json) {
+        assert.match(json.answer, /^Building on that example/);
+        assert.doesNotMatch(json.answer, /^The clearest answer is/);
+        assert.deepEqual(json.followUps, [
+          "How did that choice affect users?",
+          "What signal told you it worked?",
+          "What would you change next?"
+        ]);
+      }
+    },
+    {
+      name: "medical prompt prefers direct healthcare evidence",
+      payload: {
+        roleId: "ai-engineer",
+        question: "Have you built projects in the medical field?"
+      },
+      assertResult(json) {
+        assert.doesNotMatch(json.answer, /Tomorrow You/);
+        assert.match(json.answer, /CUIMC|Nantes University Hospital|healthcare|medical/i);
+        assert.ok(json.citations.some((citation) => /CUIMC|Appointment Scheduling|Nantes University Hospital/i.test(citation.title)));
+      }
+    },
+    {
+      name: "CHANEL prompt retrieves internship evidence",
+      payload: {
+        roleId: "ml-engineer",
+        question: "Tell me about your CHANEL internship and finance analytics experience."
+      },
+      assertResult(json) {
+        assert.match(json.answer, /CHANEL|Chanel/);
+        assert.ok(json.citations.some((citation) => citation.sourceType === "experience" && /CHANEL/i.test(citation.title)));
+      }
+    },
+    {
+      name: "junior quant fit uses work first and coursework second",
+      payload: {
+        roleId: "ai-engineer",
+        question: "I am looking for a junior quant, can you fit into my team?"
+      },
+      assertResult(json) {
+        assert.match(json.answer, /not frame myself as a light technical candidate|pure trading|pricing/i);
+        assert.ok(json.citations.some((citation) => citation.sourceType === "education"));
+        assert.ok(json.citations.some((citation) => ["experience", "project", "case-study"].includes(citation.sourceType)));
+      }
+    },
+    {
+      name: "optimization follow-up switches away from the prior primary source",
+      payload: {
+        roleId: "ai-engineer",
+        question: "Can you tell me about optimization?",
+        history: [
+          {
+            role: "user",
+            content: "I am looking for a junior quant, can you fit into my team?"
+          },
+          {
+            role: "assistant",
+            content: "I can fit a junior quant team through applied modeling, optimization, and validation."
+          }
+        ],
+        conversationSummary:
+          "Recent sources in order: 1. Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital; 2. Childcare Deserts NYC."
+      },
+      assertResult(json) {
+        assert.match(json.answer, /junior quant/i);
+        assert.match(json.answer, /Childcare Deserts NYC/);
+        assert.doesNotMatch(json.answer, /^For optimization, I would lead with Data & Operations Consultant/);
+      }
+    },
+    {
+      name: "direct coursework question answers from education",
+      payload: {
+        roleId: "optimization-analytics",
+        question: "Did you take any optimization class?"
+      },
+      assertResult(json) {
+        assert.match(json.answer, /Optimization|linear programming|nonlinear|dynamic programming/i);
+        assert.ok(json.citations.every((citation) => citation.sourceType === "education"));
+      }
+    },
+    {
+      name: "CS alias maps to CentraleSupelec coursework",
+      payload: {
+        roleId: "optimization-analytics",
+        question: "class at cs?",
+        history: [
+          {
+            role: "user",
+            content: "But did you take any optimization class?"
+          },
+          {
+            role: "assistant",
+            content: "At Columbia, I took Optimization Models and Methods."
+          }
+        ],
+        conversationSummary:
+          "Recent sources in order: 1. MS in Business Analytics at Columbia University; 2. Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital."
+      },
+      assertResult(json) {
+        assert.match(json.answer, /CentraleSupélec|Centrale/i);
+        assert.ok(json.citations.some((citation) => citation.sourceType === "education" && /Centrale/i.test(citation.title)));
+        assert.ok(json.projectsUsed.every((source) => !/Nantes University Hospital/i.test(source.title)));
+      }
+    },
+    {
+      name: "other project follow-up stays in the active technical lane",
+      payload: {
+        roleId: "ai-engineer",
+        question: "any other project you can talk to me about",
+        history: [
+          {
+            role: "user",
+            content: "Can you tell me about optimization?"
+          },
+          {
+            role: "assistant",
+            content:
+              "For optimization, I would lead with Childcare Deserts NYC and compare it with DNA Plasmid Closure with Genetic Algorithms."
+          },
+          {
+            role: "user",
+            content: "But did you take any optimization class?"
+          },
+          {
+            role: "assistant",
+            content: "At Columbia, I took Optimization Models and Methods."
+          },
+          {
+            role: "user",
+            content: "class at supelec?"
+          },
+          {
+            role: "assistant",
+            content: "At CentraleSupélec, I took mathematical optimization."
+          }
+        ],
+        conversationSummary:
+          "Recent sources in order: 1. Diplome d'Ingenieur (MEng) in Mathematics and Data Science at Universite Paris-Saclay: CentraleSupélec. Earlier interviewer topics: I am looking for a junior quant, can you fit into my team?."
+      },
+      assertResult(json) {
+        const citationTitles = json.citations.map((citation) => citation.title).join(" | ");
+        assert.match(json.answer, /junior quant/i);
+        assert.match(citationTitles, /CUIMC Appointment Scheduling Research|Zeit|Forvia Multi-Sensor Localization Research/i);
+        assert.doesNotMatch(json.answer, /Tomorrow You/);
+        assert.doesNotMatch(json.answer, /Childcare Deserts NYC/);
+      }
+    },
+    {
+      name: "ordinal compact memory resolves the second source",
+      payload: {
+        roleId: "ai-engineer",
+        question: "What did you learn from the second one?",
+        history: longHistory,
+        conversationSummary: "Recent sources in order: 1. Tomorrow You; 2. Codebase Analyzer."
+      },
+      assertResult(json) {
+        assert.equal(json.retrieval.results[0]?.title, "Codebase Analyzer");
+        assert.match(json.answer, /^Building on/);
+        assert.doesNotMatch(json.answer, /^The clearest answer is/);
+      }
+    },
+    {
+      name: "broad project inventory retrieves every current work item",
+      payload: {
+        roleId: "ai-engineer",
+        question: "Give me an overview of all my projects."
+      },
+      assertResult(json) {
+        const retrievedTitles = new Set(json.retrieval.results.map((item) => item.title));
+        assert.ok(json.retrieval.topK >= 14);
+        [...content.projects, ...content.caseStudies].forEach((item) => {
+          assert.ok(retrievedTitles.has(item.title), `Expected broad project overview to retrieve ${item.title}`);
+        });
+      }
+    }
+  ];
+
+  for (const scenario of scenarios) {
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/interview/respond",
+      payload: scenario.payload
+    });
+
+    assert.equal(response.statusCode, 200, scenario.name);
+    scenario.assertResult(response.json());
+  }
+
+  await app.close();
+});
+
 test("education source follow-ups do not ask for exact role", async () => {
   const app = buildApp({
     useMockResponses: true,

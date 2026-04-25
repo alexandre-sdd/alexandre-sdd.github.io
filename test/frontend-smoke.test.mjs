@@ -34,3 +34,12 @@ test("interview client sends compact memory instead of full chat history", () =>
   assert.match(script, /buildConversationMemory/);
   assert.match(script, /conversationSummary/);
 });
+
+test("AI-lexandre system page documents architecture audit and functional tests", () => {
+  const html = read("ai-lexandre-system.html");
+
+  assert.match(html, /Architecture Audit/);
+  assert.match(html, /Functional Test Set/);
+  assert.match(html, /deterministic mock mode/);
+  assert.equal(html.match(/class="test-status test-pass"/g)?.length, 12);
+});

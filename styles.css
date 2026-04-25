@@ -936,6 +936,67 @@ img {
   gap: 16px;
 }
 
+.system-test-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--outline-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.system-test-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.system-test-table th,
+.system-test-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--outline-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.system-test-table th {
+  color: var(--accent-secondary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.system-test-table td {
+  color: var(--text-secondary);
+}
+
+.system-test-table td:first-child {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.system-test-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.test-status {
+  display: inline-block;
+  min-width: 54px;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.test-pass {
+  border: 1px solid rgba(84, 128, 72, 0.34);
+  background: rgba(84, 128, 72, 0.12);
+  color: #426537;
+}
+
 @media (max-width: 980px) {
   .hero,
   .interview-spotlight,

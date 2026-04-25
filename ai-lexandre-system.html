@@ -161,6 +161,139 @@
         </div>
       </section>
 
+      <section class="section">
+        <div class="section-header">
+          <h2>Architecture Audit</h2>
+          <p>The current design is still appropriate for a portfolio-scale interview assistant, but the risk has moved from infrastructure to behavioral routing.</p>
+        </div>
+
+        <div class="system-contract-grid">
+          <article class="case-block">
+            <h2>Right-sized</h2>
+            <ul>
+              <li>A static portfolio plus a small API is enough; a database, crawler, or vector store would add operational weight before the corpus needs it.</li>
+              <li><code>content.json</code> as the source of truth keeps public pages and AI evidence aligned.</li>
+              <li>Lexical retrieval is transparent, cheap, and debuggable for a curated portfolio corpus.</li>
+              <li>Source-chip filtering is valuable because unsupported citations are more damaging than short answers.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Drift Risk</h2>
+            <ul>
+              <li><code>interview-service.ts</code> now contains several intent branches for coursework, healthcare, quant fit, follow-ups, and source switching.</li>
+              <li>Those branches were added to fix real interview failures, but they can make the assistant feel scripted if the rules keep growing unchecked.</li>
+              <li>The deterministic fallback prose is intentionally simple and testable; the production OpenAI path should carry more natural wording.</li>
+              <li>The next refactor should be a small intent-policy table with scenario tests, not a larger retrieval stack.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Current Judgment</h2>
+            <ul>
+              <li>Not over-engineered at the system level: the deployment shape is modest and maintainable.</li>
+              <li>Slightly over-specialized in the service layer: behavior rules should stay visible and tested.</li>
+              <li>Not too simple for v1: the system has evidence coverage, compact memory, source alignment, fallback behavior, and API tests.</li>
+              <li>The main quality bar is no longer “can it answer,” but “does it answer like a natural interview while staying grounded.”</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Functional Test Set</h2>
+          <p>These are end-to-end API scenarios run in deterministic mock mode. They test retrieval, memory, source chips, and fallback answer structure; they do not guarantee the exact wording of live OpenAI responses.</p>
+        </div>
+
+        <div class="system-test-table-wrap">
+          <table class="system-test-table">
+            <thead>
+              <tr>
+                <th scope="col">Scenario</th>
+                <th scope="col">Example prompt</th>
+                <th scope="col">Expected behavior</th>
+                <th scope="col">Current result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Strong AI system</td>
+                <td>Tell me about your strongest AI engineering project with voice and agent workflows.</td>
+                <td>Route to Tomorrow You and suppress raw corpus labels like Summary or Tags.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Failure mode</td>
+                <td>Pick one failure mode you actually had to design around. What did you change?</td>
+                <td>Retrieve concrete failure or lesson evidence and avoid generic follow-up chips.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Tradeoff follow-up</td>
+                <td>What tradeoff mattered most?</td>
+                <td>Use chat history and answer the new angle without restarting the project intro.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Medical field</td>
+                <td>Have you built projects in the medical field?</td>
+                <td>Prefer CUIMC, Nantes hospital, or healthcare operations evidence over adjacent AI analogy.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>CHANEL experience</td>
+                <td>Tell me about your CHANEL internship and finance analytics experience.</td>
+                <td>Surface the CHANEL experience and sanitized analytics case-study evidence.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Junior quant fit</td>
+                <td>I am looking for a junior quant, can you fit into my team?</td>
+                <td>Frame fit honestly: not pure pricing quant, but strong applied modeling, optimization, systems, and coursework foundation.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Optimization follow-up</td>
+                <td>Can you tell me about optimization?</td>
+                <td>Keep the junior quant frame and switch away from the previous primary source when another optimization project is available.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Coursework</td>
+                <td>Did you take any optimization class?</td>
+                <td>Answer from education evidence first, then optionally connect to applied work later.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Centrale alias</td>
+                <td>class at cs?</td>
+                <td>Treat CS, Supelec, and CentraleSupelec as CentraleSupélec, not as hospital-work shorthand.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Other project</td>
+                <td>any other project you can talk to me about</td>
+                <td>Switch to a different project while keeping the active technical lane, such as optimization or healthcare operations.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Compact memory</td>
+                <td>What did you learn from the second one?</td>
+                <td>Resolve “second one” from the compact source summary, even after a long chat history.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Give me an overview of all my projects.</td>
+                <td>Broaden retrieval enough to include every current project and case study.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="case-grid case-grid-plain">
         <article class="case-block">
           <h2>Why This Structure</h2>
