@@ -4,13 +4,12 @@ import fs from "node:fs";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
-test("portfolio renders a work memory surface", () => {
+test("portfolio renders learning snippets without a duplicate work memory section", () => {
   const html = read("index.html");
   const script = read("main.js");
 
-  assert.match(html, /id="work-memory"/);
-  assert.match(html, /id="work-memory-grid"/);
-  assert.match(script, /renderWorkMemory/);
+  assert.doesNotMatch(html, /id="work-memory"/);
+  assert.doesNotMatch(script, /renderWorkMemory/);
   assert.match(script, /learning-note/);
 });
 

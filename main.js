@@ -103,101 +103,6 @@ const appendLearningSnippet = (container, learning = {}) => {
   container.appendChild(note);
 };
 
-const WORK_MEMORY_GROUPS = [
-  {
-    label: 'AI systems',
-    ids: ['ai-lexandre', 'tomorrow-you', 'codebase-analyzer', 'linkedin-note-copilot']
-  },
-  {
-    label: 'ML and data quality',
-    ids: ['chanel-europe-analytics-pipeline', 'helpfullens', 'CHANEL Europe, Advanced Analytics & Data Science::Data Scientist', 'SIGMA Group, Commercial Excellence Europe::Data Analyst, Key Account Management']
-  },
-  {
-    label: 'Healthcare and operations',
-    ids: ['appointment-scheduling-dynamics', 'Columbia Business School & CUIMC::Research Assistant', 'Junior CentraleSupelec (JCS) – Nantes University Hospital::Data & Operations Consultant (Healthcare Planning & Forecasting)', 'zeit-project']
-  },
-  {
-    label: 'Optimization and research',
-    ids: ['childcare-deserts-nyc', 'dna-plasmid-closure', 'forvia-camera-radar-fusion-prototype']
-  }
-];
-
-const projectMemoryUrl = (project = {}) =>
-  clean(project.artifacts?.writeup) || clean(project.artifacts?.demo) || clean(project.artifacts?.code) || '#projects';
-
-const buildMemoryItems = (data = {}) => {
-  const items = [];
-
-  (data.projects || []).forEach((project) => {
-    if (!project.learning) return;
-    items.push({
-      id: project.id,
-      title: project.title,
-      type: 'Project',
-      url: projectMemoryUrl(project),
-      learning: project.learning
-    });
-  });
-
-  (data.caseStudies || []).forEach((caseStudy) => {
-    if (!caseStudy.learning) return;
-    items.push({
-      id: caseStudy.id,
-      title: caseStudy.title,
-      type: 'Case study',
-      url: clean(caseStudy.page) || '#case-studies',
-      learning: caseStudy.learning
-    });
-  });
-
-  (data.experience || []).forEach((experience) => {
-    if (!experience.learning) return;
-    items.push({
-      id: `${experience.company}::${experience.role}`,
-      title: `${experience.role} · ${experience.company}`,
-      type: 'Experience',
-      url: '#experience',
-      learning: experience.learning
-    });
-  });
-
-  return items;
-};
-
-const renderWorkMemory = (data = {}) => {
-  const grid = qs('#work-memory-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-
-  const itemsById = new Map(buildMemoryItems(data).map((item) => [item.id, item]));
-
-  WORK_MEMORY_GROUPS.forEach((group) => {
-    const groupItems = group.ids.map((id) => itemsById.get(id)).filter(Boolean);
-    if (!groupItems.length) return;
-
-    const section = makeEl('article', 'memory-group');
-    section.appendChild(makeEl('h3', '', group.label));
-
-    const list = makeEl('div', 'memory-list');
-    groupItems.forEach((item) => {
-      const link = makeEl('a', 'memory-item');
-      setLinkAttrs(link, item.url);
-
-      const top = makeEl('div', 'memory-item-top');
-      top.appendChild(makeEl('span', 'memory-type', item.type));
-      top.appendChild(makeEl('span', 'memory-evidence', item.learning.evidenceLevel));
-      link.appendChild(top);
-
-      link.appendChild(makeEl('h4', '', item.title));
-      link.appendChild(makeEl('p', '', learningSnippet(item.learning)));
-      list.appendChild(link);
-    });
-
-    section.appendChild(list);
-    grid.appendChild(section);
-  });
-};
-
 const renderHeroLinks = (data, resumeReady) => {
   const heroLinks = qs('#hero-links');
   if (!heroLinks) return;
@@ -466,7 +371,6 @@ const render = async () => {
 
   renderFeaturedProjects(featured);
   renderOtherProjects(other);
-  renderWorkMemory(data);
   renderCaseStudyLinks(Array.isArray(data.caseStudies) ? data.caseStudies : []);
 
   renderTimeline('#experience-list', data.experience, {
