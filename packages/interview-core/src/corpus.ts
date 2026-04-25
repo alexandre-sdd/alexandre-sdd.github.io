@@ -499,7 +499,25 @@ function inferEducationRoleTags(category: string, text: string): string[] {
   return Array.from(tags);
 }
 
+function educationAliases(education: EducationRecord): string[] {
+  const school = education.school
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (!school.includes("centralesupelec") && !school.includes("centrale")) return [];
+
+  return [
+    "CentraleSupelec",
+    "Centrale",
+    "Supelec",
+    "CS"
+  ];
+}
+
 function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, index: number): void {
+  const aliases = educationAliases(education);
+
   addChunk(chunks, {
     id: `education:${index}`,
     sourceType: "education",
@@ -511,7 +529,7 @@ function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, i
     publicUrl: "../index.html#education",
     roleTags: ["ai-engineer", "ml-engineer", "research-engineer", "optimization-analytics"],
     evidenceStrength: "supporting",
-    keywords: [education.school, education.degree]
+    keywords: [education.school, education.degree, ...aliases]
   });
 
   education.courseworkMemory?.forEach((group, groupIndex) => {
@@ -534,6 +552,7 @@ function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, i
         education.school,
         education.degree,
         group.category,
+        ...aliases,
         "coursework",
         "course work",
         "technical foundation",

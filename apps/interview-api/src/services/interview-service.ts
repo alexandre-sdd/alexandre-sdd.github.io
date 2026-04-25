@@ -91,6 +91,8 @@ export interface LlmService {
 
 type InterviewIntent = "behavioral" | "comparison" | "inventory" | "role-fit" | "technical" | "general";
 
+type InterviewFocus = "coursework" | "other-project" | "standard";
+
 const PORTFOLIO_GROUPS = [
   {
     label: "AI product systems",
@@ -192,12 +194,18 @@ function meaningfulSourceTokens(text: string): string[] {
 }
 
 function sourceCandidateLabels(match: RetrievalMatch): string[] {
-  return [
+  const labels = [
     match.chunk.title,
     match.chunk.citationLabel.replace(/\s+-\s+.+$/, ""),
     match.chunk.projectId?.replace(/-/g, " "),
     match.chunk.sourceId.replace(/[:_-]+/g, " ")
   ].filter((label): label is string => Boolean(label));
+
+  if (mentionsCentraleSupelec(labels.join(" "))) {
+    labels.push("CentraleSupélec", "CentraleSupelec", "Centrale Supélec", "Centrale Supelec", "Supelec", "Supélec", "CS");
+  }
+
+  return labels;
 }
 
 function hasExactSourceLabel(answerText: string, match: RetrievalMatch): boolean {
@@ -224,8 +232,9 @@ function hasSourceTokenOverlap(answerTokens: Set<string>, match: RetrievalMatch)
 function hasBrandLikeSourceReference(answerTokens: Set<string>, match: RetrievalMatch): boolean {
   if (!["case-study", "education", "experience"].includes(match.chunk.sourceType)) return false;
 
-  const firstSourceToken = meaningfulSourceTokens(match.chunk.sourceId)[0];
-  return Boolean(firstSourceToken && firstSourceToken.length >= 5 && answerTokens.has(firstSourceToken));
+  return meaningfulSourceTokens(match.chunk.sourceId).some(
+    (sourceToken) => sourceToken.length >= 5 && answerTokens.has(sourceToken)
+  );
 }
 
 function sourceReferenceScore(answerText: string, match: RetrievalMatch): number {
@@ -266,9 +275,18 @@ function displayEvidenceForAnswer(answer: string, evidence: RetrievalMatch[]): R
   return distinctEvidence(displayEvidence, referencedEvidence.length > 0 ? 4 : 1);
 }
 
-function defaultFollowUps(primarySourceTitle?: string, question = "", history: InterviewTurn[] = []): string[] {
+function defaultFollowUps(primarySource?: SourceUsage, question = "", history: InterviewTurn[] = []): string[] {
   const lowerQuestion = question.toLowerCase();
+  const primarySourceTitle = primarySource?.title;
   const sourceSuffix = primarySourceTitle ? ` in ${primarySourceTitle}` : "";
+
+  if (primarySource?.sourceType === "education") {
+    return [
+      "Which project applied that?",
+      "How did that shape your modeling work?",
+      "What evidence would you show?"
+    ];
+  }
 
   if (/\b(failure|fail|failed|hallucination|drift|grounded|grounding|unsupported|what did you change)\b/.test(lowerQuestion)) {
     return [
@@ -333,12 +351,68 @@ function isQuantitativeFitQuestion(question: string): boolean {
   return /\b(classical quant|financial engineering|pricing|quant|quants|quantitative|risk|trading)\b/i.test(question);
 }
 
+function normalizeIntentText(text: string): string {
+  return text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function isBackgroundBreadthQuestion(question: string): boolean {
-  const lowerQuestion = question.toLowerCase();
+  const lowerQuestion = normalizeIntentText(question);
   const asksForBreadth = /\b(beyond|broader|else|not just|other than|outside|range)\b/.test(lowerQuestion);
   const asksForFit = /\b(ai engineer|ai engineering|background|career|fit|position|role|roles|suited|suitable)\b/.test(lowerQuestion);
 
   return isQuantitativeFitQuestion(question) || (asksForBreadth && asksForFit);
+}
+
+function isDirectEducationQuestion(question: string): boolean {
+  return /\b(class|classes|course|courses|coursework|course work|degree|education|school|university|college)\b/i.test(question);
+}
+
+function mentionsCentraleSupelec(question: string): boolean {
+  const lowerQuestion = normalizeIntentText(question);
+  return /\b(centrale|centrale supelec|centralesupelec|cs|supelec)\b/.test(lowerQuestion);
+}
+
+function isEducationFollowUp(question: string, history: InterviewTurn[] = []): boolean {
+  if (isDirectEducationQuestion(question)) return true;
+
+  const recentUserContext = history
+    .filter((turn) => turn.role === "user")
+    .slice(-2)
+    .map((turn) => turn.content)
+    .join(" ");
+
+  return mentionsCentraleSupelec(question) && /\b(class|classes|course|courses|coursework|course work|optimization)\b/i.test(recentUserContext);
+}
+
+function isOtherProjectQuestion(question: string): boolean {
+  return /\b(any\s+other|another|different|else|other)\b[^?!.]{0,60}\b(project|case study|work|example)\b/i.test(question);
+}
+
+function isOptimizationQuestion(question: string): boolean {
+  return /\b(optimization|optimisation|solver|linear programming|integer programming|dynamic programming|nonlinear)\b/i.test(question);
+}
+
+function interviewRoleLabel(question: string, history: InterviewTurn[] = [], fallback = "the selected role", conversationSummary = ""): string {
+  const text = normalizeIntentText([
+    question,
+    conversationSummary,
+    ...history.filter((turn) => turn.role === "user").map((turn) => turn.content)
+  ].join(" "));
+  if (/\b(junior quant|quant team|quantitative finance|quant role|quant position|quants position)\b/.test(text)) return "junior quant";
+  if (/\b(ml engineer|machine learning engineer)\b/.test(text)) return "ML Engineer";
+  if (/\b(data scientist|data science)\b/.test(text)) return "Data Scientist";
+  if (/\b(research engineer|research role)\b/.test(text)) return "Research Engineer";
+  if (/\b(optimization|operations research|analytics)\b/.test(text)) return "Optimization / Analytics";
+  return fallback;
+}
+
+function interviewFocus(question: string, history: InterviewTurn[] = []): InterviewFocus {
+  if (isOtherProjectQuestion(question)) return "other-project";
+  if (isEducationFollowUp(question, history)) return "coursework";
+  return "standard";
 }
 
 function ordinalSourceFromSummary(question: string, conversationSummary = ""): string {
@@ -357,16 +431,167 @@ function ordinalSourceFromSummary(question: string, conversationSummary = ""): s
   return conversationSummary.match(pattern)?.[1]?.trim() ?? "";
 }
 
+function recentUserQuestions(history: InterviewTurn[] = [], count = 3): string {
+  return history
+    .filter((turn) => turn.role === "user")
+    .slice(-count)
+    .map((turn) => turn.content)
+    .join(" ");
+}
+
 function buildRetrievalQuery(question: string, history: InterviewTurn[] = [], conversationSummary = ""): string {
   if (history.length === 0 && !conversationSummary) return question;
 
-  const sourceHint = ordinalSourceFromSummary(question, conversationSummary);
-  const recentHistory = history
-    .slice(-4)
-    .map((turn) => turn.content)
-    .join(" ");
+  const focus = interviewFocus(question, history);
+  const recentUserContext = recentUserQuestions(history, focus === "other-project" ? 6 : 3);
 
-  return [sourceHint, question, conversationSummary, recentHistory].filter(Boolean).join("\n");
+  if (focus === "coursework") {
+    const centraleHint = mentionsCentraleSupelec(`${question} ${recentUserContext}`)
+      ? "CentraleSupélec CentraleSupelec Centrale Supelec Supelec CS engineering school coursework classes"
+      : "";
+    return [question, recentUserContext, centraleHint, "coursework classes education"].filter(Boolean).join("\n");
+  }
+
+  if (focus === "other-project") {
+    return [question, recentUserContext, "different portfolio project case study work sample"].filter(Boolean).join("\n");
+  }
+
+  const sourceHint = ordinalSourceFromSummary(question, conversationSummary);
+
+  return [sourceHint, question, sourceHint ? conversationSummary : "", recentUserContext].filter(Boolean).join("\n");
+}
+
+function recentSourceTitles(conversationSummary = ""): string[] {
+  const match = conversationSummary.match(/Recent sources in order:\s*(.+)$/i);
+  if (!match) return [];
+  const sourceList = match[1].split(/\s+Earlier interviewer topics:/i)[0];
+
+  return sourceList
+    .split(";")
+    .map((item) =>
+      item
+        .replace(/^\s*\d+\.\s*/, "")
+        .replace(/\.\s*$/, "")
+        .trim()
+    )
+    .filter(Boolean);
+}
+
+function sourceMatchesRecentTitle(match: RetrievalMatch, recentTitles: string[]): boolean {
+  const candidates = [
+    match.chunk.title,
+    match.chunk.projectId?.replace(/-/g, " "),
+    match.chunk.sourceId.replace(/[:_-]+/g, " ")
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeReferenceText);
+  const normalizedRecent = recentTitles.map(normalizeReferenceText);
+
+  return normalizedRecent.some((recent) =>
+    candidates.some((candidate) => candidate === recent || candidate.includes(recent) || recent.includes(candidate))
+  );
+}
+
+function sourceMentionsCentraleSupelec(match: RetrievalMatch): boolean {
+  const haystack = normalizeIntentText(`${match.chunk.title} ${match.chunk.sourceId} ${match.chunk.text} ${match.chunk.keywords.join(" ")}`);
+  return /\b(centrale|centralesupelec|supelec|cs)\b/.test(haystack);
+}
+
+function sourceMentionedInRecentAssistant(match: RetrievalMatch, history: InterviewTurn[] = []): boolean {
+  const recentAssistantText = normalizeReferenceText(
+    history
+      .filter((turn) => turn.role === "assistant")
+      .slice(-4)
+      .map((turn) => turn.content)
+      .join(" ")
+  );
+
+  return sourceCandidateLabels(match).some((label) => {
+    const normalizedLabel = normalizeReferenceText(label);
+    return normalizedLabel.length >= 4 && recentAssistantText.includes(normalizedLabel);
+  });
+}
+
+function topicMatchScore(match: RetrievalMatch, context: string): number {
+  const normalizedContext = normalizeIntentText(context);
+  const sourceText = normalizeIntentText(`${match.chunk.title} ${match.chunk.section} ${match.chunk.text} ${match.chunk.keywords.join(" ")}`);
+  let score = 0;
+
+  if (isOptimizationQuestion(normalizedContext) || isQuantitativeFitQuestion(normalizedContext)) {
+    if (/\b(optimization|optimisation|operations|scheduling|simulation|solver|constraint|constraints|linear|integer|dynamic|genetic)\b/.test(sourceText)) {
+      score += 28;
+    }
+    if (/\b(probability|statistical|statistics|forecasting|modeling|modelling|calibration)\b/.test(sourceText)) {
+      score += 10;
+    }
+  }
+
+  return score;
+}
+
+function effectiveRetrievalRoleId(roleId: string, question: string, history: InterviewTurn[] = [], conversationSummary = ""): string {
+  const context = normalizeIntentText(`${question} ${conversationSummary} ${recentUserQuestions(history, 6)}`);
+
+  if (/\b(junior quant|quant|optimization|optimisation|operations research|scheduling|simulation|solver)\b/.test(context)) {
+    return "optimization-analytics";
+  }
+
+  return roleId;
+}
+
+function refineEvidenceForFocus(params: {
+  evidence: RetrievalMatch[];
+  question: string;
+  history: InterviewTurn[];
+  conversationSummary: string;
+  topK: number;
+}): RetrievalMatch[] {
+  const focus = interviewFocus(params.question, params.history);
+
+  if (focus === "standard") {
+    if (isOptimizationQuestion(params.question)) {
+      const [recentPrimaryTitle] = recentSourceTitles(params.conversationSummary);
+      const freshEvidence = recentPrimaryTitle
+        ? params.evidence.filter((match) => !sourceMatchesRecentTitle(match, [recentPrimaryTitle]))
+        : params.evidence;
+      const freshWorkEvidence = freshEvidence.filter(
+        (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study" || match.chunk.sourceType === "experience"
+      );
+
+      if (freshWorkEvidence.length > 0) {
+        return [
+          ...freshWorkEvidence,
+          ...params.evidence.filter((match) => !freshWorkEvidence.includes(match))
+        ].slice(0, params.topK);
+      }
+    }
+
+    return params.evidence;
+  }
+
+  if (focus === "coursework") {
+    const context = `${params.question} ${recentUserQuestions(params.history)}`;
+    const education = params.evidence.filter((match) => match.chunk.sourceType === "education");
+    const sortedEducation = mentionsCentraleSupelec(context)
+      ? [...education].sort((a, b) => Number(sourceMentionsCentraleSupelec(b)) - Number(sourceMentionsCentraleSupelec(a)) || b.score - a.score)
+      : education;
+    const support = params.evidence.filter((match) => match.chunk.sourceType !== "education");
+    return [...sortedEducation, ...support].slice(0, params.topK);
+  }
+
+  const recentTitles = recentSourceTitles(params.conversationSummary);
+  const projectEvidence = params.evidence.filter(
+    (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study"
+  );
+  const context = `${params.question} ${recentUserQuestions(params.history, 6)} ${params.conversationSummary}`;
+  const sortedProjectEvidence = [...projectEvidence].sort(
+    (a, b) => topicMatchScore(b, context) - topicMatchScore(a, context) || b.score - a.score
+  );
+  const freshProjectEvidence = sortedProjectEvidence.filter(
+    (match) => !sourceMatchesRecentTitle(match, recentTitles) && !sourceMentionedInRecentAssistant(match, params.history)
+  );
+
+  return (freshProjectEvidence.length > 0 ? freshProjectEvidence : sortedProjectEvidence).slice(0, params.topK);
 }
 
 function inferInterviewIntent(question: string): InterviewIntent {
@@ -511,12 +736,93 @@ function buildBackgroundFitAnswer(question: string, evidence: RetrievalMatch[]):
   return [opening, roleRange, workSignals.join(" "), educationSignal].filter(Boolean).join(" ");
 }
 
+function buildCourseworkAnswer(question: string, evidence: RetrievalMatch[], history: InterviewTurn[] = []): string {
+  const educationEvidence = distinctEvidence(
+    evidence.filter((match) => match.chunk.sourceType === "education"),
+    2
+  );
+  const [primary, secondary] = educationEvidence;
+
+  if (!primary) return "I do have relevant coursework, but I do not have enough education evidence loaded here to answer the exact class precisely.";
+
+  const context = `${question} ${recentUserQuestions(history)}`;
+  const schoolPrefix = sourceMentionsCentraleSupelec(primary)
+    ? "At CentraleSupélec, yes"
+    : primary.chunk.title.includes("Columbia")
+      ? "At Columbia, yes"
+      : "Yes";
+  const evidenceText = truncateForInterview(primary.chunk.text, 340);
+  const secondaryText = secondary ? ` I can also point to ${secondary.chunk.title} as supporting coursework.` : "";
+
+  return [
+    `${schoolPrefix}: the relevant coursework evidence is ${evidenceText}`,
+    mentionsCentraleSupelec(context)
+      ? "For a CentraleSupélec-specific answer, I would cite the engineering curriculum directly rather than substituting an internship example."
+      : "I would treat the class as the foundation and then connect it to projects or experience only after answering the coursework question.",
+    secondaryText
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function buildOtherProjectAnswer(evidence: RetrievalMatch[], roleLabel: string): string {
+  const [primary, secondary] = distinctEvidence(
+    evidence.filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study"),
+    2
+  );
+
+  if (!primary) return "Yes, but I would need a different project source loaded to answer that without repeating the prior example.";
+
+  const example = truncateForInterview(primary.chunk.text, 330);
+  const support = secondary ? `If you wanted a second option, I could also talk about ${secondary.chunk.title}.` : "";
+  return [
+    `Yes. A different project I would talk about is ${primary.chunk.title}.`,
+    `The evidence is: ${example}`,
+    `For a ${roleLabel} conversation, I would use it to show a different part of my profile instead of repeating the previous source.`,
+    support
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function buildOptimizationAnswer(evidence: RetrievalMatch[], roleLabel: string): string {
+  const workEvidence = distinctEvidence(
+    evidence.filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study" || match.chunk.sourceType === "experience"),
+    2
+  );
+  const educationEvidence = distinctEvidence(
+    evidence.filter((match) => match.chunk.sourceType === "education"),
+    1
+  );
+  const [primaryWork, secondaryWork] = workEvidence;
+  const [education] = educationEvidence;
+
+  if (!primaryWork) return "For optimization, I would explain both the formulation and the operational constraints, then ground it in coursework if needed.";
+
+  const educationSupport = education
+    ? ` The coursework foundation behind that is ${education.chunk.title}, especially ${truncateForInterview(education.chunk.text, 220)}`
+    : "";
+  const secondary = secondaryWork ? ` I can also compare it with ${secondaryWork.chunk.title}.` : "";
+
+  return [
+    `For optimization, I would lead with ${primaryWork.chunk.title}.`,
+    `The core idea is: ${truncateForInterview(primaryWork.chunk.text, 330)}`,
+    `For a ${roleLabel} conversation, the point is that I understand optimization as constraint design, feasibility, and validation, not just solving an objective.${educationSupport}${secondary}`
+  ].join(" ");
+}
+
 function answerEvidence(matches: RetrievalMatch[]): RetrievalMatch[] {
   const concrete = matches.filter((match) => match.chunk.sourceType !== "overview" && match.chunk.sourceType !== "skills");
   return concrete.length > 0 ? concrete : matches;
 }
 
-function buildMockAnswerText(question: string, role: RolePreset, evidence: RetrievalMatch[], history: InterviewTurn[] = []): string {
+function buildMockAnswerText(
+  question: string,
+  role: RolePreset,
+  evidence: RetrievalMatch[],
+  history: InterviewTurn[] = [],
+  conversationSummary = ""
+): string {
   const intent = inferInterviewIntent(question);
   if (intent === "inventory") return buildInventoryAnswer(role, evidence);
 
@@ -527,9 +833,22 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
   const lowerQuestion = question.toLowerCase();
   const example = truncateForInterview(primary.chunk.text);
   const isFollowUp = history.length > 0;
+  const roleLabel = interviewRoleLabel(question, history, role.label, conversationSummary);
 
   if (!isFollowUp && isBackgroundBreadthQuestion(question)) {
     return buildBackgroundFitAnswer(question, evidence);
+  }
+
+  if (isEducationFollowUp(question, history)) {
+    return buildCourseworkAnswer(question, evidence, history);
+  }
+
+  if (isOtherProjectQuestion(question)) {
+    return buildOtherProjectAnswer(evidence, roleLabel);
+  }
+
+  if (isOptimizationQuestion(question)) {
+    return buildOptimizationAnswer(evidence, roleLabel);
   }
 
   if (isFollowUp && /\b(tradeoff|trade-off|trade off)\b/.test(lowerQuestion)) {
@@ -552,7 +871,7 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
     return [
       `Building on the prior answer, I would keep the focus on the new angle rather than restating ${primary.chunk.title}.`,
       `The relevant evidence is: ${example}`,
-      `For ${role.label}, the useful takeaway is how that detail changes the decision, reliability, or user-facing outcome.`
+      `For ${roleLabel}, the useful takeaway is how that detail changes the decision, reliability, or user-facing outcome.`
     ].join(" ");
   }
 
@@ -561,15 +880,15 @@ function buildMockAnswerText(question: string, role: RolePreset, evidence: Retri
     comparison: `I would start with ${primary.chunk.title} and then compare it with another source of evidence if the interviewer wants range.`,
     general: `The clearest answer is ${primary.chunk.title}.`,
     inventory: "",
-    "role-fit": `For a ${role.label} screen, I would anchor the answer in ${primary.chunk.title}.`,
+    "role-fit": `For a ${roleLabel} screen, I would anchor the answer in ${primary.chunk.title}.`,
     technical: `The strongest technical example is ${primary.chunk.title}, because it lets me talk about implementation choices and tradeoffs.`
   };
   const takeawayByIntent: Record<InterviewIntent, string> = {
     behavioral: "The interviewer-relevant takeaway is that I can operate with constraints, make the work usable, and explain what I learned without overselling it.",
     comparison: "The useful discussion is the contrast: what each example proves, where the constraints differed, and how I adapted my approach.",
-    general: `What it shows for ${role.label} is that I can connect technical execution to a concrete work product.`,
+    general: `What it shows for ${roleLabel} is that I can connect technical execution to a concrete work product.`,
     inventory: "",
-    "role-fit": `That maps to ${role.label} because it shows the kind of evidence a hiring manager can probe: scope, decisions, tradeoffs, and results.`,
+    "role-fit": `That maps to ${roleLabel} because it shows the kind of evidence a hiring manager can probe: scope, decisions, tradeoffs, and results.`,
     technical: "In an interview, I would emphasize the decision path: the constraint, the system or model choice, the tradeoff, and how I made the output usable."
   };
   const support = secondary ? `If the interviewer wanted a second signal, I would connect it to ${secondary.chunk.title}.` : "";
@@ -612,9 +931,16 @@ function buildResponseBase(config: AppConfig, role: RolePreset, evidence: Retrie
 }
 
 function buildSourceDisplay(answer: string, evidence: RetrievalMatch[], question = "", history: InterviewTurn[] = []) {
-  const displayEvidence = displayEvidenceForAnswer(answer, evidence);
+  const focus = interviewFocus(question, history);
+  const sourceEvidence =
+    focus === "coursework"
+      ? evidence.filter((match) => match.chunk.sourceType === "education")
+      : focus === "other-project"
+        ? evidence.filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study")
+        : evidence;
+  const displayEvidence = displayEvidenceForAnswer(answer, sourceEvidence.length > 0 ? sourceEvidence : evidence);
   const projectsUsed = inferSourceUsage(displayEvidence);
-  const primarySource = projectsUsed[0]?.title;
+  const primarySource = projectsUsed[0];
 
   return {
     citations: displayEvidence.map(citationFromMatch),
@@ -634,6 +960,8 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     topK?: number;
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
+    const history = params.history ?? [];
+    const focus = interviewFocus(params.question, history);
     const broadenRetrieval = !params.topK && shouldBroadenRetrieval(params.question);
     const broadenBackgroundFit = !params.topK && isBackgroundBreadthQuestion(params.question);
     const topK =
@@ -642,14 +970,26 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
         ? Math.max(config.retrievalTopK, 14)
         : broadenBackgroundFit
           ? Math.max(config.retrievalTopK, 16)
+          : focus !== "standard"
+            ? Math.max(config.retrievalTopK, focus === "other-project" ? 16 : 10)
           : config.retrievalTopK);
-    const history = params.history ?? [];
     const conversationSummary = params.conversationSummary?.trim() || "";
     const retrievalQuery = buildRetrievalQuery(params.question, history, conversationSummary);
-    const evidence = retrieveEvidence(corpus, retrievalQuery, {
-      roleId: role.id,
+    const retrievalRoleId = effectiveRetrievalRoleId(role.id, params.question, history, conversationSummary);
+    const rawEvidence = retrieveEvidence(corpus, retrievalQuery, {
+      roleId: retrievalRoleId,
       topK,
-      maxPerSource: broadenRetrieval || broadenBackgroundFit || shouldDiversifyHealthcareEvidence(params.question) ? 1 : undefined
+      maxPerSource:
+        broadenRetrieval || broadenBackgroundFit || focus !== "standard" || shouldDiversifyHealthcareEvidence(params.question)
+          ? 1
+          : undefined
+    });
+    const evidence = refineEvidenceForFocus({
+      evidence: rawEvidence,
+      question: params.question,
+      history,
+      conversationSummary,
+      topK
     });
 
     return {
@@ -663,7 +1003,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
   function fallbackGenerationFromInput(input: LlmGenerationInput): LlmAnswer {
     return {
-      answer: buildMockAnswerText(input.question, input.role, input.evidence, input.history),
+      answer: buildMockAnswerText(input.question, input.role, input.evidence, input.history, input.conversationSummary),
       confidence: confidenceFromEvidence(input.evidence)
     };
   }
@@ -714,7 +1054,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     const base = buildResponseBase(config, context.role, context.evidence, context.topK);
     const generation = config.useMockResponses
       ? {
-          answer: buildMockAnswerText(params.question, context.role, context.evidence, context.history),
+          answer: buildMockAnswerText(params.question, context.role, context.evidence, context.history, context.conversationSummary),
           confidence: confidenceFromEvidence(context.evidence)
         }
       : await generateAnswer({
@@ -760,7 +1100,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     let generation: LlmAnswer;
 
     if (config.useMockResponses) {
-      const answer = buildMockAnswerText(params.question, context.role, context.evidence, context.history);
+      const answer = buildMockAnswerText(params.question, context.role, context.evidence, context.history, context.conversationSummary);
       await streamTextByWord(answer, async (token) => emit({ type: "token", text: token }));
       generation = {
         answer,

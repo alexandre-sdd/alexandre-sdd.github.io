@@ -597,6 +597,225 @@ test("broader fit questions map roles outside AI engineering", async () => {
   await app.close();
 });
 
+test("education source follow-ups do not ask for exact role", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "optimization-analytics",
+      question: "What coursework did you take in machine learning?"
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    followUps: string[];
+    citations: Array<{ sourceType: string }>;
+  };
+
+  assert.ok(json.citations.some((citation) => citation.sourceType === "education"));
+  assert.ok(json.followUps.every((followUp) => !/exact role/i.test(followUp)));
+  assert.ok(json.followUps.includes("Which project applied that?"));
+
+  await app.close();
+});
+
+test("CentraleSupelec class follow-ups use Centrale coursework instead of Nantes", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "optimization-analytics",
+      question: "class at supelec?",
+      history: [
+        {
+          role: "user",
+          content: "But did you take any optimization class?"
+        },
+        {
+          role: "assistant",
+          content: "At Columbia, I took Optimization Models and Methods."
+        }
+      ],
+      conversationSummary: "Recent sources in order: 1. MS in Business Analytics at Columbia University; 2. Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+    projectsUsed: Array<{ title: string; sourceType: string }>;
+  };
+
+  assert.match(json.answer, /CentraleSupélec|Centrale/i);
+  assert.match(json.answer, /Optimization|linear|nonlinear|dynamic/i);
+  assert.ok(
+    json.citations.some((citation) => citation.sourceType === "education" && /Centrale/i.test(citation.title)),
+    "Expected Centrale education citation"
+  );
+  assert.ok(
+    json.projectsUsed.every((source) => !/Nantes University Hospital/i.test(source.title)),
+    "Expected class follow-up not to source Nantes hospital work"
+  );
+
+  await app.close();
+});
+
+test("other project follow-ups switch away from recent source", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "optimization-analytics",
+      question: "any other project you can talk to me about",
+      history: [
+        {
+          role: "user",
+          content: "Can you talk about Nantes University Hospital?"
+        },
+        {
+          role: "assistant",
+          content:
+            "I can talk about my Data & Operations Consultant work at Nantes University Hospital."
+        }
+      ],
+      conversationSummary: "Recent sources in order: 1. Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+  };
+
+  assert.match(json.answer, /different project/i);
+  assert.doesNotMatch(json.answer, /Nantes University Hospital/);
+  assert.ok(
+    json.citations.every((citation) => citation.sourceType === "project" || citation.sourceType === "case-study"),
+    "Expected another-project answer to use project or case-study sources"
+  );
+
+  await app.close();
+});
+
+test("other project follow-ups keep the active technical lane", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "any other project you can talk to me about",
+      history: [
+        {
+          role: "user",
+          content: "Can you tell me about optimization?"
+        },
+        {
+          role: "assistant",
+          content:
+            "For optimization, I would lead with Childcare Deserts NYC and compare it with DNA Plasmid Closure with Genetic Algorithms."
+        },
+        {
+          role: "user",
+          content: "But did you take any optimization class?"
+        },
+        {
+          role: "assistant",
+          content: "At Columbia, I took Optimization Models and Methods."
+        },
+        {
+          role: "user",
+          content: "class at supelec?"
+        },
+        {
+          role: "assistant",
+          content: "At CentraleSupélec, I took mathematical optimization."
+        }
+      ],
+      conversationSummary:
+        "Recent sources in order: 1. Diplome d'Ingenieur (MEng) in Mathematics and Data Science at Universite Paris-Saclay: CentraleSupélec. Earlier interviewer topics: I am looking for a junior quant, can you fit into my team?."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+  };
+  const citationTitles = json.citations.map((citation) => citation.title).join(" | ");
+
+  assert.match(json.answer, /junior quant/i);
+  assert.match(citationTitles, /CUIMC Appointment Scheduling Research|Zeit|Forvia Multi-Sensor Localization Research/i);
+  assert.doesNotMatch(json.answer, /Tomorrow You/);
+  assert.doesNotMatch(json.answer, /Childcare Deserts NYC/);
+
+  await app.close();
+});
+
+test("quant conversation keeps junior quant framing on follow-up", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    retrievalTopK: 6
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "Can you tell me about optimization?",
+      history: [
+        {
+          role: "user",
+          content: "I am looking for a junior quant, can you fit into my team?"
+        },
+        {
+          role: "assistant",
+          content:
+            "I can fit a junior quant team where the role values applied modeling, optimization, and validation."
+        }
+      ]
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+
+  const json = response.json() as {
+    answer: string;
+  };
+
+  assert.match(json.answer, /junior quant/i);
+  assert.doesNotMatch(json.answer, /AI Engineer/);
+
+  await app.close();
+});
+
 test("broad project overview can retrieve every project and case study", async () => {
   const app = buildApp({
     useMockResponses: true,

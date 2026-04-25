@@ -276,6 +276,22 @@ test("direct coursework questions retrieve education first", () => {
   );
 });
 
+test("CentraleSupelec aliases retrieve Centrale coursework", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  ["What optimization class did you take at supelec?", "What optimization class did you take at cs?"].forEach((query) => {
+    const matches = retrieveEvidence(corpus, query, {
+      roleId: "optimization-analytics",
+      topK: 4
+    });
+
+    assert.match(matches[0]?.chunk.title ?? "", /Centrale/i);
+    assert.equal(matches[0]?.chunk.sourceType, "education");
+    assert.match(matches[0]?.chunk.text, /Optimization|linear|nonlinear|dynamic/i);
+  });
+});
+
 test("broad role-fit queries retrieve background evidence beyond AI projects", () => {
   const content = loadPortfolioContent();
   const corpus = buildCorpusFromContent(content);

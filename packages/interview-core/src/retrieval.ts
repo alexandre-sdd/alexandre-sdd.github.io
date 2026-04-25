@@ -51,6 +51,8 @@ const ROLE_BREADTH_QUERY_PATTERN =
 
 function tokenize(value: string): string[] {
   return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9+.#/\s-]/g, " ")
     .split(/\s+/)
