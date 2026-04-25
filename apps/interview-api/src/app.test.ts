@@ -25,6 +25,56 @@ test("health endpoint reports mock mode when configured", async () => {
   await app.close();
 });
 
+test("cors only allows configured origins", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    corsOrigins: ["https://alexandre-sdd.github.io"]
+  });
+
+  const allowed = await app.inject({
+    method: "GET",
+    url: "/v1/health",
+    headers: {
+      origin: "https://alexandre-sdd.github.io"
+    }
+  });
+  const blocked = await app.inject({
+    method: "GET",
+    url: "/v1/health",
+    headers: {
+      origin: "https://example.com"
+    }
+  });
+
+  assert.equal(allowed.headers["access-control-allow-origin"], "https://alexandre-sdd.github.io");
+  assert.equal(blocked.headers["access-control-allow-origin"], undefined);
+
+  await app.close();
+});
+
+test("rate limit protects public endpoints", async () => {
+  const app = buildApp({
+    useMockResponses: true,
+    rateLimitMax: 1,
+    rateLimitTimeWindow: "1 minute"
+  });
+
+  const first = await app.inject({
+    method: "GET",
+    url: "/v1/health"
+  });
+  const second = await app.inject({
+    method: "GET",
+    url: "/v1/health"
+  });
+
+  assert.equal(first.statusCode, 200);
+  assert.equal(second.statusCode, 429);
+  assert.match(second.body, /Rate limit exceeded/);
+
+  await app.close();
+});
+
 test("interview response returns grounded citations in mock mode", async () => {
   const app = buildApp({
     useMockResponses: true,

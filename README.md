@@ -48,6 +48,13 @@ This repository is set up to serve from the root (`/`) of the `main` branch.
 
 The static interview page will publish with the portfolio. The API should be hosted separately, for example on Railway.
 
+Production API defaults are intentionally conservative:
+
+- `CORS_ORIGINS` should include only the published portfolio origin and any explicit local dev origins.
+- `ALLOW_WILDCARD_CORS=false` keeps an accidental `CORS_ORIGIN=*` from reopening the API.
+- `RATE_LIMIT_MAX` and `RATE_LIMIT_WINDOW` throttle public API traffic.
+- `REQUEST_LOGGING=true` enables Fastify request/error logs in production.
+
 ## Useful Commands
 
 - `npm run clean`: remove generated build artifacts

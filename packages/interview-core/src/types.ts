@@ -28,6 +28,12 @@ export interface LearningProfile {
   nextImprovements: string[];
 }
 
+export interface SourceKnowledgeNote {
+  source: string;
+  url: string;
+  facts: string[];
+}
+
 export interface ProjectRecord {
   id: string;
   title: string;
@@ -39,6 +45,7 @@ export interface ProjectRecord {
   thumbnail?: string;
   artifacts?: Record<string, string>;
   learning?: LearningProfile;
+  sourceKnowledge?: SourceKnowledgeNote[];
 }
 
 export interface CaseStudyRecord {

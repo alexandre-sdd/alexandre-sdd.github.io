@@ -5,12 +5,16 @@ import { fileURLToPath } from "node:url";
 export interface AppConfig {
   host: string;
   port: number;
-  corsOrigin: string;
+  corsOrigins: string[];
   openaiApiKey?: string;
   openaiModel: string;
   openaiBaseUrl?: string;
   useMockResponses: boolean;
   retrievalTopK: number;
+  rateLimitMax: number;
+  rateLimitTimeWindow: string;
+  requestLogging: boolean;
+  logLevel: string;
 }
 
 let envLoaded = false;
@@ -66,19 +70,45 @@ function readBoolean(value: string | undefined, fallback: boolean): boolean {
   return value === "1" || value.toLowerCase() === "true";
 }
 
+function readNumber(value: string | undefined, fallback: number): number {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function readCsv(value: string | undefined, fallback: string[]): string[] {
+  if (!value) return fallback;
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export function loadConfig(): AppConfig {
   loadLocalEnvFiles();
 
   const openaiApiKey = process.env.OPENAI_API_KEY?.trim();
+  const allowWildcardCors = readBoolean(process.env.ALLOW_WILDCARD_CORS, false);
+  const defaultCorsOrigins = [
+    "https://alexandre-sdd.github.io",
+    "http://localhost:3000",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
+  ];
+  const configuredCorsOrigins = readCsv(process.env.CORS_ORIGINS ?? process.env.CORS_ORIGIN, defaultCorsOrigins);
 
   return {
     host: process.env.HOST ?? "127.0.0.1",
     port: Number(process.env.PORT ?? 8787),
-    corsOrigin: process.env.CORS_ORIGIN ?? "*",
+    corsOrigins: configuredCorsOrigins.includes("*") && !allowWildcardCors ? defaultCorsOrigins : configuredCorsOrigins,
     openaiApiKey,
     openaiModel: process.env.OPENAI_MODEL ?? "gpt-5.4-mini",
     openaiBaseUrl: process.env.OPENAI_BASE_URL?.trim() || undefined,
     useMockResponses: readBoolean(process.env.MOCK_INTERVIEW_RESPONSES, !openaiApiKey),
-    retrievalTopK: Number(process.env.RETRIEVAL_TOP_K ?? 6)
+    retrievalTopK: readNumber(process.env.RETRIEVAL_TOP_K, 6),
+    rateLimitMax: readNumber(process.env.RATE_LIMIT_MAX, 40),
+    rateLimitTimeWindow: process.env.RATE_LIMIT_WINDOW ?? "1 minute",
+    requestLogging: readBoolean(process.env.REQUEST_LOGGING, process.env.NODE_ENV === "production"),
+    logLevel: process.env.LOG_LEVEL ?? "info"
   };
 }

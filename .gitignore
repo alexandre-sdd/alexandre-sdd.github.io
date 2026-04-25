@@ -3,6 +3,7 @@ dist/
 .DS_Store
 .env
 .env.*
+!apps/interview-api/.env.example
 *.log
 coverage/
 packages/interview-core/generated/

@@ -272,6 +272,29 @@ function projectEvidenceUrl(project: ProjectRecord): string {
   );
 }
 
+function addProjectSourceKnowledgeChunk(chunks: CorpusChunk[], project: ProjectRecord, roleTags: string[], baseKeywords: string[]): void {
+  if (!project.sourceKnowledge || project.sourceKnowledge.length === 0) return;
+
+  const text = project.sourceKnowledge
+    .map((note) => `Source ${note.source}: ${note.facts.join(" ")}`)
+    .join(" ");
+
+  addChunk(chunks, {
+    id: `project:${project.id}:source-knowledge`,
+    sourceType: "project",
+    sourceId: project.id,
+    projectId: project.id,
+    title: project.title,
+    section: "Repository knowledge",
+    text,
+    citationLabel: `${project.title} - repository knowledge`,
+    publicUrl: project.sourceKnowledge[0]?.url || projectEvidenceUrl(project),
+    roleTags,
+    evidenceStrength: "core",
+    keywords: [...baseKeywords, "repository", "source", "implementation", "architecture", "knowledge"]
+  });
+}
+
 function addProjectChunks(chunks: CorpusChunk[], project: ProjectRecord): void {
   const roleTags = PROJECT_ROLE_TAGS[project.id] ?? [DEFAULT_ROLE_ID];
   const baseKeywords = [...(project.tags ?? []), project.id, project.title];
@@ -319,6 +342,8 @@ function addProjectChunks(chunks: CorpusChunk[], project: ProjectRecord): void {
     learning: project.learning,
     keywords: baseKeywords
   });
+
+  addProjectSourceKnowledgeChunk(chunks, project, roleTags, baseKeywords);
 }
 
 function addCaseStudyChunks(chunks: CorpusChunk[], caseStudy: CaseStudyRecord): void {

@@ -11,5 +11,6 @@ export type {
   RetrievalMatch,
   RetrievalOptions,
   RolePreset,
-  SeededQuestion
+  SeededQuestion,
+  SourceKnowledgeNote
 } from "./types.js";

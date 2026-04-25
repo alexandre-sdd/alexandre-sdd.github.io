@@ -40,6 +40,9 @@ const HEALTHCARE_SOURCE_PATTERN =
 const LEARNING_QUERY_PATTERN =
   /\b(decision|decisions|decide|failure|fail|failed|fails|grounded|grounding|harden|improve|improved|improvement|learn|learned|lesson|lessons|role|scope|tradeoff|tradeoffs|trade-off|trade-offs|what did you change|what would you change)\b/;
 
+const SOURCE_KNOWLEDGE_QUERY_PATTERN =
+  /\b(api|architecture|audit|backend|component|components|data model|demo flow|diagnostic|diagnostics|endpoint|endpoints|frontend|implementation|layout|route|routes|runtime|schema|source|storage|technical trace)\b/;
+
 function tokenize(value: string): string[] {
   return value
     .toLowerCase()
@@ -125,6 +128,11 @@ function scoreChunk(chunk: CorpusChunk, query: string, roleId?: string): Retriev
   if (LEARNING_QUERY_PATTERN.test(lowerQuery) && /role and scope|decisions and tradeoffs|failures and lessons|evidence and next improvements/.test(lowerSection)) {
     score += 24;
     reasons.push("learning evidence match");
+  }
+
+  if (SOURCE_KNOWLEDGE_QUERY_PATTERN.test(lowerQuery) && lowerSection === "repository knowledge") {
+    score += 45;
+    reasons.push("repository knowledge match");
   }
 
   if (/\b(learn|learned|lesson|lessons)\b/.test(lowerQuery) && lowerSection === "failures and lessons") {

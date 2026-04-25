@@ -90,7 +90,19 @@
           "Add a richer learning memory layer across every project and experience.",
           "Use recent conversation summary during retrieval for vague follow-up questions."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "Local AI-lexandre system page",
+          "url": "./ai-lexandre-system.html",
+          "facts": [
+            "The system is a static GitHub Pages frontend plus a Railway-hosted Fastify API.",
+            "The API exposes health, config, evidence search, full response, and streaming response endpoints.",
+            "The evidence layer is generated from content.json and includes projects, case studies, experience, education, skills, and learning profiles.",
+            "Answers use role-aware retrieval, OpenAI generation, streaming UI updates, and citation filtering so visible sources match the answer."
+          ]
+        }
+      ]
     },
     {
       "id": "tomorrow-you",
@@ -150,7 +162,20 @@
           "Complete the demo migration and API reroute.",
           "Add more explicit evaluation prompts for scenario coherence and user safety."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub architecture.md",
+          "url": "https://github.com/alexandre-sdd/tomorrow-you/blob/main/architecture.md",
+          "facts": [
+            "The product flow starts with a neutral onboarding interview, then builds a structured user profile and current-self card.",
+            "It generates future-self branches and supports conversation with a selected simulated future self.",
+            "Runtime components are organized around routers, engines, models, storage, and providers.",
+            "The backend API surface includes onboarding, pipeline orchestration, future generation, and conversation routes.",
+            "The data model tracks userProfile, currentSelf, futureSelvesFull, explorationPaths, transcript, and memory nodes."
+          ]
+        }
+      ]
     },
     {
       "id": "helpfullens",
@@ -209,7 +234,20 @@
           "Add clearer model comparison tables and validation notes.",
           "Package the pipeline with a smaller sample dataset for easier reproduction."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub README.md",
+          "url": "https://github.com/alexandre-sdd/HelpfulLens/blob/main/README.md",
+          "facts": [
+            "The repo converts Yelp JSON dumps into parquet caches and cleaned tables through src/data and pipeline scripts.",
+            "Feature engineering supports numeric features, city/state/category one-hots, optional TF-IDF, and optional sentiment merges.",
+            "Sentiment enrichment can use VADER or DistilBERT, including a compact DistilBERT subset workflow.",
+            "Modeling includes baselines, Poisson, tree regressor, and optional hurdle model with saved metrics, plots, models, and predictions.",
+            "The pipeline can run ingest, clean, dataset assembly, feature building, and train/evaluate end to end."
+          ]
+        }
+      ]
     },
     {
       "id": "childcare-deserts-nyc",
@@ -268,7 +306,19 @@
           "Add sensitivity analysis for cost and spacing assumptions.",
           "Build a lightweight map view for solution comparison."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub report artifact",
+          "url": "https://github.com/alexandre-sdd/childcare_deserts_nyc/blob/main/report/opti_group_8_report.pdf",
+          "facts": [
+            "The project is structured as a seven-stage notebook workflow for data preparation, benchmark planning, and realistic planning scenarios.",
+            "The optimization combines facility expansion decisions with new-site planning under cost and spacing constraints.",
+            "The public evidence is strongest for formulation, scenario comparison, exported tables, exported figures, and solver logs.",
+            "The project is best used to discuss policy modeling assumptions rather than a deployed application."
+          ]
+        }
+      ]
     },
     {
       "id": "codebase-analyzer",
@@ -325,7 +375,20 @@
           "Add confidence levels for generated architecture claims.",
           "Add regression fixtures for known repository shapes."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub PRODUCT.md",
+          "url": "https://github.com/alexandre-sdd/codebase-analyzer/blob/main/docs/PRODUCT.md",
+          "facts": [
+            "The target user is a new engineer, tech lead, or anyone picking up an unfamiliar repository quickly.",
+            "Core MVP outputs are an Excalidraw architecture map, long markdown structure report, podcast-style explanation, starter tasks, and best-effort who/why signals.",
+            "Inputs include a local repo path or GitHub URL, with future zip upload and private clone support listed as enhancements.",
+            "Explicit non-goals include perfect call graph/runtime tracing, full why reconstruction without docs or commits, and security-hardened multi-tenant SaaS.",
+            "Future enhancements include in-browser Excalidraw rendering, git-blame ownership, ADR detection, focused LLM file picking, streaming progress logs, and TTS audio."
+          ]
+        }
+      ]
     },
     {
       "id": "appointment-scheduling-dynamics",
@@ -382,7 +445,20 @@
           "Calibrate simulation behavior to Columbia Doctors workflows and available data.",
           "Add clearer experiment tracking for policy comparisons."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub appointment dynamics knowledge file",
+          "url": "https://github.com/alexandre-sdd/research_cuimc_queuing/blob/main/Documents/generated_notes/knowledge_appointment_dynamics.md",
+          "facts": [
+            "The core feedback loop is that longer backlogs create longer delays, delays reduce show-up probabilities, no-shows reduce effective capacity, and reduced capacity can increase backlog further.",
+            "The cross-paper synthesis emphasizes delay sensitivity as more important than average no-show level for deciding scheduling policy.",
+            "The research compares control levers including panel size, overbooking/service rate, appointment-window limits, and slot salvage through walk-ins or ancillary work.",
+            "The models differ in whether the objective is access quality, throughput, net reward, or service level, which changes the preferred policy.",
+            "The reusable modeling guidance is to choose the objective first, then decide whether to enrich state with booked slots, cancellation holes, patient class mix, and promised delay."
+          ]
+        }
+      ]
     },
     {
       "id": "linkedin-note-copilot",
@@ -439,7 +515,20 @@
           "Add stronger profile parsing validation.",
           "Add saved templates for different networking contexts."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub README.md",
+          "url": "https://github.com/alexandre-sdd/organisation_tools/blob/main/Linkedin_cold_msg_extenstion/README.md",
+          "facts": [
+            "The product is a minimal Chrome extension plus FastAPI backend for drafting LinkedIn connection notes.",
+            "The extension works on the currently open LinkedIn profile page and does not perform automatic clicking.",
+            "The options page stores sender context such as headline, location, schools, experiences, proof points, focus areas, internship goal, and do-not-say phrases.",
+            "The backend exposes a generation route and separates routing, generation orchestration, OpenAI client code, planning, and rendering.",
+            "The generation service follows a planning to model call to parsing to validation to logging workflow."
+          ]
+        }
+      ]
     },
     {
       "id": "zeit-project",
@@ -499,7 +588,20 @@
           "Add calendar import/export support.",
           "Expose richer explanations for why tasks were left unscheduled."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub README.md",
+          "url": "https://github.com/alexandre-sdd/zeit-project/blob/main/README.md",
+          "facts": [
+            "Zeit is a FastAPI scheduling assistant with a server-rendered demo page, JSON endpoints, SQLAlchemy data model, and Alembic migrations.",
+            "The scheduler plans Monday-Friday 9-5 in 30-minute slots, respects hard events and hard due dates, persists planned blocks, and reports unscheduled work.",
+            "ScheduleRun records persisted solver diagnostics so placement decisions and raw technical traces can be audited after a run.",
+            "The app falls back to a deterministic greedy scheduler when OR-Tools is not usable in the current runtime.",
+            "The demo includes reset and seeded data flows so reviewers can return the system to a deterministic baseline."
+          ]
+        }
+      ]
     },
     {
       "id": "dna-plasmid-closure",
@@ -556,7 +658,20 @@
           "Add more experiment logs for parameter sensitivity.",
           "Document convergence behavior across repeated runs."
         ]
-      }
+      },
+      "sourceKnowledge": [
+        {
+          "source": "GitHub project_report.md",
+          "url": "https://github.com/alexandre-sdd/EI_evolutionary_games/blob/main/docs/project_report.md",
+          "facts": [
+            "The objective is to adapt a 3D DNA trajectory model so a long plasmid sequence closes into a loop.",
+            "Fitness combines Euclidean distance between trajectory endpoints and alignment between initial and final direction vectors.",
+            "The genetic algorithm uses random perturbation initialization, selection, crossover, and bounded mutation of twist and wedge angles.",
+            "The repository includes plasmid_8k and plasmid_180k FASTA sequences and matplotlib trajectory visualization.",
+            "The public report explicitly notes that measured results and benchmarks are not included."
+          ]
+        }
+      ]
     }
   ],
   "caseStudies": [

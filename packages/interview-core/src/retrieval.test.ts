@@ -59,6 +59,19 @@ test("every work item has a learning profile with decisions or lessons", () => {
   });
 });
 
+test("every project has source-backed repository knowledge", () => {
+  const content = loadPortfolioContent();
+
+  content.projects.forEach((project) => {
+    assert.ok(project.sourceKnowledge?.length, `Missing source knowledge for ${project.id}`);
+    project.sourceKnowledge.forEach((note) => {
+      assert.ok(note.source.length > 0);
+      assert.ok(note.url.length > 0);
+      assert.ok(note.facts.length >= 3, `Expected at least three source facts for ${project.id}`);
+    });
+  });
+});
+
 test("corpus includes learning-specific chunks for every work item", () => {
   const content = loadPortfolioContent();
   const corpus = buildCorpusFromContent(content);
@@ -81,6 +94,18 @@ test("corpus includes learning-specific chunks for every work item", () => {
     assert.ok(
       corpus.chunks.some((chunk) => chunk.id === `experience:${index}:learning-role`),
       `Missing experience learning chunk for ${experience.company}`
+    );
+  });
+});
+
+test("corpus includes repository knowledge chunks for every project", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  content.projects.forEach((project) => {
+    assert.ok(
+      corpus.chunks.some((chunk) => chunk.id === `project:${project.id}:source-knowledge`),
+      `Missing source knowledge chunk for ${project.id}`
     );
   });
 });
@@ -112,6 +137,19 @@ test("learning questions retrieve learning chunks before generic summaries", () 
 
   assert.equal(matches[0]?.chunk.projectId, "tomorrow-you");
   assert.equal(matches[0]?.chunk.section, "Failures and lessons");
+});
+
+test("implementation-specific questions retrieve repository knowledge", () => {
+  const content = loadPortfolioContent();
+  const corpus = buildCorpusFromContent(content);
+
+  const matches = retrieveEvidence(corpus, "How does Zeit store scheduler diagnostics and audit planning decisions?", {
+    roleId: "optimization-analytics",
+    topK: 4
+  });
+
+  assert.equal(matches[0]?.chunk.projectId, "zeit-project");
+  assert.equal(matches[0]?.chunk.section, "Repository knowledge");
 });
 
 test("failure questions prefer failure and lesson evidence", () => {
