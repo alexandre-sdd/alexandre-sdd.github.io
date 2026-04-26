@@ -1,6 +1,7 @@
 # Placeholder TODOs
 
 - TODO: Add `content.json.links.github` with your public GitHub profile URL.
+- TODO: Start AI-lexandre V2 from `docs/ai-lexandre-v2-prep.md`.
 
 ## Featured Project Artifacts
 - TODO: Add `content.json.projects[id=chanel-europe-analytics-pipeline].artifacts.code`.
