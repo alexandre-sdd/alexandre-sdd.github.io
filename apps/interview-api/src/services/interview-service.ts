@@ -9,6 +9,8 @@ import {
 import type { InterviewTurn, RetrievalMatch, RolePreset } from "@portfolio/interview-core";
 
 import type { AppConfig } from "../config.js";
+import { planInterviewTurn, topKForPlan, maxPerSourceForPlan } from "./intent-planner.js";
+import type { PlannedInterviewTurn } from "./intent-planner.js";
 
 export interface CitationView {
   id: string;
@@ -930,14 +932,32 @@ function buildResponseBase(config: AppConfig, role: RolePreset, evidence: Retrie
   };
 }
 
-function buildSourceDisplay(answer: string, evidence: RetrievalMatch[], question = "", history: InterviewTurn[] = []) {
-  const focus = interviewFocus(question, history);
-  const sourceEvidence =
-    focus === "coursework"
-      ? evidence.filter((match) => match.chunk.sourceType === "education")
-      : focus === "other-project"
-        ? evidence.filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study")
-        : evidence;
+function buildSourceDisplay(
+  answer: string,
+  evidence: RetrievalMatch[],
+  question = "",
+  history: InterviewTurn[] = [],
+  plan?: PlannedInterviewTurn
+) {
+  let sourceEvidence: RetrievalMatch[];
+
+  if (plan && plan.sourceTypes.length > 0) {
+    // Evidence was already pre-filtered by sourceTypes at retrieval time.
+    // No secondary filter needed — using the evidence as-is preserves the
+    // planner's intent without double-restricting on display.
+    sourceEvidence = evidence;
+  } else {
+    // Legacy path: derive display filter from interviewFocus (for callers
+    // that don't yet pass a plan, or for general-intent questions).
+    const focus = interviewFocus(question, history);
+    sourceEvidence =
+      focus === "coursework"
+        ? evidence.filter((match) => match.chunk.sourceType === "education")
+        : focus === "other-project"
+          ? evidence.filter((match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study")
+          : evidence;
+  }
+
   const displayEvidence = displayEvidenceForAnswer(answer, sourceEvidence.length > 0 ? sourceEvidence : evidence);
   const projectsUsed = inferSourceUsage(displayEvidence);
   const primarySource = projectsUsed[0];
@@ -961,29 +981,35 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
     const history = params.history ?? [];
-    const focus = interviewFocus(params.question, history);
-    const broadenRetrieval = !params.topK && shouldBroadenRetrieval(params.question);
-    const broadenBackgroundFit = !params.topK && isBackgroundBreadthQuestion(params.question);
-    const topK =
-      params.topK ??
-      (broadenRetrieval
-        ? Math.max(config.retrievalTopK, 14)
-        : broadenBackgroundFit
-          ? Math.max(config.retrievalTopK, 16)
-          : focus !== "standard"
-            ? Math.max(config.retrievalTopK, focus === "other-project" ? 16 : 10)
-          : config.retrievalTopK);
     const conversationSummary = params.conversationSummary?.trim() || "";
-    const retrievalQuery = buildRetrievalQuery(params.question, history, conversationSummary);
+
+    // Plan the turn: classifies intent, extracts entities, derives source-type
+    // filters and retrieval query. All downstream code reads the plan instead of
+    // re-running intent detection ad-hoc.
+    const plan = planInterviewTurn({
+      question: params.question,
+      history,
+      compactMemory: conversationSummary,
+      roleId: role.id
+    });
+
+    const topK = params.topK ?? topKForPlan(plan, config.retrievalTopK);
     const retrievalRoleId = effectiveRetrievalRoleId(role.id, params.question, history, conversationSummary);
-    const rawEvidence = retrieveEvidence(corpus, retrievalQuery, {
+
+    // Healthcare diversification still applies on top of planner source types:
+    // a healthcare question can map to experience-specific but still benefit
+    // from maxPerSource=1 to surface both CUIMC and Nantes.
+    const forceMaxPerSource =
+      maxPerSourceForPlan(plan) !== undefined ||
+      shouldDiversifyHealthcareEvidence(params.question);
+
+    const rawEvidence = retrieveEvidence(corpus, plan.retrievalQuery, {
       roleId: retrievalRoleId,
       topK,
-      maxPerSource:
-        broadenRetrieval || broadenBackgroundFit || focus !== "standard" || shouldDiversifyHealthcareEvidence(params.question)
-          ? 1
-          : undefined
+      maxPerSource: forceMaxPerSource ? 1 : undefined,
+      sourceTypes: plan.sourceTypes.length > 0 ? plan.sourceTypes : undefined
     });
+
     const evidence = refineEvidenceForFocus({
       evidence: rawEvidence,
       question: params.question,
@@ -997,7 +1023,8 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       topK,
       evidence,
       history,
-      conversationSummary
+      conversationSummary,
+      plan
     };
   }
 
@@ -1067,7 +1094,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     return {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history),
+      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };
@@ -1132,7 +1159,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
 
     const payload: InterviewResponsePayload = {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history),
+      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan),
       answer: generation.answer,
       confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
     };

@@ -167,6 +167,17 @@ export interface RetrievalOptions {
   roleId?: string;
   topK?: number;
   maxPerSource?: number;
+  /**
+   * Restrict retrieval to these source types before scoring.
+   * When set, chunks outside this list are excluded entirely.
+   * Omit (or pass an empty array) to search all source types.
+   */
+  sourceTypes?: SourceType[];
+  /**
+   * Source IDs to exclude from results.
+   * Used to implement "what other / what else" exclusion of recently cited sources.
+   */
+  excludeSourceIds?: string[];
 }
 
 export interface InterviewTurn {

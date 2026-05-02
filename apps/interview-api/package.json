@@ -9,7 +9,7 @@
     "dev": "npm run build --workspace @portfolio/interview-core && node --import tsx src/server.ts",
     "build": "npm run build --workspace @portfolio/interview-core && tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "npm run build --workspace @portfolio/interview-core && node --import tsx --test src/*.test.ts"
+    "test": "npm run build --workspace @portfolio/interview-core && node --import tsx --test src/*.test.ts src/services/*.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",

@@ -295,7 +295,21 @@ export function retrieveEvidence(
   options: RetrievalOptions = {}
 ): RetrievalMatch[] {
   const topK = options.topK ?? 6;
-  const scored = corpus.chunks
+
+  // Apply pre-scoring filters: source-type restriction and source-id exclusion.
+  // These run before any scoring so that restricted sources don't compete for
+  // topK slots even with low scores.
+  const candidates = corpus.chunks.filter((chunk) => {
+    if (options.sourceTypes && options.sourceTypes.length > 0 && !options.sourceTypes.includes(chunk.sourceType)) {
+      return false;
+    }
+    if (options.excludeSourceIds && options.excludeSourceIds.length > 0 && options.excludeSourceIds.includes(chunk.sourceId)) {
+      return false;
+    }
+    return true;
+  });
+
+  const scored = candidates
     .map((chunk) => scoreChunk(chunk, query, options.roleId))
     .filter((match) => match.score > 0)
     .sort((a, b) => b.score - a.score);
