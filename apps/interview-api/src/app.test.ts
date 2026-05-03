@@ -230,7 +230,9 @@ test("response source chips only include sources named in the final answer", asy
     .find((line) => line.includes('"type":"done"'));
   assert.ok(doneLine);
 
-  const doneEvent = JSON.parse(doneLine) as {
+  // Strip SSE "data: " prefix before JSON parsing
+  const doneJson = doneLine.startsWith("data: ") ? doneLine.slice(6) : doneLine;
+  const doneEvent = JSON.parse(doneJson) as {
     payload: {
       projectsUsed: Array<{ title: string }>;
       citations: Array<{ title: string }>;
@@ -1124,7 +1126,7 @@ test("stream endpoint emits token and done events in mock mode", async () => {
   });
 
   assert.equal(response.statusCode, 200);
-  assert.match(response.headers["content-type"] ?? "", /application\/x-ndjson/);
+  assert.match(response.headers["content-type"] ?? "", /text\/event-stream/);
   assert.match(response.body, /"type":"meta"/);
   assert.match(response.body, /"type":"token"/);
   assert.match(response.body, /"type":"done"/);

@@ -162,18 +162,23 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
 
       reply.hijack();
       reply.raw.statusCode = 200;
-      reply.raw.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+      // Use text/event-stream (SSE) so Railway's Nginx proxy does not buffer
+      // the response. application/x-ndjson gets buffered regardless of
+      // X-Accel-Buffering because Nginx does not treat it as a streaming type.
+      reply.raw.setHeader("Content-Type", "text/event-stream; charset=utf-8");
       reply.raw.setHeader("Cache-Control", "no-cache, no-transform");
       reply.raw.setHeader("Connection", "keep-alive");
       reply.raw.setHeader("X-Accel-Buffering", "no");
       reply.raw.flushHeaders?.();
+      // Disable Nagle's algorithm so each write is sent immediately rather
+      // than being coalesced into a single TCP packet after a 200ms delay.
+      // Double optional chaining: guard both socket being null AND setNoDelay
+      // being absent (the light-my-request test mock has socket but no setNoDelay).
+      reply.raw.socket?.setNoDelay?.(true);
 
       const emit = async (event: unknown) => {
-        reply.raw.write(`${JSON.stringify(event)}\n`);
-        const maybeFlush = (reply.raw as unknown as { flush?: () => void }).flush;
-        if (typeof maybeFlush === "function") {
-          maybeFlush.call(reply.raw);
-        }
+        // SSE wire format: "data: {json}\n\n"
+        reply.raw.write(`data: ${JSON.stringify(event)}\n\n`);
       };
 
       await interviewService.streamQuestion(body, emit);

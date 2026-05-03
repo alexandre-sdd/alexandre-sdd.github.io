@@ -23,7 +23,13 @@ export const MemoryStateSchema = z.object({
     )
     .max(4),
   askedEntities: z.array(z.string().max(60)).max(12),
-  lastIntent: z.string().max(40)
+  lastIntent: z.enum([
+    "education-schools", "education-coursework",
+    "experience-list", "experience-specific",
+    "project-list", "project-specific",
+    "role-fit", "technical-depth",
+    "behavioral", "follow-up", "inventory", "general"
+  ])
 });
 
 export const InterviewRequestSchema = z.object({

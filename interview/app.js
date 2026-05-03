@@ -116,6 +116,14 @@ function starterQuestions() {
 
   return state.config.seededQuestions
     .filter((item) => item.roleIds.includes(currentRole.id))
+    .sort((a, b) => {
+      // Prefer questions where this role appears first (designed primarily for it)
+      const aFirst = a.roleIds[0] === currentRole.id ? 0 : 1;
+      const bFirst = b.roleIds[0] === currentRole.id ? 0 : 1;
+      if (aFirst !== bFirst) return aFirst - bFirst;
+      // Among ties, prefer questions with fewer total roles (more specific)
+      return a.roleIds.length - b.roleIds.length;
+    })
     .slice(0, count);
 }
 
@@ -613,11 +621,16 @@ async function streamQuestion(question, assistantId, memory) {
     if (done) break;
 
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() || "";
+    // SSE wire format: each event is "data: {json}\n\n"
+    // Split on double-newline boundaries; keep the incomplete last chunk.
+    const chunks = buffer.split("\n\n");
+    buffer = chunks.pop() || "";
 
-    for (const line of lines) {
-      const event = readNdjsonLine(line);
+    for (const chunk of chunks) {
+      // Find the "data: " line inside the SSE chunk
+      const dataLine = chunk.split("\n").find((l) => l.startsWith("data: "));
+      if (!dataLine) continue;
+      const event = readNdjsonLine(dataLine.slice(6)); // strip "data: "
       if (!event) continue;
 
       if (event.type === "meta") {
