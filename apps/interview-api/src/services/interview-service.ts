@@ -9,8 +9,9 @@ import {
 import type { InterviewTurn, RetrievalMatch, RolePreset } from "@portfolio/interview-core";
 
 import type { AppConfig } from "../config.js";
-import { planInterviewTurn, topKForPlan, maxPerSourceForPlan } from "./intent-planner.js";
+import { planInterviewTurn } from "./intent-planner.js";
 import type { PlannedInterviewTurn } from "./intent-planner.js";
+import { buildRetrievalPolicy } from "./retrieval-policy.js";
 
 export interface CitationView {
   id: string;
@@ -247,9 +248,6 @@ function sourceReferenceScore(answerText: string, match: RetrievalMatch): number
   return 0;
 }
 
-function sourceAppearsInAnswer(answerText: string, match: RetrievalMatch): boolean {
-  return sourceReferenceScore(answerText, match) > 0;
-}
 
 function distinctEvidence(matches: RetrievalMatch[], count: number): RetrievalMatch[] {
   const selected: RetrievalMatch[] = [];
@@ -343,11 +341,6 @@ function shouldBroadenRetrieval(question: string): boolean {
   return asksForList && asksForPortfolioSources;
 }
 
-function shouldDiversifyHealthcareEvidence(question: string): boolean {
-  return /\b(care|clinical|clinic|cuimc|doctor|doctors|healthcare|health care|hospital|medical|medicine|nantes|patient|patients|physician|physicians|respiratory)\b/i.test(
-    question
-  );
-}
 
 function isQuantitativeFitQuestion(question: string): boolean {
   return /\b(classical quant|financial engineering|pricing|quant|quants|quantitative|risk|trading)\b/i.test(question);
@@ -417,22 +410,6 @@ function interviewFocus(question: string, history: InterviewTurn[] = []): Interv
   return "standard";
 }
 
-function ordinalSourceFromSummary(question: string, conversationSummary = ""): string {
-  const lowerQuestion = question.toLowerCase();
-  const ordinal = /\b(second|2nd)\b/.test(lowerQuestion)
-    ? 2
-    : /\b(third|3rd)\b/.test(lowerQuestion)
-      ? 3
-      : /\b(first|1st)\b/.test(lowerQuestion)
-        ? 1
-        : 0;
-
-  if (!ordinal || !conversationSummary) return "";
-
-  const pattern = new RegExp(`${ordinal}\\.\\s*([^.;]+)`, "i");
-  return conversationSummary.match(pattern)?.[1]?.trim() ?? "";
-}
-
 function recentUserQuestions(history: InterviewTurn[] = [], count = 3): string {
   return history
     .filter((turn) => turn.role === "user")
@@ -441,95 +418,12 @@ function recentUserQuestions(history: InterviewTurn[] = [], count = 3): string {
     .join(" ");
 }
 
-function buildRetrievalQuery(question: string, history: InterviewTurn[] = [], conversationSummary = ""): string {
-  if (history.length === 0 && !conversationSummary) return question;
-
-  const focus = interviewFocus(question, history);
-  const recentUserContext = recentUserQuestions(history, focus === "other-project" ? 6 : 3);
-
-  if (focus === "coursework") {
-    const centraleHint = mentionsCentraleSupelec(`${question} ${recentUserContext}`)
-      ? "CentraleSupélec CentraleSupelec Centrale Supelec Supelec CS engineering school coursework classes"
-      : "";
-    return [question, recentUserContext, centraleHint, "coursework classes education"].filter(Boolean).join("\n");
-  }
-
-  if (focus === "other-project") {
-    return [question, recentUserContext, "different portfolio project case study work sample"].filter(Boolean).join("\n");
-  }
-
-  const sourceHint = ordinalSourceFromSummary(question, conversationSummary);
-
-  return [sourceHint, question, sourceHint ? conversationSummary : "", recentUserContext].filter(Boolean).join("\n");
-}
-
-function recentSourceTitles(conversationSummary = ""): string[] {
-  const match = conversationSummary.match(/Recent sources in order:\s*(.+)$/i);
-  if (!match) return [];
-  const sourceList = match[1].split(/\s+Earlier interviewer topics:/i)[0];
-
-  return sourceList
-    .split(";")
-    .map((item) =>
-      item
-        .replace(/^\s*\d+\.\s*/, "")
-        .replace(/\.\s*$/, "")
-        .trim()
-    )
-    .filter(Boolean);
-}
-
-function sourceMatchesRecentTitle(match: RetrievalMatch, recentTitles: string[]): boolean {
-  const candidates = [
-    match.chunk.title,
-    match.chunk.projectId?.replace(/-/g, " "),
-    match.chunk.sourceId.replace(/[:_-]+/g, " ")
-  ]
-    .filter((value): value is string => Boolean(value))
-    .map(normalizeReferenceText);
-  const normalizedRecent = recentTitles.map(normalizeReferenceText);
-
-  return normalizedRecent.some((recent) =>
-    candidates.some((candidate) => candidate === recent || candidate.includes(recent) || recent.includes(candidate))
-  );
-}
 
 function sourceMentionsCentraleSupelec(match: RetrievalMatch): boolean {
   const haystack = normalizeIntentText(`${match.chunk.title} ${match.chunk.sourceId} ${match.chunk.text} ${match.chunk.keywords.join(" ")}`);
   return /\b(centrale|centralesupelec|supelec|cs)\b/.test(haystack);
 }
 
-function sourceMentionedInRecentAssistant(match: RetrievalMatch, history: InterviewTurn[] = []): boolean {
-  const recentAssistantText = normalizeReferenceText(
-    history
-      .filter((turn) => turn.role === "assistant")
-      .slice(-4)
-      .map((turn) => turn.content)
-      .join(" ")
-  );
-
-  return sourceCandidateLabels(match).some((label) => {
-    const normalizedLabel = normalizeReferenceText(label);
-    return normalizedLabel.length >= 4 && recentAssistantText.includes(normalizedLabel);
-  });
-}
-
-function topicMatchScore(match: RetrievalMatch, context: string): number {
-  const normalizedContext = normalizeIntentText(context);
-  const sourceText = normalizeIntentText(`${match.chunk.title} ${match.chunk.section} ${match.chunk.text} ${match.chunk.keywords.join(" ")}`);
-  let score = 0;
-
-  if (isOptimizationQuestion(normalizedContext) || isQuantitativeFitQuestion(normalizedContext)) {
-    if (/\b(optimization|optimisation|operations|scheduling|simulation|solver|constraint|constraints|linear|integer|dynamic|genetic)\b/.test(sourceText)) {
-      score += 28;
-    }
-    if (/\b(probability|statistical|statistics|forecasting|modeling|modelling|calibration)\b/.test(sourceText)) {
-      score += 10;
-    }
-  }
-
-  return score;
-}
 
 function effectiveRetrievalRoleId(roleId: string, question: string, history: InterviewTurn[] = [], conversationSummary = ""): string {
   const context = normalizeIntentText(`${question} ${conversationSummary} ${recentUserQuestions(history, 6)}`);
@@ -541,60 +435,6 @@ function effectiveRetrievalRoleId(roleId: string, question: string, history: Int
   return roleId;
 }
 
-function refineEvidenceForFocus(params: {
-  evidence: RetrievalMatch[];
-  question: string;
-  history: InterviewTurn[];
-  conversationSummary: string;
-  topK: number;
-}): RetrievalMatch[] {
-  const focus = interviewFocus(params.question, params.history);
-
-  if (focus === "standard") {
-    if (isOptimizationQuestion(params.question)) {
-      const [recentPrimaryTitle] = recentSourceTitles(params.conversationSummary);
-      const freshEvidence = recentPrimaryTitle
-        ? params.evidence.filter((match) => !sourceMatchesRecentTitle(match, [recentPrimaryTitle]))
-        : params.evidence;
-      const freshWorkEvidence = freshEvidence.filter(
-        (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study" || match.chunk.sourceType === "experience"
-      );
-
-      if (freshWorkEvidence.length > 0) {
-        return [
-          ...freshWorkEvidence,
-          ...params.evidence.filter((match) => !freshWorkEvidence.includes(match))
-        ].slice(0, params.topK);
-      }
-    }
-
-    return params.evidence;
-  }
-
-  if (focus === "coursework") {
-    const context = `${params.question} ${recentUserQuestions(params.history)}`;
-    const education = params.evidence.filter((match) => match.chunk.sourceType === "education");
-    const sortedEducation = mentionsCentraleSupelec(context)
-      ? [...education].sort((a, b) => Number(sourceMentionsCentraleSupelec(b)) - Number(sourceMentionsCentraleSupelec(a)) || b.score - a.score)
-      : education;
-    const support = params.evidence.filter((match) => match.chunk.sourceType !== "education");
-    return [...sortedEducation, ...support].slice(0, params.topK);
-  }
-
-  const recentTitles = recentSourceTitles(params.conversationSummary);
-  const projectEvidence = params.evidence.filter(
-    (match) => match.chunk.sourceType === "project" || match.chunk.sourceType === "case-study"
-  );
-  const context = `${params.question} ${recentUserQuestions(params.history, 6)} ${params.conversationSummary}`;
-  const sortedProjectEvidence = [...projectEvidence].sort(
-    (a, b) => topicMatchScore(b, context) - topicMatchScore(a, context) || b.score - a.score
-  );
-  const freshProjectEvidence = sortedProjectEvidence.filter(
-    (match) => !sourceMatchesRecentTitle(match, recentTitles) && !sourceMentionedInRecentAssistant(match, params.history)
-  );
-
-  return (freshProjectEvidence.length > 0 ? freshProjectEvidence : sortedProjectEvidence).slice(0, params.topK);
-}
 
 function inferInterviewIntent(question: string): InterviewIntent {
   const lowerQuestion = question.toLowerCase();
@@ -993,34 +833,21 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       roleId: role.id
     });
 
-    const topK = params.topK ?? topKForPlan(plan, config.retrievalTopK);
+    const policy = buildRetrievalPolicy(plan, config.retrievalTopK, params.question, history);
     const retrievalRoleId = effectiveRetrievalRoleId(role.id, params.question, history, conversationSummary);
 
-    // Healthcare diversification still applies on top of planner source types:
-    // a healthcare question can map to experience-specific but still benefit
-    // from maxPerSource=1 to surface both CUIMC and Nantes.
-    const forceMaxPerSource =
-      maxPerSourceForPlan(plan) !== undefined ||
-      shouldDiversifyHealthcareEvidence(params.question);
-
     const rawEvidence = retrieveEvidence(corpus, plan.retrievalQuery, {
-      roleId: retrievalRoleId,
-      topK,
-      maxPerSource: forceMaxPerSource ? 1 : undefined,
-      sourceTypes: plan.sourceTypes.length > 0 ? plan.sourceTypes : undefined
+      ...policy.retrievalOptions,
+      // Caller-supplied topK overrides the policy when explicitly set
+      ...(params.topK !== undefined ? { topK: params.topK } : {}),
+      roleId: retrievalRoleId
     });
 
-    const evidence = refineEvidenceForFocus({
-      evidence: rawEvidence,
-      question: params.question,
-      history,
-      conversationSummary,
-      topK
-    });
+    const evidence = policy.refine(rawEvidence);
 
     return {
       role,
-      topK,
+      topK: params.topK ?? policy.retrievalOptions.topK ?? config.retrievalTopK,
       evidence,
       history,
       conversationSummary,

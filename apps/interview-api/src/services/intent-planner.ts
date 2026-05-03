@@ -102,7 +102,7 @@ export interface PlannedInterviewTurn {
    * When non-empty, retrieval discards chunks outside this set before scoring.
    */
   sourceTypes: SourceType[];
-  /** Canonical entity names extracted from the question + recent history. */
+  /** Canonical entity names extracted from the question (routing-only, no history). */
   entities: KnownEntity[];
   /** Active conversation topic, used to resolve vague follow-ups. */
   topic: InterviewTopic;
@@ -112,6 +112,13 @@ export interface PlannedInterviewTurn {
    * sources, so recently used sources don't re-appear.
    */
   excludeSources: string[];
+  /**
+   * All recently cited source titles parsed from compact memory.
+   * Always populated (unlike `excludeSources` which requires an explicit
+   * "other/another" signal). Used by the retrieval policy for freshness
+   * filtering on optimization follow-ups and ordinal references.
+   */
+  recentSourceTitles: string[];
   /** Retrieval query to pass to `retrieveEvidence`. Intent-aware, entity-augmented. */
   retrievalQuery: string;
   /** Per-intent answer style rules for generation / source-chip filtering. */
@@ -279,9 +286,10 @@ export function classifyIntent(
     return "role-fit";
   }
 
-  // 11. Technical depth
+  // 11. Technical depth (includes optimization so "tell me about optimization"
+  //     routes here instead of falling to general, enabling the freshness filter)
   if (
-    /\b(architecture|pipeline|model|evaluation|tradeoff|agent|agents|api|llm|implementation|system design|how did you build|how does it work)\b/.test(
+    /\b(architecture|pipeline|model|evaluation|tradeoff|agent|agents|api|llm|implementation|system design|how did you build|how does it work|optimization|optimisation|solver|scheduling|operations research)\b/.test(
       lowerQ
     )
   ) {
@@ -434,7 +442,17 @@ function deriveExcludeSources(
     /\b(other|another|different|not that one|aside from|besides)\b/.test(lowerQ);
 
   if (!asksForOther) return [];
-  if (intent === "follow-up" || intent === "experience-list" || intent === "project-list") {
+  // Trigger exclusion for any intent that might ask for a different/other example.
+  // "project-specific" is included because "any other project" classifies there,
+  // and "experience-specific" covers "tell me about another company like CHANEL".
+  const EXCLUDE_ENABLED: Set<InterviewIntent> = new Set([
+    "follow-up",
+    "experience-list",
+    "experience-specific",
+    "project-list",
+    "project-specific"
+  ]);
+  if (EXCLUDE_ENABLED.has(intent)) {
     return parseRecentSourceTitles(compactMemory);
   }
   return [];
@@ -676,6 +694,7 @@ export function planInterviewTurn(input: PlannerInput): PlannedInterviewTurn {
     sourceTypes = [];
   }
 
+  const recentSourceTitles = parseRecentSourceTitles(compactMemory);
   const excludeSources = deriveExcludeSources(intent, input.question, compactMemory);
   // Use context entities (with history) for query augmentation to improve recall
   const retrievalQuery = buildRetrievalQuery(input.question, intent, contextEntities, history, compactMemory);
@@ -683,7 +702,16 @@ export function planInterviewTurn(input: PlannerInput): PlannedInterviewTurn {
 
   // Expose routing entities (question-only) in plan.entities since these are
   // the entities that drove the intent decision.
-  return { intent, sourceTypes, entities: routingEntities, topic, excludeSources, retrievalQuery, answerPolicy };
+  return {
+    intent,
+    sourceTypes,
+    entities: routingEntities,
+    topic,
+    excludeSources,
+    recentSourceTitles,
+    retrievalQuery,
+    answerPolicy
+  };
 }
 
 /**
