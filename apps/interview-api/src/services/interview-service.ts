@@ -126,27 +126,29 @@ const PORTFOLIO_GROUPS = [
 ];
 
 const SOURCE_TOKEN_STOP_WORDS = new Set([
-  "a",
-  "an",
-  "and",
-  "at",
-  "based",
-  "case",
-  "data",
-  "for",
-  "from",
-  "in",
-  "of",
-  "on",
-  "project",
+  // Articles, prepositions, conjunctions
+  "a", "an", "and", "at", "for", "from", "in", "of", "on", "the", "to", "using", "with",
+  // Generic technical nouns that appear in sourceIds and interview answers alike —
+  // these must never be treated as brand identifiers
+  "agent", "agents", "analytics", "api", "app", "assistant", "automation",
+  "based", "case", "cloud",
+  "data", "design", "detection", "development",
+  "engineering", "enterprise",
+  "flow", "framework",
+  "infrastructure", "integration",
+  "key", "language",
+  "machine", "management", "model", "models",
+  "pipeline", "platform", "processing", "product", "project",
+  "quality",
   "research",
-  "study",
-  "system",
-  "systems",
-  "the",
-  "to",
-  "using",
-  "with"
+  "science", "service", "services", "solution", "solutions", "study", "system", "systems",
+  "team", "technology",
+  "workflow", "workflows",
+  // Generic role/position words that appear in experience sourceIds
+  "advisor", "analyst", "assistant", "associate", "consultant",
+  "coordinator", "developer", "director", "engineer",
+  "intern", "lead", "manager", "researcher",
+  "scientist", "senior", "specialist", "staff"
 ]);
 
 function buildExcerpt(text: string): string {
