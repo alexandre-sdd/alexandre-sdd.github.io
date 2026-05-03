@@ -189,9 +189,10 @@
   align-items: center;
   gap: 8px;
   color: rgba(122, 102, 84, 0.72);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 500;
   line-height: 1.35;
+  font-style: italic;
 }
 
 .message-process::before {
@@ -282,6 +283,70 @@
   cursor: pointer;
   color: var(--text-secondary);
   font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+}
+
+/* Routing trace — shows V2 planner intent, topic, entities */
+.routing-details summary {
+  color: rgba(122, 102, 84, 0.6);
+  font-weight: 600;
+}
+
+.routing-trace {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.routing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.routing-label {
+  color: var(--text-muted, rgba(122, 102, 84, 0.5));
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  min-width: 52px;
+}
+
+.routing-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.routing-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.routing-badge-intent {
+  background: rgba(192, 88, 0, 0.09);
+  color: var(--accent-secondary);
+  border: 1px solid rgba(192, 88, 0, 0.2);
+}
+
+.routing-badge-topic {
+  background: rgba(56, 36, 13, 0.06);
+  color: rgba(56, 36, 13, 0.55);
+  border: 1px solid rgba(56, 36, 13, 0.12);
+}
+
+.routing-badge-entity {
+  background: rgba(100, 80, 200, 0.07);
+  color: rgba(80, 60, 160, 0.75);
+  border: 1px solid rgba(100, 80, 200, 0.18);
 }
 
 .evidence-list {

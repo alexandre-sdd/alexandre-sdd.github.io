@@ -34,6 +34,22 @@ const PROCESS_TIMELINE = [
   { delay: 1300, step: PROCESS_STEPS.draft }
 ];
 
+// Human-readable label for each V2 intent. null = don't show a routing trace.
+const INTENT_LABELS = {
+  "education-schools": "School list",
+  "education-coursework": "Coursework",
+  "experience-list": "Work history",
+  "experience-specific": "Work detail",
+  "project-list": "Project list",
+  "project-specific": "Project detail",
+  "role-fit": "Role fit",
+  "technical-depth": "Technical",
+  behavioral: "Behavioral",
+  "follow-up": "Follow-up",
+  inventory: "Full portfolio",
+  general: null
+};
+
 const qs = (selector, scope = document) => scope.querySelector(selector);
 const params = new URLSearchParams(window.location.search);
 
@@ -143,15 +159,92 @@ function sourceTypeLabel(sourceType) {
   return labels[sourceType] || "Source";
 }
 
+// Build the routing trace section from a MemoryState object.
+// Shows the classified intent, active topic, and detected entities.
+function createRoutingTrace(memoryState) {
+  if (!memoryState) return null;
+
+  const intentLabel = INTENT_LABELS[memoryState.lastIntent];
+  const hasEntities = memoryState.askedEntities?.length > 0;
+  const showTopic = memoryState.activeTopic && memoryState.activeTopic !== "general";
+
+  if (!intentLabel && !hasEntities && !showTopic) return null;
+
+  const details = document.createElement("details");
+  details.className = "message-details routing-details";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "Routing";
+  details.appendChild(summary);
+
+  const trace = document.createElement("div");
+  trace.className = "routing-trace";
+
+  if (intentLabel) {
+    const row = document.createElement("div");
+    row.className = "routing-row";
+    const label = document.createElement("span");
+    label.className = "routing-label";
+    label.textContent = "Intent";
+    const badge = document.createElement("span");
+    badge.className = "routing-badge routing-badge-intent";
+    badge.textContent = intentLabel;
+    row.appendChild(label);
+    row.appendChild(badge);
+    trace.appendChild(row);
+  }
+
+  if (showTopic) {
+    const row = document.createElement("div");
+    row.className = "routing-row";
+    const label = document.createElement("span");
+    label.className = "routing-label";
+    label.textContent = "Topic";
+    const badge = document.createElement("span");
+    badge.className = "routing-badge routing-badge-topic";
+    badge.textContent = memoryState.activeTopic;
+    row.appendChild(label);
+    row.appendChild(badge);
+    trace.appendChild(row);
+  }
+
+  if (hasEntities) {
+    const row = document.createElement("div");
+    row.className = "routing-row";
+    const label = document.createElement("span");
+    label.className = "routing-label";
+    label.textContent = "Entities";
+    const badgesGroup = document.createElement("span");
+    badgesGroup.className = "routing-badges";
+    memoryState.askedEntities.slice(0, 4).forEach((entity) => {
+      const badge = document.createElement("span");
+      badge.className = "routing-badge routing-badge-entity";
+      badge.textContent = entity;
+      badgesGroup.appendChild(badge);
+    });
+    row.appendChild(label);
+    row.appendChild(badgesGroup);
+    trace.appendChild(row);
+  }
+
+  details.appendChild(trace);
+  return details;
+}
+
 function createSources(message) {
-  if ((!message.projectsUsed || message.projectsUsed.length === 0) && (!message.citations || message.citations.length === 0)) {
+  const hasProjectsUsed = message.projectsUsed?.length > 0;
+  const hasCitations = message.citations?.length > 0;
+  const hasFollowUps = message.followUps?.length > 0;
+  const hasRouting = Boolean(message.memoryState && INTENT_LABELS[message.memoryState?.lastIntent] !== undefined);
+
+  if (!hasProjectsUsed && !hasCitations && !hasFollowUps && !hasRouting) {
     return null;
   }
 
   const footer = document.createElement("div");
   footer.className = "message-footer";
 
-  if (message.projectsUsed?.length) {
+  if (hasProjectsUsed) {
     const row = document.createElement("div");
     row.className = "source-row";
 
@@ -171,14 +264,14 @@ function createSources(message) {
     footer.appendChild(row);
   }
 
-  if (message.followUps?.length) {
+  if (hasFollowUps) {
     const followUpRow = document.createElement("div");
     followUpRow.className = "follow-up-row";
     message.followUps.slice(0, 2).forEach((item) => followUpRow.appendChild(createFollowUpChip(item)));
     footer.appendChild(followUpRow);
   }
 
-  if (message.citations?.length) {
+  if (hasCitations) {
     const details = document.createElement("details");
     details.className = "message-details";
     const summary = document.createElement("summary");
@@ -209,6 +302,10 @@ function createSources(message) {
     footer.appendChild(details);
   }
 
+  // Routing trace from V2 memoryState — shows intent, topic, and entities
+  const routingTrace = createRoutingTrace(message.memoryState);
+  if (routingTrace) footer.appendChild(routingTrace);
+
   return footer;
 }
 
@@ -224,7 +321,7 @@ function createMessageElement(message) {
   if (message.role === "assistant" && message.processStep) {
     const process = document.createElement("div");
     process.className = "message-process";
-    process.textContent = `Process: ${message.processStep}`;
+    process.textContent = message.processStep;
     article.appendChild(process);
   }
 
@@ -370,6 +467,7 @@ async function flushStreamQueue(messageId) {
       current.citations = current.finalPayload.citations;
       current.projectsUsed = current.finalPayload.projectsUsed;
       current.followUps = current.finalPayload.followUps;
+      current.memoryState = current.finalPayload.memoryState;
       current.isStreaming = false;
       current.processStep = null;
       current.finalPayload = null;
@@ -434,12 +532,28 @@ function readNdjsonLine(line) {
   }
 }
 
+// Build the memory payload to send to the API.
+// Phase 3: if the last response included a structured memoryState, send it
+// back directly so the planner can use it without string parsing.
+// Fallback: build the legacy conversationSummary string.
 function buildConversationMemory() {
   const completeMessages = state.messages.filter((message) => message.content && !message.isStreaming);
   const history = completeMessages.slice(-MAX_HISTORY_MESSAGES).map((message) => ({
     role: message.role,
     content: message.content
   }));
+
+  // Use structured memoryState from the most recent assistant response when available
+  const lastMemoryState = [...completeMessages]
+    .reverse()
+    .find((message) => message.role === "assistant" && message.memoryState)
+    ?.memoryState;
+
+  if (lastMemoryState) {
+    return { history, memoryState: lastMemoryState };
+  }
+
+  // Legacy: build string conversationSummary for older server versions
   const olderMessages = completeMessages.slice(0, Math.max(0, completeMessages.length - MAX_HISTORY_MESSAGES));
   const assistantMessages = completeMessages.filter((message) => message.role === "assistant");
   const latestSources =
@@ -481,7 +595,8 @@ async function streamQuestion(question, assistantId, memory) {
       question,
       roleId: state.selectedRoleId,
       history: memory.history,
-      conversationSummary: memory.conversationSummary
+      conversationSummary: memory.conversationSummary,
+      memoryState: memory.memoryState
     })
   });
 
@@ -549,7 +664,8 @@ async function askQuestion(question, memory) {
       question,
       roleId: state.selectedRoleId,
       history: memory.history,
-      conversationSummary: memory.conversationSummary
+      conversationSummary: memory.conversationSummary,
+      memoryState: memory.memoryState
     })
   });
 
@@ -576,6 +692,7 @@ async function submitQuestion(question) {
     citations: [],
     projectsUsed: [],
     followUps: [],
+    memoryState: null,
     processStep: PROCESS_STEPS.retrieve,
     isStreaming: true
   };
@@ -604,6 +721,7 @@ async function submitQuestion(question) {
         message.citations = payload.citations;
         message.projectsUsed = payload.projectsUsed;
         message.followUps = payload.followUps;
+        message.memoryState = payload.memoryState;
         message.isStreaming = false;
         message.processStep = null;
         message.streamQueue = [];
