@@ -42,6 +42,29 @@ import type { InterviewTurn, KnownEntity, SourceType } from "@portfolio/intervie
 // ─── Public types ────────────────────────────────────────────────────────────
 
 /**
+ * Structured conversation memory sent from the client and echoed back in
+ * every response. Replaces the ad-hoc string `conversationSummary`.
+ *
+ * Clients should persist the `memoryState` from each response and send it
+ * as `memoryState` in the next request. The API stays backward-compatible:
+ * the old string `conversationSummary` is still accepted and parsed when
+ * `memoryState` is absent.
+ */
+export interface MemoryState {
+  /** Active interview topic — used to route vague follow-ups ("what else?"). */
+  activeTopic: InterviewTopic;
+  /** Sources cited in the most recent turn, in citation order (max 4). */
+  recentSources: Array<{ title: string; sourceType: string }>;
+  /**
+   * Canonical entity names explicitly asked about across the conversation.
+   * Accumulated turn-over-turn; used by the planner for context-aware routing.
+   */
+  askedEntities: string[];
+  /** Intent of the most recent planner turn. */
+  lastIntent: InterviewIntent;
+}
+
+/**
  * Expanded intent vocabulary for V2.
  *
  * More granular than the V1 `"behavioral" | "comparison" | "inventory" | ...`
@@ -648,7 +671,10 @@ const ANSWER_POLICIES: Record<InterviewIntent, AnswerPolicy> = {
 export interface PlannerInput {
   question: string;
   history?: InterviewTurn[];
+  /** Legacy string memory from old clients. Used when `memoryState` is absent. */
   compactMemory?: string;
+  /** Structured memory from Phase 3 clients. Takes priority over `compactMemory`. */
+  memoryState?: MemoryState;
   roleId?: string;
 }
 
@@ -681,7 +707,12 @@ export function planInterviewTurn(input: PlannerInput): PlannedInterviewTurn {
 
   const intent = classifyIntent(input.question, routingEntities, history, compactMemory);
 
-  const activeTopic = intent === "follow-up" ? parseActiveTopic(compactMemory) : INTENT_TO_TOPIC[intent];
+  // Resolve active topic: structured memory takes priority over string parsing.
+  // For follow-up intents the topic is inherited from the previous turn's memory.
+  const activeTopic: InterviewTopic =
+    intent === "follow-up"
+      ? (input.memoryState?.activeTopic ?? parseActiveTopic(compactMemory))
+      : INTENT_TO_TOPIC[intent];
   const topic = activeTopic;
   let sourceTypes = deriveSourceTypes(intent, activeTopic);
 
@@ -694,7 +725,12 @@ export function planInterviewTurn(input: PlannerInput): PlannedInterviewTurn {
     sourceTypes = [];
   }
 
-  const recentSourceTitles = parseRecentSourceTitles(compactMemory);
+  // Resolve recent source titles: structured memory is more reliable than
+  // string parsing (it preserves sourceType for each cited source).
+  const recentSourceTitles: string[] = input.memoryState
+    ? input.memoryState.recentSources.map((s) => s.title)
+    : parseRecentSourceTitles(compactMemory);
+
   const excludeSources = deriveExcludeSources(intent, input.question, compactMemory);
   // Use context entities (with history) for query augmentation to improve recall
   const retrievalQuery = buildRetrievalQuery(input.question, intent, contextEntities, history, compactMemory);

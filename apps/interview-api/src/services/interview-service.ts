@@ -10,8 +10,9 @@ import type { InterviewTurn, RetrievalMatch, RolePreset } from "@portfolio/inter
 
 import type { AppConfig } from "../config.js";
 import { planInterviewTurn } from "./intent-planner.js";
-import type { PlannedInterviewTurn } from "./intent-planner.js";
+import type { MemoryState, PlannedInterviewTurn } from "./intent-planner.js";
 import { buildRetrievalPolicy } from "./retrieval-policy.js";
+import { chipSourceTypeFilter } from "./answer-policy.js";
 
 export interface CitationView {
   id: string;
@@ -51,6 +52,11 @@ export interface InterviewResponsePayload {
       publicUrl: string;
     }>;
   };
+  /**
+   * Structured memory to persist client-side and send back on the next request.
+   * Phase 3 replacement for the plain-string conversationSummary.
+   */
+  memoryState: MemoryState;
 }
 
 export type InterviewStreamEvent =
@@ -85,6 +91,8 @@ export interface LlmGenerationInput {
   history: InterviewTurn[];
   conversationSummary?: string;
   evidence: RetrievalMatch[];
+  /** Plan from the current turn — used by OpenAI service for focused guidance. */
+  plan: PlannedInterviewTurn;
 }
 
 export interface LlmService {
@@ -798,7 +806,18 @@ function buildSourceDisplay(
           : evidence;
   }
 
-  const displayEvidence = displayEvidenceForAnswer(answer, sourceEvidence.length > 0 ? sourceEvidence : evidence);
+  let displayEvidence = displayEvidenceForAnswer(answer, sourceEvidence.length > 0 ? sourceEvidence : evidence);
+
+  // Phase 5: hard-gate which source types can appear as chips.
+  // chipSourceTypeFilter returns null when no filtering is needed.
+  if (plan) {
+    const allowedTypes = chipSourceTypeFilter(plan);
+    if (allowedTypes !== null) {
+      const filtered = displayEvidence.filter((m) => allowedTypes.has(m.chunk.sourceType));
+      if (filtered.length > 0) displayEvidence = filtered;
+    }
+  }
+
   const projectsUsed = inferSourceUsage(displayEvidence);
   const primarySource = projectsUsed[0];
 
@@ -809,6 +828,32 @@ function buildSourceDisplay(
   };
 }
 
+/**
+ * Compute the structured memory state for the current turn.
+ * This is returned in the response so the client can persist it and send it
+ * back on the next request, replacing the plain-string conversationSummary.
+ */
+function buildMemoryState(
+  plan: PlannedInterviewTurn,
+  projectsUsed: SourceUsage[],
+  prevMemory?: MemoryState
+): MemoryState {
+  // Active topic: use the plan's topic unless it is "general" (no topic change),
+  // in which case inherit the previous topic to avoid resetting the context.
+  const activeTopic =
+    plan.topic !== "general" ? plan.topic : prevMemory?.activeTopic ?? "general";
+
+  const recentSources = projectsUsed
+    .filter((s) => s.sourceType !== "overview")
+    .map((s) => ({ title: s.title, sourceType: s.sourceType }));
+
+  const prevEntities = prevMemory?.askedEntities ?? [];
+  const currentEntities = plan.entities as string[];
+  const askedEntities = [...new Set([...prevEntities, ...currentEntities])];
+
+  return { activeTopic, recentSources, askedEntities, lastIntent: plan.intent };
+}
+
 export function createInterviewService(config: AppConfig, llmService: LlmService) {
   const corpus = loadGeneratedCorpus();
 
@@ -817,6 +862,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     roleId?: string;
     history?: InterviewTurn[];
     conversationSummary?: string;
+    memoryState?: MemoryState;
     topK?: number;
   }) {
     const role = ROLE_PRESET_MAP.get(params.roleId ?? "") ?? ROLE_PRESET_MAP.get(DEFAULT_ROLE_ID)!;
@@ -830,6 +876,7 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       question: params.question,
       history,
       compactMemory: conversationSummary,
+      memoryState: params.memoryState,
       roleId: role.id
     });
 
@@ -902,28 +949,35 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
     roleId?: string;
     history?: InterviewTurn[];
     conversationSummary?: string;
+    memoryState?: MemoryState;
     topK?: number;
   }): Promise<InterviewResponsePayload> {
     const context = buildQuestionContext(params);
     const base = buildResponseBase(config, context.role, context.evidence, context.topK);
+    const llmInput: LlmGenerationInput = {
+      question: params.question,
+      role: context.role,
+      history: context.history,
+      conversationSummary: context.conversationSummary,
+      evidence: context.evidence,
+      plan: context.plan
+    };
     const generation = config.useMockResponses
       ? {
           answer: buildMockAnswerText(params.question, context.role, context.evidence, context.history, context.conversationSummary),
           confidence: confidenceFromEvidence(context.evidence)
         }
-      : await generateAnswer({
-          question: params.question,
-          role: context.role,
-          history: context.history,
-          conversationSummary: context.conversationSummary,
-          evidence: context.evidence
-        });
+      : await generateAnswer(llmInput);
+
+    const sourceDisplay = buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan);
+    const memoryState = buildMemoryState(context.plan, sourceDisplay.projectsUsed, params.memoryState);
 
     return {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan),
+      ...sourceDisplay,
       answer: generation.answer,
-      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
+      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence),
+      memoryState
     };
   }
 
@@ -933,12 +987,21 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       roleId?: string;
       history?: InterviewTurn[];
       conversationSummary?: string;
+      memoryState?: MemoryState;
       topK?: number;
     },
     emit: (event: InterviewStreamEvent) => Promise<void> | void
   ): Promise<InterviewResponsePayload> {
     const context = buildQuestionContext(params);
     const base = buildResponseBase(config, context.role, context.evidence, context.topK);
+    const llmInput: LlmGenerationInput = {
+      question: params.question,
+      role: context.role,
+      history: context.history,
+      conversationSummary: context.conversationSummary,
+      evidence: context.evidence,
+      plan: context.plan
+    };
 
     await emit({
       type: "meta",
@@ -960,35 +1023,19 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
         answer,
         confidence: confidenceFromEvidence(context.evidence)
       };
-    } else if (llmService.stream) {
-      generation = await streamAnswer(
-        {
-          question: params.question,
-          role: context.role,
-          history: context.history,
-          conversationSummary: context.conversationSummary,
-          evidence: context.evidence
-        },
-        async (token) => emit({ type: "token", text: token })
-      );
     } else {
-      generation = await streamAnswer(
-        {
-          question: params.question,
-          role: context.role,
-          history: context.history,
-          conversationSummary: context.conversationSummary,
-          evidence: context.evidence
-        },
-        async (token) => emit({ type: "token", text: token })
-      );
+      generation = await streamAnswer(llmInput, async (token) => emit({ type: "token", text: token }));
     }
+
+    const sourceDisplay = buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan);
+    const memoryState = buildMemoryState(context.plan, sourceDisplay.projectsUsed, params.memoryState);
 
     const payload: InterviewResponsePayload = {
       ...base,
-      ...buildSourceDisplay(generation.answer, context.evidence, params.question, context.history, context.plan),
+      ...sourceDisplay,
       answer: generation.answer,
-      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence)
+      confidence: generation.confidence ?? confidenceFromEvidence(context.evidence),
+      memoryState
     };
 
     await emit({

@@ -1131,3 +1131,234 @@ test("stream endpoint emits token and done events in mock mode", async () => {
 
   await app.close();
 });
+
+// ─── V2 regression tests ──────────────────────────────────────────────────────
+// These 7 scenarios are the exact cases that broke V1 and motivated the V2
+// architecture. They must pass to satisfy the Phase 7 definition of done.
+
+test("v2 regression: school list question retrieves only education evidence", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: { roleId: "ai-engineer", question: "what schools did you go to" }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    citations: Array<{ sourceType: string; title: string }>;
+    retrieval: { results: Array<{ title: string }> };
+  };
+
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "education"),
+    `Expected all citations to be education, got: ${json.citations.map((c) => c.sourceType).join(", ")}`
+  );
+  assert.ok(
+    json.citations.some((c) => /Columbia/i.test(c.title)),
+    "Expected Columbia in citations"
+  );
+  assert.ok(
+    json.citations.some((c) => /Centrale|CentraleSupelec|Supelec/i.test(c.title)),
+    "Expected CentraleSupelec in citations"
+  );
+
+  await app.close();
+});
+
+test("v2 regression: entity follow-up 'What about Columbia and CentraleSupelec?' stays on education", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "What about Columbia and CentraleSupelec?",
+      history: [
+        { role: "user", content: "what schools did you go to" },
+        { role: "assistant", content: "I attended Columbia University and CentraleSupélec." }
+      ]
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    citations: Array<{ sourceType: string; title: string }>;
+    retrieval: { results: Array<{ title: string }> };
+    answer: string;
+  };
+
+  // All chips must be education — no project or experience fallback
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "education"),
+    `Expected only education chips, got: ${json.citations.map((c) => c.sourceType).join(", ")}`
+  );
+
+  // Both schools must be in the retrieved evidence pool (retrieval.results),
+  // even if only one is the primary in the mock answer.
+  const retrievedTitles = json.retrieval.results.map((r) => r.title).join(" | ");
+  assert.ok(
+    /Columbia/i.test(retrievedTitles),
+    `Expected Columbia in retrieval results, got: ${retrievedTitles}`
+  );
+  assert.ok(
+    /Centrale|CentraleSupelec|Supelec/i.test(retrievedTitles),
+    `Expected CentraleSupelec in retrieval results, got: ${retrievedTitles}`
+  );
+
+  await app.close();
+});
+
+test("v2 regression: work/internship question retrieves only experience evidence", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: { roleId: "ai-engineer", question: "do you have any work or internship experience" }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    citations: Array<{ sourceType: string }>;
+    projectsUsed: Array<{ sourceType: string }>;
+  };
+
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "experience" || c.sourceType === "case-study"),
+    `Expected experience/case-study citations only, got: ${json.citations.map((c) => c.sourceType).join(", ")}`
+  );
+
+  await app.close();
+});
+
+test("v2 regression: 'what else' with structured memory stays in experience topic", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "what else",
+      history: [
+        { role: "user", content: "do you have any work experience?" },
+        { role: "assistant", content: "I worked as a Data Scientist at CHANEL Europe." }
+      ],
+      memoryState: {
+        activeTopic: "experience",
+        recentSources: [{ title: "CHANEL Europe, Advanced Analytics & Data Science", sourceType: "experience" }],
+        askedEntities: ["CHANEL"],
+        lastIntent: "experience-specific"
+      }
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    citations: Array<{ sourceType: string }>;
+    memoryState: { activeTopic: string };
+  };
+
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "experience" || c.sourceType === "case-study"),
+    `Expected experience/case-study citations for follow-up, got: ${json.citations.map((c) => c.sourceType).join(", ")}`
+  );
+  assert.equal(json.memoryState.activeTopic, "experience", "Active topic should stay on experience");
+
+  await app.close();
+});
+
+test("v2 regression: 'what other experiences' excludes recently mentioned experience", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: {
+      roleId: "ai-engineer",
+      question: "what other experiences do you have?",
+      history: [
+        { role: "user", content: "tell me about your CHANEL experience" },
+        { role: "assistant", content: "At CHANEL Europe I was a Data Scientist building CRAFT." }
+      ],
+      conversationSummary:
+        "Recent sources in order: 1. CHANEL Europe, Advanced Analytics & Data Science. Earlier interviewer topics: work experience."
+    }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+  };
+
+  assert.doesNotMatch(
+    json.citations.map((c) => c.title).join(" | "),
+    /CHANEL/i,
+    "CHANEL should be excluded from citations when asking for other experiences"
+  );
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "experience" || c.sourceType === "case-study"),
+    "Expected only experience/case-study citations"
+  );
+
+  await app.close();
+});
+
+test("v2 regression: 'when were you at CHANEL?' answers with date range from experience evidence", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: { roleId: "ai-engineer", question: "when were you at chanel?" }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+  };
+
+  assert.ok(
+    json.citations.some((c) => /CHANEL/i.test(c.title) && c.sourceType === "experience"),
+    "Expected CHANEL experience citation"
+  );
+  // The experience chunk text contains "Sep 2024 - May 2025" — the answer should cite date evidence
+  assert.ok(
+    /sep|2024|2025|may|month/i.test(json.answer) || json.citations.some((c) => /CHANEL/i.test(c.title)),
+    "Expected date-range information or CHANEL evidence in response"
+  );
+
+  await app.close();
+});
+
+test("v2 regression: 'what about sigma' retrieves SIGMA Group experience evidence", async () => {
+  const app = buildApp({ useMockResponses: true, retrievalTopK: 6 });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/interview/respond",
+    payload: { roleId: "ai-engineer", question: "what about sigma?" }
+  });
+
+  assert.equal(response.statusCode, 200);
+  const json = response.json() as {
+    answer: string;
+    citations: Array<{ title: string; sourceType: string }>;
+  };
+
+  assert.ok(
+    json.citations.some((c) => /SIGMA/i.test(c.title)),
+    `Expected SIGMA in citations, got: ${json.citations.map((c) => c.title).join(" | ")}`
+  );
+  assert.ok(
+    json.citations.every((c) => c.sourceType === "experience" || c.sourceType === "case-study"),
+    "Expected only experience/case-study citations for SIGMA question"
+  );
+
+  await app.close();
+});

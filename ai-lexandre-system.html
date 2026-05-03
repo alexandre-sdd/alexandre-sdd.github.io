@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="AI-lexandre system architecture: how the portfolio interview assistant retrieves evidence, streams answers, and keeps citations grounded." />
+  <meta name="description" content="AI-lexandre V2 system architecture: intent planner, retrieval policy, structured memory, and how the V2 routing layer fixed V1's source-type failures." />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="AI-lexandre System Architecture" />
   <meta property="og:description" content="How the interview assistant works across GitHub Pages, Fastify, retrieval, OpenAI, and source-backed citations." />
@@ -38,10 +38,10 @@
     <main>
       <section class="case-hero system-hero">
         <div>
-          <p class="eyebrow">System Architecture</p>
+          <p class="eyebrow">System Architecture &mdash; V2</p>
           <h1>AI-lexandre</h1>
           <p class="meta">Recruiter-facing interview assistant over my portfolio evidence.</p>
-          <p class="case-summary">AI-lexandre is a small production-style RAG system: a static GitHub Pages frontend, a Railway-hosted Fastify API, a generated local evidence corpus, role-aware retrieval, OpenAI answer generation, streaming UI updates, and citation filtering so the visible sources match the answer.</p>
+          <p class="case-summary">AI-lexandre is a production-style RAG system: a static GitHub Pages frontend, a Railway-hosted Fastify API, a generated local evidence corpus, and a structured routing layer that classifies interview intent before retrieval. V2 replaced V1&rsquo;s ad-hoc intent branches with an explicit planner, retrieval policy, structured memory, and answer policy so each response uses the right source types and chips reflect the actual answer.</p>
           <div class="case-top-links artifacts-row" aria-label="AI-lexandre links">
             <a class="artifact-link" href="./interview/">
               <span class="artifact-icon" aria-hidden="true">Demo</span>
@@ -61,61 +61,170 @@
       <section class="section">
         <div class="section-header">
           <h2>Architecture</h2>
-          <p>The system separates the static portfolio experience from the interview runtime, so the public site stays fast while the API handles retrieval, model calls, and streaming.</p>
+          <p>The system separates the static portfolio from the interview runtime. V2 adds a routing layer between the request and retrieval so intent drives source-type selection before any evidence is scored.</p>
         </div>
 
         <div class="system-map" aria-label="AI-lexandre system architecture map">
           <article class="system-node">
             <span class="system-node-label">Static Client</span>
             <h3>GitHub Pages</h3>
-            <p><code>interview/index.html</code>, <code>app.js</code>, and <code>config.js</code> render the chat UI, role presets, streaming tokens, sources, and follow-up chips.</p>
+            <p><code>interview/index.html</code>, <code>app.js</code>, and <code>config.js</code> render the chat UI, role presets, streaming tokens, sources, follow-up chips, and now persist the structured <code>MemoryState</code> between turns.</p>
           </article>
           <article class="system-node">
             <span class="system-node-label">API</span>
             <h3>Fastify on Railway</h3>
-            <p><code>apps/interview-api</code> exposes health, config, evidence search, full response, and streaming response endpoints.</p>
+            <p><code>apps/interview-api</code> exposes health, config, evidence search, full response, and streaming response endpoints. V2 adds <code>memoryState</code> to both the request and response schemas.</p>
+          </article>
+          <article class="system-node">
+            <span class="system-node-label">Routing (V2)</span>
+            <h3>Intent Planner + Policy</h3>
+            <p><code>intent-planner.ts</code> classifies the question into a typed intent, extracts named entities, and derives source-type filters before any retrieval runs. <code>retrieval-policy.ts</code> converts the plan into evidence ordering rules and <code>answer-policy.ts</code> injects focused per-turn instructions into the model prompt.</p>
           </article>
           <article class="system-node">
             <span class="system-node-label">Evidence</span>
             <h3>Generated Corpus</h3>
-            <p><code>content.json</code> is converted into chunks from projects, case studies, internships, education, and skills.</p>
+            <p><code>content.json</code> is converted into chunks from projects, case studies, internships, education, and skills. V2 applies source-type pre-filtering so school questions only score education chunks and experience questions only score experience chunks.</p>
           </article>
           <article class="system-node">
             <span class="system-node-label">Model</span>
             <h3>OpenAI Responses</h3>
-            <p>The API sends only the selected evidence blocks, role preset, question, and recent history to the model.</p>
+            <p>The API sends the selected evidence blocks, role preset, question, history, and a short per-turn answer guidance block derived from the plan intent.</p>
           </article>
         </div>
       </section>
 
       <section class="case-grid case-standalone-grid" aria-label="System flow overview">
         <article class="case-block">
-          <h2>Request Flow</h2>
+          <h2>V2 Request Flow</h2>
           <ol class="system-steps">
-            <li>The interview page loads API health and role/config data.</li>
-            <li>The user picks a role preset and asks a question.</li>
-            <li>The client calls <code>/v1/interview/stream</code> and falls back to <code>/respond</code> if streaming fails.</li>
-            <li>The API validates the request, retrieves evidence, and builds a grounded model prompt.</li>
-            <li>Tokens stream back to the UI, then the final payload updates answer text, sources, and follow-ups.</li>
+            <li>The client sends the question, history, and the <code>MemoryState</code> from the previous turn.</li>
+            <li><code>planInterviewTurn()</code> classifies intent, extracts entity names, and derives source-type filters and a targeted retrieval query.</li>
+            <li><code>buildRetrievalPolicy(plan)</code> converts the plan into retrieval options (topK, maxPerSource, sourceTypes) and a <code>refine()</code> function for post-scoring ordering.</li>
+            <li><code>retrieveEvidence()</code> scores only the candidate chunks allowed by <code>sourceTypes</code>. <code>policy.refine()</code> applies section ordering, entity boosting, and freshness filtering.</li>
+            <li>The answer is generated with focused per-intent instructions appended to the user prompt. <code>chipSourceTypeFilter()</code> hard-gates which source types can appear as citations.</li>
+            <li>The response includes the answer, citations, follow-ups, retrieval trace, and a new <code>MemoryState</code> for the client to persist.</li>
           </ol>
         </article>
 
         <article class="case-block">
           <h2>Evidence Flow</h2>
           <ol class="system-steps">
-            <li><code>content.json</code> is the source of truth for public portfolio evidence.</li>
+            <li><code>content.json</code> is the source of truth for all public portfolio evidence.</li>
             <li><code>packages/interview-core</code> builds a corpus with source type, title, section, citation label, URL, keywords, and role tags.</li>
-            <li>Retrieval scores lexical matches, domain signals, role relevance, source type, and priority projects.</li>
-            <li>Broad questions can diversify across all projects; domain questions prioritize direct domain evidence.</li>
-            <li>The visible source chips are filtered to sources actually named in the final answer.</li>
+            <li>The intent planner emits a <code>sourceTypes</code> allowlist. Chunks outside it are excluded before scoring, so they cannot compete for topK slots at all.</li>
+            <li>After scoring, the retrieval policy&rsquo;s <code>refine()</code> step handles section preferences (coursework vs base education records), entity boosting (CHANEL first for CHANEL questions), and source freshness (exclude recently cited sources when &ldquo;other/different&rdquo; is asked).</li>
+            <li>Chip display is filtered twice: once by answer-text reference matching, then by the answer policy type allowlist. Education-schools answers cannot show project chips even if retrieval returned them.</li>
           </ol>
         </article>
       </section>
 
       <section class="section">
         <div class="section-header">
+          <h2>V1 vs V2</h2>
+          <p>V1 accumulated intent detection as inline functions that could not see each other&rsquo;s outputs. This caused predictable routing failures. V2 replaces those branches with an explicit planner that runs once per turn.</p>
+        </div>
+
+        <div class="system-test-table-wrap">
+          <table class="system-test-table">
+            <thead>
+              <tr>
+                <th scope="col">Failure in V1</th>
+                <th scope="col">V1 behavior</th>
+                <th scope="col">V2 fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>School questions retrieved projects</td>
+                <td>&ldquo;What schools did you go to&rdquo; returned LinkedIn Note Copilot as the top result because all source types competed equally.</td>
+                <td><code>education-schools</code> intent sets <code>sourceTypes: [&quot;education&quot;]</code>. Only education chunks are scored.</td>
+              </tr>
+              <tr>
+                <td>Entity follow-ups had no routing</td>
+                <td>&ldquo;What about Columbia and CentraleSupelec?&rdquo; contained no explicit school keywords so it fell through to general retrieval and returned project evidence.</td>
+                <td>Entity extraction detects Columbia and CentraleSupelec as school entities and forces <code>education-schools</code> routing without needing keyword hints.</td>
+              </tr>
+              <tr>
+                <td>Work questions returned education chips</td>
+                <td>&ldquo;Do you have any work experience&rdquo; could return education alongside experience because the chip filter ran after the fact.</td>
+                <td><code>experience-list</code> intent sets <code>sourceTypes: [&quot;experience&quot;, &quot;case-study&quot;]</code>. Education is excluded before scoring.</td>
+              </tr>
+              <tr>
+                <td>Named experience had no direct routing</td>
+                <td>&ldquo;When were you at CHANEL?&rdquo; retrieved any analytics evidence because CHANEL was not treated as an entity with its own routing path.</td>
+                <td>CHANEL is a registered entity. <code>experience-specific</code> intent boosts CHANEL chunks to the front of results and includes date evidence from the experience highlight chunk.</td>
+              </tr>
+              <tr>
+                <td>Follow-ups lost topic context</td>
+                <td>&ldquo;What else&rdquo; after a work discussion could trigger fresh retrieval with no memory of the active topic, returning unrelated project evidence.</td>
+                <td>Every response returns a typed <code>MemoryState</code> with <code>activeTopic</code>. The planner inherits it on the next turn so &ldquo;what else&rdquo; stays in the experience topic.</td>
+              </tr>
+              <tr>
+                <td>&ldquo;Other&rdquo; questions repeated the same source</td>
+                <td>&ldquo;What other experiences&rdquo; had no mechanism to exclude the most recently cited source.</td>
+                <td>The planner parses <code>excludeSources</code> from memory and the retrieval policy filters them before scoring. Recently assistant-cited sources are also excluded via the <code>refineExcludeRecentAssistantMentions</code> step.</td>
+              </tr>
+              <tr>
+                <td>Education chips appeared on experience answers</td>
+                <td>Source chips were filtered by answer-text reference matching alone, which could include education sources that appeared adjacent to work evidence.</td>
+                <td>Phase 5 <code>chipSourceTypeFilter()</code> applies the answer policy as a hard gate. Experience answers cannot show education chips unless they are explicitly cited in the answer text.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Routing Layer Design</h2>
+          <p>The V2 routing layer is three modules in sequence. Each module is pure, independently testable, and has no I/O.</p>
+        </div>
+
+        <div class="system-contract-grid">
+          <article class="case-block">
+            <h2>Intent Planner</h2>
+            <ul>
+              <li>Classifies the question into one of twelve typed intents: <code>education-schools</code>, <code>education-coursework</code>, <code>experience-list</code>, <code>experience-specific</code>, <code>project-list</code>, <code>project-specific</code>, <code>role-fit</code>, <code>technical-depth</code>, <code>behavioral</code>, <code>follow-up</code>, <code>inventory</code>, <code>general</code>.</li>
+              <li>Extracts named entities (Columbia, CentraleSupelec, CHANEL, SIGMA, CUIMC, Nantes) from the question. School entities trigger education routing; experience entities trigger experience routing.</li>
+              <li>Derives <code>sourceTypes</code>, <code>excludeSources</code>, <code>recentSourceTitles</code>, <code>topic</code>, <code>retrievalQuery</code>, and <code>answerPolicy</code> from a single pass over the question, history, and memory state.</li>
+              <li>Uses question-only entities for routing to prevent history contamination. History entities augment the retrieval query but do not override the current question&rsquo;s intent.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Retrieval Policy</h2>
+            <ul>
+              <li>Translates the plan into concrete retrieval options: topK, maxPerSource, and the sourceTypes pre-filter. List intents (experience-list, project-list) use topK&nbsp;10 with maxPerSource&nbsp;1 for diversity; inventory uses topK&nbsp;14; role-fit uses topK&nbsp;16.</li>
+              <li>Applies post-scoring refinement: <code>refineEducationSchools</code> puts base school records before coursework; <code>refineEducationCoursework</code> puts coursework first, CentraleSupelec coursework first when that entity is present; <code>refineExperienceSpecific</code> moves named-entity chunks to the front; <code>refineRoleFit</code> orders experience before projects before education.</li>
+              <li>Healthcare questions override the sourceTypes restriction so evidence split across experience and case-study source types can compete together.</li>
+              <li>Optimization follow-ups use <code>refineOptimizationTechnical</code> to exclude the most-recently-cited source and surface fresh project evidence.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Answer Policy</h2>
+            <ul>
+              <li><code>buildAnswerPolicyGuidance(plan)</code> produces a focused constraint block injected into the OpenAI user prompt each turn. Education-schools answers are told to stay on school names and dates; experience-specific answers are told to lead with the named entity and include the date range; role-fit answers are told to lead with work evidence before coursework.</li>
+              <li><code>chipSourceTypeFilter(plan)</code> returns the allowed source types for citation chips based on the answer policy. Education-schools and education-coursework answers cannot show project or case-study chips. Experience answers cannot show education chips unless the answer explicitly cites them.</li>
+              <li>Returns an empty string for intents where the static system prompt is sufficient (general, technical-depth, behavioral), so the prompt stays compact on most turns.</li>
+            </ul>
+          </article>
+
+          <article class="case-block">
+            <h2>Structured Memory</h2>
+            <ul>
+              <li>Every response returns a typed <code>MemoryState</code>: <code>activeTopic</code>, <code>recentSources</code>, <code>askedEntities</code>, and <code>lastIntent</code>. Clients persist it and send it back on the next request.</li>
+              <li>The planner uses <code>memoryState.activeTopic</code> directly for follow-up intent resolution instead of parsing it from the compact memory string. <code>recentSources</code> replaces the string-parsed source title list.</li>
+              <li>The old plain-string <code>conversationSummary</code> field is still accepted for backward compatibility. When only that is present, the planner falls back to keyword parsing.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
           <h2>Runtime Contracts</h2>
-          <p>The important behavior is encoded as small contracts between the client, API, retrieval package, and deployment environment.</p>
+          <p>The behavior is encoded as contracts between the client, routing layer, retrieval package, and deployment environment.</p>
         </div>
 
         <div class="system-contract-grid">
@@ -125,15 +234,15 @@
               <li>Reads the deployed API base URL from <code>interview/config.js</code>.</li>
               <li>Maintains local chat state and selected role.</li>
               <li>Parses NDJSON stream events: <code>meta</code>, <code>token</code>, <code>done</code>, and <code>error</code>.</li>
-              <li>Renders final sources from the completed payload, not from raw retrieval candidates.</li>
+              <li>Persists the <code>memoryState</code> from each response and sends it back on the next request for accurate follow-up topic tracking.</li>
             </ul>
           </article>
 
           <article class="case-block">
             <h2>API</h2>
             <ul>
-              <li>Uses Zod schemas to validate requests.</li>
-              <li>Builds role-aware retrieval context before generation.</li>
+              <li>Uses Zod schemas to validate requests, including the optional structured <code>memoryState</code> field.</li>
+              <li>Runs the intent planner, retrieval policy, retrieval, and answer policy in sequence before generation.</li>
               <li>Streams through the OpenAI Responses API when available.</li>
               <li>Falls back to deterministic grounded answers if provider generation fails before tokens are emitted.</li>
             </ul>
@@ -142,10 +251,10 @@
           <article class="case-block">
             <h2>Retrieval</h2>
             <ul>
-              <li>Uses local structured portfolio content instead of scraping the live page.</li>
-              <li>Supports source types for projects, case studies, experience, education, skills, and overview text.</li>
-              <li>Boosts direct healthcare, hospital, patient, physician, and respiratory evidence for medical questions.</li>
-              <li>Diversifies results for broad inventory and healthcare-domain questions.</li>
+              <li>Applies a source-type pre-filter from the planner before any chunk is scored, preventing out-of-category evidence from competing.</li>
+              <li>Lexical scoring applies intent-specific boosts: direct education matches, healthcare domain matches, experience intent signals, and role keyword overlap.</li>
+              <li>Post-scoring refinement handles section ordering, entity boosting, freshness, and assistant-mention exclusion.</li>
+              <li>Diversifies results for list, inventory, and healthcare-domain questions through maxPerSource&nbsp;1 and larger topK.</li>
             </ul>
           </article>
 
@@ -154,8 +263,8 @@
             <ul>
               <li>GitHub Pages serves the portfolio and interview client.</li>
               <li>Railway runs the Fastify API with <code>OPENAI_API_KEY</code>, <code>OPENAI_MODEL</code>, and <code>CORS_ORIGIN</code>.</li>
-              <li><code>MOCK_INTERVIEW_RESPONSES</code> supports local deterministic mode.</li>
-              <li>The generated corpus is refreshed during the build path.</li>
+              <li><code>MOCK_INTERVIEW_RESPONSES</code> supports local deterministic mode used by the test suite.</li>
+              <li>The generated corpus is refreshed during the build path when <code>content.json</code> changes.</li>
             </ul>
           </article>
         </div>
@@ -163,38 +272,37 @@
 
       <section class="section">
         <div class="section-header">
-          <h2>Architecture Audit</h2>
-          <p>The current design is still appropriate for a portfolio-scale interview assistant, but the risk has moved from infrastructure to behavioral routing.</p>
+          <h2>Architecture Judgment</h2>
+          <p>V1&rsquo;s risk was behavioral routing rather than infrastructure. V2 addressed that by making routing explicit and testable rather than by adding retrieval infrastructure.</p>
         </div>
 
         <div class="system-contract-grid">
           <article class="case-block">
-            <h2>Right-sized</h2>
+            <h2>What V2 Changed</h2>
             <ul>
-              <li>A static portfolio plus a small API is enough; a database, crawler, or vector store would add operational weight before the corpus needs it.</li>
-              <li><code>content.json</code> as the source of truth keeps public pages and AI evidence aligned.</li>
-              <li>Lexical retrieval is transparent, cheap, and debuggable for a curated portfolio corpus.</li>
-              <li>Source-chip filtering is valuable because unsupported citations are more damaging than short answers.</li>
+              <li>Replaced inline intent functions in <code>interview-service.ts</code> with a single <code>planInterviewTurn()</code> call that produces a typed plan. All downstream code reads the plan.</li>
+              <li>Replaced <code>refineEvidenceForFocus()</code> with <code>buildRetrievalPolicy()</code>, which owns both retrieval options and post-scoring ordering in one module.</li>
+              <li>Removed nine dead functions from the service layer after the policy absorbed their logic.</li>
+              <li>Added 114 passing tests across unit (planner, policy) and integration (full API scenario) levels.</li>
             </ul>
           </article>
 
           <article class="case-block">
-            <h2>Drift Risk</h2>
+            <h2>What Did Not Change</h2>
             <ul>
-              <li><code>interview-service.ts</code> now contains several intent branches for coursework, healthcare, quant fit, follow-ups, and source switching.</li>
-              <li>Those branches were added to fix real interview failures, but they can make the assistant feel scripted if the rules keep growing unchecked.</li>
-              <li>The deterministic fallback prose is intentionally simple and testable; the production OpenAI path should carry more natural wording.</li>
-              <li>The next refactor should be a small intent-policy table with scenario tests, not a larger retrieval stack.</li>
+              <li>The deployment shape: static frontend plus a single Railway API is still the right size for this corpus.</li>
+              <li>The retrieval mechanism: lexical scoring with domain boosts is still sufficient for a curated portfolio corpus and is cheap to inspect and debug.</li>
+              <li><code>content.json</code> as the single source of truth for both the public portfolio pages and the interview evidence corpus.</li>
+              <li>The absence of a vector database. The structured source-type filter solves the routing failures without adding embedding infrastructure.</li>
             </ul>
           </article>
 
           <article class="case-block">
             <h2>Current Judgment</h2>
             <ul>
-              <li>Not over-engineered at the system level: the deployment shape is modest and maintainable.</li>
-              <li>Slightly over-specialized in the service layer: behavior rules should stay visible and tested.</li>
-              <li>Not too simple for v1: the system has evidence coverage, compact memory, source alignment, fallback behavior, and API tests.</li>
-              <li>The main quality bar is no longer “can it answer,” but “does it answer like a natural interview while staying grounded.”</li>
+              <li>The system is now correctly sized at both layers: modest infrastructure and a routing layer that is explicit, testable, and easy to extend one intent at a time.</li>
+              <li>The main quality bar is still "does it answer like a natural interview while staying grounded," not "can it answer." The routing layer enforces the grounding constraint so the model can focus on wording.</li>
+              <li>The next meaningful improvement is not more routing rules but more evidence: richer per-experience interviewFacts, explicit date ranges surfaced as separate corpus chunks, and experienceType fields for routing analytics-specific and research-specific questions.</li>
             </ul>
           </article>
         </div>
@@ -203,7 +311,7 @@
       <section class="section">
         <div class="section-header">
           <h2>Functional Test Set</h2>
-          <p>These are end-to-end API scenarios run in deterministic mock mode. They test retrieval, memory, source chips, and fallback answer structure; they do not guarantee the exact wording of live OpenAI responses.</p>
+          <p>These are end-to-end API scenarios run in deterministic mock mode. They test routing, source-type filtering, structured memory, and fallback answer structure. The V2 regression suite (bottom seven rows) directly covers the failures that motivated the rewrite.</p>
         </div>
 
         <div class="system-test-table-wrap">
@@ -212,8 +320,8 @@
               <tr>
                 <th scope="col">Scenario</th>
                 <th scope="col">Example prompt</th>
-                <th scope="col">Expected behavior</th>
-                <th scope="col">Current result</th>
+                <th scope="col">What it verifies</th>
+                <th scope="col">Result</th>
               </tr>
             </thead>
             <tbody>
@@ -268,7 +376,7 @@
               <tr>
                 <td>Centrale alias</td>
                 <td>class at cs?</td>
-                <td>Treat CS, Supelec, and CentraleSupelec as CentraleSupélec, not as hospital-work shorthand.</td>
+                <td>Treat CS, Supelec, and CentraleSupelec as CentraleSupélec aliases, not as hospital-work shorthand.</td>
                 <td><span class="test-status test-pass">Pass</span></td>
               </tr>
               <tr>
@@ -280,13 +388,58 @@
               <tr>
                 <td>Compact memory</td>
                 <td>What did you learn from the second one?</td>
-                <td>Resolve “second one” from the compact source summary, even after a long chat history.</td>
+                <td>Resolve &ldquo;second one&rdquo; from the compact source summary, even after a long chat history.</td>
                 <td><span class="test-status test-pass">Pass</span></td>
               </tr>
               <tr>
                 <td>Inventory</td>
                 <td>Give me an overview of all my projects.</td>
                 <td>Broaden retrieval enough to include every current project and case study.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td colspan="4" style="font-weight:600;padding-top:1.2em;border-top:2px solid var(--color-border,#e5e7eb)">V2 Regression Suite &mdash; scenarios that broke V1</td>
+              </tr>
+              <tr>
+                <td>School list routing</td>
+                <td>what schools did you go to</td>
+                <td>All citation chips are education source type. Columbia and CentraleSupelec are both in the retrieved evidence pool.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>School entity follow-up</td>
+                <td>What about Columbia and CentraleSupelec?</td>
+                <td>Entity detection routes to education even without explicit school keywords. All chips are education. Both schools appear in retrieval results.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Work list routing</td>
+                <td>do you have any work or internship experience</td>
+                <td>No education chips. All citations are experience or case-study source type.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Follow-up topic inheritance</td>
+                <td>what else (after work discussion, with structured memoryState)</td>
+                <td>Citations stay in experience/case-study. Response memoryState.activeTopic remains &ldquo;experience&rdquo;.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>Source exclusion</td>
+                <td>what other experiences do you have?</td>
+                <td>CHANEL is excluded from citations when it is the most recent source in compact memory.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>CHANEL date evidence</td>
+                <td>when were you at chanel?</td>
+                <td>CHANEL experience citation is present. Date range (Sep 2024&ndash;May 2025) is retrievable from the experience highlight chunk.</td>
+                <td><span class="test-status test-pass">Pass</span></td>
+              </tr>
+              <tr>
+                <td>SIGMA routing</td>
+                <td>what about sigma?</td>
+                <td>SIGMA entity routes to experience-specific. SIGMA Group is in citations. All chips are experience or case-study.</td>
                 <td><span class="test-status test-pass">Pass</span></td>
               </tr>
             </tbody>
@@ -298,28 +451,30 @@
         <article class="case-block">
           <h2>Why This Structure</h2>
           <ul>
-            <li>It keeps the public portfolio static and cheap to serve, while the API can evolve independently.</li>
-            <li>It makes interview answers auditable because every answer starts from structured local evidence.</li>
-            <li>It lets role presets steer answers without hiding the actual retrieval basis.</li>
-            <li>It creates clear failure modes: API unavailable, streaming unavailable, provider unavailable, or weak evidence.</li>
+            <li>It keeps the public portfolio static and cheap to serve while the API evolves independently.</li>
+            <li>It makes interview answers auditable: every answer starts from structured local evidence and the routing decisions are logged in the retrieval trace.</li>
+            <li>The routing layer solves the source-selection problem without adding infrastructure. There is no vector database, no embedding pipeline, and no managed retrieval service.</li>
+            <li>Each module in the routing layer (planner, policy, memory) is a pure function with its own unit tests, so intent rules can be added or changed without touching the service layer.</li>
           </ul>
         </article>
 
         <article class="case-block">
           <h2>Files To Read</h2>
           <ul>
-            <li><code>interview/app.js</code> for the browser chat and streaming client.</li>
-            <li><code>apps/interview-api/src/app.ts</code> for HTTP endpoints and streaming response wiring.</li>
-            <li><code>apps/interview-api/src/services/interview-service.ts</code> for retrieval, fallback generation, source filtering, and payload construction.</li>
-            <li><code>packages/interview-core/src/retrieval.ts</code> for evidence scoring and domain-specific routing.</li>
-            <li><code>packages/interview-core/src/corpus.ts</code> for corpus generation from portfolio content.</li>
+            <li><code>apps/interview-api/src/services/intent-planner.ts</code> for intent classification, entity extraction, and plan construction.</li>
+            <li><code>apps/interview-api/src/services/retrieval-policy.ts</code> for retrieval options and post-scoring evidence ordering.</li>
+            <li><code>apps/interview-api/src/services/answer-policy.ts</code> for per-intent prompt guidance and chip type filtering.</li>
+            <li><code>apps/interview-api/src/services/interview-service.ts</code> for the pipeline that connects planner, policy, retrieval, generation, and response assembly.</li>
+            <li><code>packages/interview-core/src/retrieval.ts</code> for evidence scoring, source-type pre-filtering, and domain-specific boosts.</li>
+            <li><code>packages/interview-core/src/entity-aliases.ts</code> for the named entity registry used by the planner.</li>
+            <li><code>interview/app.js</code> for the browser chat, streaming client, and memory state persistence.</li>
           </ul>
         </article>
       </section>
     </main>
 
     <footer class="site-footer">
-      <span>© 2026 Alexandre SEPULVEDA de DIETRICH</span>
+      <span>&copy; 2026 Alexandre SEPULVEDA de DIETRICH</span>
     </footer>
   </div>
 </body>

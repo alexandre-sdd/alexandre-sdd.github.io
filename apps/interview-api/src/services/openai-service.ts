@@ -3,6 +3,7 @@ import type { RetrievalMatch, RolePreset, InterviewTurn } from "@portfolio/inter
 
 import type { AppConfig } from "../config.js";
 import type { LlmAnswer, LlmGenerationInput, LlmService } from "./interview-service.js";
+import { buildAnswerPolicyGuidance } from "./answer-policy.js";
 
 function buildEvidenceBlock(evidence: RetrievalMatch[]): string {
   return evidence
@@ -86,18 +87,23 @@ function userPrompt(input: LlmGenerationInput): string {
           .join(" ")
       : "This is the first answer in the thread.";
 
+  const answerGuidance = buildAnswerPolicyGuidance(input.plan);
+
   return [
     `Question: ${input.question}`,
     `Role preset: ${input.role.label}`,
     `Role summary: ${input.role.summary}`,
     `Conversation guidance: ${followUpGuidance}`,
+    answerGuidance ? `Answer guidance: ${answerGuidance}` : "",
     "Conversation summary:",
     input.conversationSummary?.trim() || "No earlier-thread summary.",
     "Conversation history:",
     buildHistoryBlock(input.history),
     "Evidence:",
     buildEvidenceBlock(input.evidence)
-  ].join("\n\n");
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function confidenceFromAnswer(answer: string): "high" | "medium" | "low" {
