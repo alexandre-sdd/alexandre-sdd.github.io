@@ -290,11 +290,11 @@ test("buildRetrievalPolicy: inventory topK >= 14", () => {
   assert.ok((policy.retrievalOptions.topK ?? 0) >= 14);
 });
 
-test("buildRetrievalPolicy: role-fit topK >= 16", () => {
+test("buildRetrievalPolicy: role-fit topK >= 18", () => {
   const plan = planInterviewTurn({ question: "could you do something outside AI engineering?" });
   const policy = buildRetrievalPolicy(plan, 6, "could you do something outside AI engineering?");
 
-  assert.ok((policy.retrievalOptions.topK ?? 0) >= 16);
+  assert.ok((policy.retrievalOptions.topK ?? 0) >= 18);
 });
 
 test("buildRetrievalPolicy: role-fit refine puts experience before projects", () => {

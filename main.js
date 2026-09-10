@@ -296,7 +296,7 @@ const renderContact = (data, resumeReady) => {
 
   const recruiterCtaBtn = qs('.recruiter-cta .button');
   if (recruiterCtaBtn && clean(data.links?.email)) {
-    const encodedSubject = encodeURIComponent('Summer 2026 Internship Role');
+    const encodedSubject = encodeURIComponent('Full-time Opportunity - January 2027');
     const encodedBody = encodeURIComponent('Hi Alexandre,\n\nTeam: \nRole: \nWhy you: \n');
     recruiterCtaBtn.href = `mailto:${clean(data.links.email)}?subject=${encodedSubject}&body=${encodedBody}`;
   }
@@ -305,10 +305,12 @@ const renderContact = (data, resumeReady) => {
 const renderRecruiterFacts = (facts = {}) => {
   const location = qs('#quick-fact-location');
   const availability = qs('#quick-fact-availability');
+  const geography = qs('#quick-fact-geography');
   const interests = qs('#quick-fact-interests');
 
   if (location) location.textContent = clean(facts.location);
   if (availability) availability.textContent = clean(facts.availability);
+  if (geography) geography.textContent = clean(facts.searchGeography);
   if (interests && Array.isArray(facts.interests)) {
     interests.textContent = facts.interests.join(', ');
   }

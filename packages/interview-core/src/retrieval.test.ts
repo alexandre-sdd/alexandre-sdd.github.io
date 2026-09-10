@@ -241,7 +241,7 @@ test("quant fit queries retrieve work evidence with coursework support", () => {
 
   const matches = retrieveEvidence(corpus, "Would you be suited for a quants position?", {
     roleId: "ai-engineer",
-    topK: 16,
+    topK: content.experience.length + content.projects.length + content.caseStudies.length + 2,
     maxPerSource: 1
   });
 
@@ -298,7 +298,7 @@ test("broad role-fit queries retrieve background evidence beyond AI projects", (
 
   const matches = retrieveEvidence(corpus, "Based on my background, what roles could fit me outside AI engineer?", {
     roleId: "ai-engineer",
-    topK: 16,
+    topK: content.experience.length + content.projects.length + content.caseStudies.length + 2,
     maxPerSource: 1
   });
   const sourceTypes = new Set(matches.map((match) => match.chunk.sourceType));

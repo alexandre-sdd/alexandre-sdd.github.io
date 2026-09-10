@@ -761,7 +761,7 @@ export function topKForPlan(plan: PlannedInterviewTurn, baseTopK: number): numbe
     case "inventory":
       return Math.max(baseTopK, 14);
     case "role-fit":
-      return Math.max(baseTopK, 16);
+      return Math.max(baseTopK, 18);
     case "project-list":
     case "experience-list":
     case "follow-up":

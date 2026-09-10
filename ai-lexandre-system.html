@@ -194,7 +194,7 @@
           <article class="case-block">
             <h2>Retrieval Policy</h2>
             <ul>
-              <li>Translates the plan into concrete retrieval options: topK, maxPerSource, and the sourceTypes pre-filter. List intents (experience-list, project-list) use topK&nbsp;10 with maxPerSource&nbsp;1 for diversity; inventory uses topK&nbsp;14; role-fit uses topK&nbsp;16.</li>
+              <li>Translates the plan into concrete retrieval options: topK, maxPerSource, and the sourceTypes pre-filter. List intents (experience-list, project-list) use topK&nbsp;10 with maxPerSource&nbsp;1 for diversity; inventory uses topK&nbsp;14; role-fit uses topK&nbsp;18.</li>
               <li>Applies post-scoring refinement: <code>refineEducationSchools</code> puts base school records before coursework; <code>refineEducationCoursework</code> puts coursework first, CentraleSupelec coursework first when that entity is present; <code>refineExperienceSpecific</code> moves named-entity chunks to the front; <code>refineRoleFit</code> orders experience before projects before education.</li>
               <li>Healthcare questions override the sourceTypes restriction so evidence split across experience and case-study source types can compete together.</li>
               <li>Optimization follow-ups use <code>refineOptimizationTechnical</code> to exclude the most-recently-cited source and surface fresh project evidence.</li>
