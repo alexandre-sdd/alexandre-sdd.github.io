@@ -35,12 +35,15 @@ test("education and Nantes facts match the refreshed source material", () => {
   const columbia = content.education.find((item) => item.school === "Columbia University");
   const centrale = content.education.find((item) => item.school.includes("CentraleSupélec"));
   const nantes = content.experience.find((item) => item.company.includes("Nantes University Hospital"));
+  const cuimc = content.experience.find((item) => item.company === "Columbia Business School & CUIMC");
 
   assert.equal(columbia.details[0], "GPA: 3.96/4.00");
   assert.equal(centrale.details[0], "GPA: 3.93/4.00");
+  assert.equal(cuimc.dates, "Mar 2026 - Jul 2026");
   assert.equal(nantes.dates, "Feb 2026 - Aug 2026");
   assert.match(nantes.highlights.join(" "), /human-validated, Excel-exportable scheduling MVP/);
   assert.match(nantes.highlights.join(" "), /Separately built a respiratory-system planning component/);
+  assert.match(html, /New York, NY · Mar 2026 - Jul 2026/);
 });
 
 test("homepage sections follow the career-first hierarchy", () => {

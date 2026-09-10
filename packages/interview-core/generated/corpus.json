@@ -1,5 +1,5 @@
 {
-  "generatedAt": "content:2c7ef8858180",
+  "generatedAt": "content:9e8ea66a7043",
   "chunkCount": 127,
   "chunks": [
     {
@@ -4806,7 +4806,7 @@
       "sourceId": "Columbia Business School & CUIMC:Research Assistant",
       "title": "Research Assistant at Columbia Business School & CUIMC",
       "section": "Experience highlights",
-      "text": "Mar 2026 - Present in New York, NY. Developing a discrete-event simulation of outpatient appointment scheduling to study the link between delays, no-shows, cancellations, and patient access. Evaluating policies such as FCFS, reserved capacity, booking windows, and overbooking across utilization and financial metrics.",
+      "text": "Mar 2026 - Jul 2026 in New York, NY. Developing a discrete-event simulation of outpatient appointment scheduling to study the link between delays, no-shows, cancellations, and patient access. Evaluating policies such as FCFS, reserved capacity, booking windows, and overbooking across utilization and financial metrics.",
       "citationLabel": "Research Assistant - Columbia Business School & CUIMC",
       "publicUrl": "../index.html#experience",
       "roleTags": [
@@ -4831,7 +4831,7 @@
         "highlights",
         "mar",
         "2026",
-        "present",
+        "jul",
         "new",
         "york",
         "ny.",
