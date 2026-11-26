@@ -1,64 +1,81 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Interview Alexandre through AI-lexandre and his published work." />
-  <title>AI-lexandre</title>
-  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../styles.css" />
-  <link rel="stylesheet" href="./styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f9fb">
+  <meta name="description" content="Interview Alexandre Sepulveda de Dietrich through AI-lexandre. Ask about data science, AI, and operations research, then explore the published work behind the answer.">
+  <meta property="og:title" content="AI-lexandre — Interview Alexandre">
+  <meta property="og:description" content="A working interview with my AI counterpart. Ask about a decision. Follow the evidence.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://alexandre-sdd.github.io/">
+  <meta property="og:image" content="https://alexandre-sdd.github.io/assets/og/og-image.png">
+  <link rel="canonical" href="https://alexandre-sdd.github.io/">
+  <title>AI-lexandre — Alexandre Sepulveda de Dietrich</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/plex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/base.css">
+  <link rel="stylesheet" href="/interview/styles.css">
+  <script src="/main.js" defer></script>
 </head>
 <body>
-  <div class="page interview-page">
-    <main class="interview-shell">
-      <section class="intro-block" aria-labelledby="page-title">
-        <a class="portfolio-back-link" href="../index.html">Back to Portfolio</a>
-        <p class="eyebrow">Interactive Interview</p>
-        <h1 id="page-title">AI-lexandre</h1>
-        <p class="intro-copy">Ask like a hiring manager: scope, decisions, tradeoffs, outcomes, and what I would do differently. Answers stay grounded in published projects, internships, experience, education, and skills.</p>
-        <div id="role-picker" class="preset-row" aria-label="Interview presets"></div>
+  <a class="skip-link" href="#interview">Skip to interview</a>
+  <div class="interview-layout">
+    <header class="identity" aria-label="About Alexandre">
+      <img class="identity-photo" src="/assets/portrait.jpg" width="116" height="145" alt="Alexandre Sepulveda de Dietrich" fetchpriority="high">
+      <div>
+        <p class="identity-name">Alexandre <span>Sepulveda de Dietrich</span></p>
+        <p class="identity-description">Data science, AI &amp; operations research</p>
+        <p class="identity-location">New York</p>
+      </div>
+      <nav class="identity-nav" aria-label="Portfolio">
+        <a href="/work/">Browse my work</a>
+        <a href="/assets/resume/resume_april.pdf">Résumé</a>
+      </nav>
+      <p class="identity-availability">Full-time from January 2027<br>United States &amp; Europe</p>
+    </header>
+
+    <main id="interview" class="interview-column">
+      <div class="interview-intro">
+        <h1 translate="no">AI-lexandre</h1>
+        <p class="intro-copy">A working interview with my AI counterpart.<br>Ask about a decision. Follow the evidence.</p>
+      </div>
+      <noscript><style>#interview-form,#starter-prompts,#submit-status{display:none!important}</style><div class="service-notice"><strong>The interview needs JavaScript.</strong><p>You can still explore every project and read the résumé.</p><a href="/work/">Browse my work</a></div></noscript>
+      <section id="service-notice" class="service-notice" aria-label="Interview availability" hidden>
+        <strong>The interview is unavailable right now.</strong>
+        <p>Your conversation is saved in this tab. Explore the work or try connecting again.</p>
+        <a href="/work/">Browse my work</a><span aria-hidden="true"> · </span><button id="reconnect" class="text-button" type="button">Try again</button>
       </section>
-
-      <section class="chat-shell" aria-label="Interview chat">
-        <div id="conversation" class="conversation" aria-live="polite"></div>
-
-        <form id="interview-form" class="composer">
-          <label class="composer-field" for="question-input">
-            <span class="sr-only">Question</span>
-            <textarea
-              id="question-input"
-              name="question"
-              rows="3"
-              placeholder="Ask what my exact role was, what tradeoff mattered, or why a project fits the role."
-            ></textarea>
-          </label>
-
-          <div class="composer-bar">
-            <div class="composer-meta">
-              <span id="submit-status" class="submit-status" role="status"></span>
-            </div>
-            <div class="composer-actions">
-              <button id="clear-thread" class="button ghost subtle-button" type="button">Clear</button>
-              <button id="submit-button" class="button primary" type="submit">Ask</button>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <section id="dev-panel" class="dev-panel is-hidden" aria-label="Developer controls">
-        <div class="dev-card">
-          <strong>Developer</strong>
-          <div id="dev-status"></div>
+      <div id="conversation" class="conversation" role="log" aria-label="Interview conversation" aria-live="off"></div>
+      <form id="interview-form" class="composer" aria-label="Ask AI-lexandre">
+        <label for="question-input">Your question</label>
+        <textarea id="question-input" name="question" rows="2" maxlength="2000" required autocomplete="off" placeholder="What would you like to know?…" aria-describedby="composer-hint submit-status" disabled></textarea>
+        <div class="composer-bar">
+          <span id="composer-hint" class="composer-hint"><span class="hint-desktop">Enter to ask. Shift + Enter for a new line.</span><span class="hint-mobile">Edit, then ask.</span></span>
+          <button id="submit-button" class="button primary submit-button" type="submit" disabled><span class="submit-indicator" aria-hidden="true"></span><span id="submit-label">Ask</span></button>
         </div>
+      </form>
+      <div id="composer-tools" class="composer-tools" hidden>
+        <details class="role-settings">
+          <summary id="role-summary">Role focus: AI Engineer</summary>
+          <label for="role-picker">Tailor the interview to a role</label>
+          <select id="role-picker" name="role"></select>
+          <p id="role-description"></p>
+        </details>
+        <div class="thread-actions"><button id="clear-thread" class="text-button" type="button" hidden>New conversation</button><button id="undo-clear" class="text-button" type="button" hidden>Undo</button></div>
+      </div>
+      <p id="submit-status" class="submit-status" role="status" aria-live="polite">Connecting to the interview…</p>
+      <section id="starter-prompts" class="starter-prompts" aria-labelledby="starter-title">
+        <h2 id="starter-title">A few places to start</h2>
+        <button class="starter-button" type="button" disabled>Why did CHANEL need two anomaly detectors?</button>
+        <button class="starter-button" type="button" disabled>How did you validate 68 price changes at Tiffany?</button>
+        <button class="starter-button" type="button" disabled>What happens when Zeit can’t fit a task?</button>
       </section>
+      <p class="interview-note">AI-lexandre answers from my published work and can make mistakes. Company data and confidential details stay private. <a href="/ai-lexandre-system.html">How this interview works</a></p>
+      <section id="dev-panel" class="dev-panel" aria-label="Developer controls" hidden><strong>Developer</strong><div id="dev-status"></div></section>
     </main>
   </div>
-
-  <script src="./config.js"></script>
-  <script type="module" src="./app.js"></script>
+  <script src="/interview/config.js"></script>
+  <script type="module" src="/interview/app.js"></script>
 </body>
 </html>

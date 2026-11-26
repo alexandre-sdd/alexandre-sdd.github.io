@@ -16,29 +16,29 @@
   <link rel="canonical" href="https://alexandre-sdd.github.io/ai-lexandre-system.html" />
   <title>AI-lexandre System Architecture</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/assets/fonts/plex-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/base.css" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body class="case-page system-page">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="page case-page">
     <header class="site-header">
       <div class="brand">
-        <a class="brand-name" href="./index.html">Alexandre SEPULVEDA de DIETRICH</a>
-        <span class="brand-title">Data Scientist and Business Analytics MS candidate</span>
+        <a class="brand-name" href="/work/">Alexandre SEPULVEDA de DIETRICH</a>
+        <span class="brand-title">Data science, AI &amp; operations research</span>
       </div>
       <nav class="site-nav" aria-label="Primary">
-        <a href="./index.html">Back to Portfolio</a>
+        <a href="/work/">Browse my work</a>
         <a href="./interview/">Try AI-lexandre</a>
         <a href="https://github.com/alexandre-sdd/alexandre-sdd.github.io" target="_blank" rel="noreferrer">Code</a>
+      <a href="/" data-interview-return>Back to interview</a>
       </nav>
     </header>
 
-    <main>
+    <main id="main">
       <section class="case-hero system-hero">
         <div>
-          <p class="eyebrow">System Architecture &mdash; V2</p>
           <h1>AI-lexandre</h1>
           <p class="meta">Recruiter-facing interview assistant over my portfolio evidence.</p>
           <p class="case-summary">AI-lexandre is a production-style RAG system: a static GitHub Pages frontend, a Railway-hosted Fastify API, a generated local evidence corpus, and a structured routing layer that classifies interview intent before retrieval. V2 replaced V1&rsquo;s ad-hoc intent branches with an explicit planner, retrieval policy, structured memory, and answer policy so each response uses the right source types and chips reflect the actual answer.</p>
@@ -53,9 +53,6 @@
             </a>
           </div>
         </div>
-        <figure class="system-hero-visual">
-          <img src="./assets/projects/interview-sim-thumb.svg" alt="AI-lexandre interview system visual." loading="eager" decoding="async" />
-        </figure>
       </section>
 
       <section class="section">
@@ -124,7 +121,7 @@
           <p>V1 accumulated intent detection as inline functions that could not see each other&rsquo;s outputs. This caused predictable routing failures. V2 replaces those branches with an explicit planner that runs once per turn.</p>
         </div>
 
-        <div class="system-test-table-wrap">
+        <div class="system-test-table-wrap" tabindex="0" role="region" aria-label="API contract table, horizontally scrollable">
           <table class="system-test-table">
             <thead>
               <tr>
@@ -314,7 +311,7 @@
           <p>These are end-to-end API scenarios run in deterministic mock mode. They test routing, source-type filtering, structured memory, and fallback answer structure. The V2 regression suite (bottom seven rows) directly covers the failures that motivated the rewrite.</p>
         </div>
 
-        <div class="system-test-table-wrap">
+        <div class="system-test-table-wrap" tabindex="0" role="region" aria-label="Functional test table, horizontally scrollable">
           <table class="system-test-table">
             <thead>
               <tr>
@@ -477,5 +474,6 @@
       <span>&copy; 2026 Alexandre SEPULVEDA de DIETRICH</span>
     </footer>
   </div>
+  <script src="/navigation.js" defer></script>
 </body>
 </html>

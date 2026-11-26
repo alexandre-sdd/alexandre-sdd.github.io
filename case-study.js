@@ -71,7 +71,7 @@ const renderArtifacts = (container, artifacts = {}, showTodos = true) => {
       setLinkAttrs(link, href);
       const icon = makeEl('span', 'artifact-icon', item.icon);
       icon.setAttribute('aria-hidden', 'true');
-      const label = makeEl('span', '', item.label);
+      const label = makeEl('span', '', item.key === 'code' ? 'Forvia tracking repository' : href.includes('Combination_Outlier_Detection') ? 'Combination Outlier Detection' : href.includes('Forvia_Tracking') ? 'Multi-sensor localization research report' : item.label);
       link.append(icon, label);
       container.appendChild(link);
       return;
@@ -119,45 +119,6 @@ const renderLearning = (learning = {}) => {
   renderList('#case-learning-decisions', learning.decisions, 'TODO: Add key decisions.');
   renderList('#case-learning-tradeoffs', learning.tradeoffs, 'TODO: Add tradeoffs.');
   renderList('#case-learning-lessons', learning.lessons, 'TODO: Add lessons learned.');
-};
-
-const renderMedia = (mediaItems = [], caseTitle = 'case study') => {
-  const mediaGrid = qs('#case-media-grid');
-  if (!mediaGrid) return;
-  mediaGrid.innerHTML = '';
-
-  if (!Array.isArray(mediaItems) || mediaItems.length === 0) {
-    // TODO: Add at least one screenshot or GIF media item for this case study.
-    const placeholder = makeEl('figure', 'media-card');
-    const img = document.createElement('img');
-    img.src = './assets/placeholder.svg';
-    img.alt = `Supporting visual for ${caseTitle}.`;
-    img.loading = 'lazy';
-    placeholder.appendChild(img);
-    placeholder.appendChild(makeEl('figcaption', '', 'TODO: Add screenshot or GIF.'));
-    mediaGrid.appendChild(placeholder);
-    return;
-  }
-
-  mediaItems.forEach((item) => {
-    const figure = makeEl('figure', 'media-card');
-    const img = document.createElement('img');
-    // TODO: Replace fallback placeholder.svg with real media sources in content.json.
-    img.src = clean(item.src) || './assets/placeholder.svg';
-    img.alt = clean(item.alt) || `Supporting visual for ${caseTitle}.`;
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    figure.appendChild(img);
-
-    const type = clean(item.type);
-    const captionText = clean(item.caption);
-    if (type || captionText) {
-      const label = type ? `${type.toUpperCase()} · ` : '';
-      figure.appendChild(makeEl('figcaption', '', `${label}${captionText}`.trim()));
-    }
-
-    mediaGrid.appendChild(figure);
-  });
 };
 
 const renderCaseStudy = async () => {
@@ -215,7 +176,6 @@ const renderCaseStudy = async () => {
   renderList('#case-next-improvements', caseStudy.nextImprovements, 'TODO: Add next-iteration improvements.');
   renderLearning(caseStudy.learning);
 
-  renderMedia(caseStudy.media, clean(caseStudy.title) || 'case study');
 };
 
 renderCaseStudy().catch(() => {});

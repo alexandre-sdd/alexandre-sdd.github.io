@@ -1113,12 +1113,14 @@ test("broad project overview can retrieve every project and case study", async (
 test("stream endpoint emits token and done events in mock mode", async () => {
   const app = buildApp({
     useMockResponses: true,
-    retrievalTopK: 5
+    retrievalTopK: 5,
+    corsOrigins: ["https://alexandre-sdd.github.io"]
   });
 
   const response = await app.inject({
     method: "POST",
     url: "/v1/interview/stream",
+    headers: { origin: "https://alexandre-sdd.github.io" },
     payload: {
       roleId: "ai-engineer",
       question: "Tell me about your strongest AI engineering project."
@@ -1127,6 +1129,8 @@ test("stream endpoint emits token and done events in mock mode", async () => {
 
   assert.equal(response.statusCode, 200);
   assert.match(response.headers["content-type"] ?? "", /text\/event-stream/);
+  assert.equal(response.headers["access-control-allow-origin"], "https://alexandre-sdd.github.io");
+  assert.ok(response.headers["x-ratelimit-limit"]);
   assert.match(response.body, /"type":"meta"/);
   assert.match(response.body, /"type":"token"/);
   assert.match(response.body, /"type":"done"/);

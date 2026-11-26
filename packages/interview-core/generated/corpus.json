@@ -1,5 +1,5 @@
 {
-  "generatedAt": "content:9e8ea66a7043",
+  "generatedAt": "content:f512be7e4386",
   "chunkCount": 127,
   "chunks": [
     {
@@ -10,7 +10,7 @@
       "section": "Portfolio overview",
       "text": "Data Scientist | AI/ML Engineering | Operations Research. Available for full-time Data Science, AI/ML Engineering, Analytics, and Operations Research roles from January 2027. I turn high-volume commercial, financial, and operational data into decision tools, working across data science, AI/ML engineering, forecasting, optimization, and analytics.. Highlights: Analyzed approximately 2.9 million daily sales records and 68 validated price events for Tiffany & Co. Global Demand Planning. Led an explainable anomaly detection system over 30M+ accounting entries at CHANEL Europe. Impact: Built a governed price-event evidence base for global demand planning at Tiffany & Co. Developed production-grade data pipelines and anomaly detection workflows for finance teams at CHANEL Europe Built forecasting, optimization, and simulation models for hospital planning and healthcare operations",
       "citationLabel": "Portfolio overview",
-      "publicUrl": "../index.html#home",
+      "publicUrl": "/work/#home",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -69,7 +69,7 @@
       "section": "Project summary",
       "text": "Summary: Recruiter-facing interview assistant that answers in first person from my published portfolio, streams responses live, and shows source-backed evidence. Result: Built a GitHub Pages frontend plus a Railway-ready Fastify API with role-aware retrieval, streaming responses, and grounded citations over my own project corpus. Tags: TypeScript, OpenAI API, Fastify, GitHub Pages.",
       "citationLabel": "AI-lexandre - summary",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -128,7 +128,7 @@
       "section": "Project highlights",
       "text": "Turns the portfolio into an interactive interview product instead of a static list of project cards. Builds a local corpus from portfolio projects, case studies, experience, education, and skills, then retrieves role-relevant evidence before answering. Streams answers live in the UI while keeping links back to the source projects and writeups visible.",
       "citationLabel": "AI-lexandre - highlights",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -187,7 +187,7 @@
       "section": "Role and scope",
       "text": "Role: Designed and built the portfolio-native interview assistant, from content corpus and retrieval logic to the static chat UI and Railway-ready API. Skills learned or used: RAG, Fastify, OpenAI Responses API, TypeScript, Streaming UI, Citation design.",
       "citationLabel": "AI-lexandre - role and scope",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -246,7 +246,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Kept content.json as the source of truth so the public portfolio and interview assistant stay aligned. Separated the GitHub Pages frontend from the Fastify API so the static site stays simple while the answer runtime can evolve independently. Filtered visible citations to sources actually referenced in the final answer. Tradeoffs: Accepted more orchestration around retrieval, prompting, streaming, and citations to reduce unsupported answers. Kept the first version as a lightweight local corpus instead of adding a database before the evidence model was stable.",
       "citationLabel": "AI-lexandre - decisions and tradeoffs",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -305,7 +305,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Early answers could sound confident while relying on thin or mismatched evidence. Short follow-up questions initially caused repeated project summaries instead of a new answer angle. Lessons learned: A portfolio AI assistant needs evidence design as much as prompt design. Source visibility makes failure modes easier to debug because the user can see what the answer used. Follow-up handling needs explicit memory and retrieval context, not just a chat transcript.",
       "citationLabel": "AI-lexandre - failures and lessons",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -364,7 +364,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: public. Evidence notes: Public portfolio artifacts are available; details are limited to material that can be shared openly. Next improvements: Add a richer learning memory layer across every project and experience. Use recent conversation summary during retrieval for vague follow-up questions.",
       "citationLabel": "AI-lexandre - evidence and next improvements",
-      "publicUrl": "../ai-lexandre-system.html",
+      "publicUrl": "/ai-lexandre-system.html",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -3706,7 +3706,7 @@
       "section": "Case study summary",
       "text": "Designed a mixed-type outlier detection approach for accounting transactions with hierarchical business categories in an SAP context. Context: Built during an internship in CHANEL Europe's Advanced Analytics and Data Science team. Project served finance stakeholders who needed stronger trust in SAP-driven accounting data. Because the underlying production data and workflows are confidential, shared artifacts focus on the method.",
       "citationLabel": "Chanel Europe Analytics Pipeline - summary",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -3764,7 +3764,7 @@
       "section": "Problem and constraints",
       "text": "Problem: Global thresholds were not sufficient because many anomalies were only abnormal within a specific categorical branch. Some risky transactions had normal-looking amounts but suspicious combinations of categorical attributes. Constraints: Data mixed numeric amounts with high-cardinality hierarchical categorical fields from business systems. Outputs had to remain interpretable and easy to triage in finance review workflows.",
       "citationLabel": "Chanel Europe Analytics Pipeline - problem and constraints",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -3822,7 +3822,7 @@
       "section": "Approach and results",
       "text": "Approach: Built two complementary detectors: one for amount anomalies conditioned on transaction context, and one for anomalous categorical combinations. Used hierarchy-aware categorical representations so parent-child category structure remained informative. Generated ranked anomaly candidates with clear reason signals to support analyst investigation. Results: Delivered a reusable algorithmic workflow for mixed-type outlier detection in hierarchical accounting data. Published a technical note summarizing the method: Combination Outlier Detection. Next improvements: Add formal model and data drift monitoring dashboards. Package reusable quality checks for faster rollout across adjacent finance datasets.",
       "citationLabel": "Chanel Europe Analytics Pipeline - approach and results",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -3880,7 +3880,7 @@
       "section": "Role and scope",
       "text": "Role: Led the method design and implementation for a hierarchy-aware anomaly detection workflow during the CHANEL Europe data science internship. Skills learned or used: Anomaly detection, Mixed-type data, Hierarchical categories, Finance analytics, Stakeholder workflow design.",
       "citationLabel": "Chanel Europe Analytics Pipeline - role and scope",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -3938,7 +3938,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Separated amount anomalies from categorical-combination anomalies so finance users could inspect different risk signals. Used hierarchy-aware categorical representations to preserve parent-child business structure. Designed ranked outputs with interpretable reason signals for analyst review. Tradeoffs: Balanced model sophistication with interpretability because the output needed to fit finance review workflows. Kept public artifacts method-focused to respect confidentiality while still showing technical depth.",
       "citationLabel": "Chanel Europe Analytics Pipeline - decisions and tradeoffs",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -3996,7 +3996,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Global thresholds missed anomalies that were only suspicious within a specific business context. High-cardinality hierarchical categories made naive encoding and distance measures less reliable. Lessons learned: Business context can be the difference between noise and a useful anomaly signal. Trustworthy data quality tools need explanations that match how analysts investigate records. Confidential work can still be portfolio-ready when method, constraints, and evidence boundaries are explicit.",
       "citationLabel": "Chanel Europe Analytics Pipeline - failures and lessons",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -4054,7 +4054,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted. Next improvements: Add formal model and data drift monitoring dashboards. Package reusable quality checks for faster rollout across adjacent finance datasets.",
       "citationLabel": "Chanel Europe Analytics Pipeline - evidence and next improvements",
-      "publicUrl": "../case-study-chanel.html",
+      "publicUrl": "/case-study-chanel.html",
       "roleTags": [
         "ml-engineer",
         "product-data-scientist"
@@ -4112,7 +4112,7 @@
       "section": "Case study summary",
       "text": "Research project on multi-sensor localization using camera-derived priors and array measurements with an optimal-transport-based fusion approach. Context: Built in a collaboration between CentraleSupélec L2S Lab and Forvia. Project explored whether lower-cost sensing could support robust localization in controlled conditions.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - summary",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4170,7 +4170,7 @@
       "section": "Problem and constraints",
       "text": "Problem: Single-sensor signals were not sufficiently robust for stable localization on their own. The team needed a fusion prototype that could combine a camera prior with array-based measurements. Constraints: Sensor alignment and synchronization had to remain stable across test conditions. Camera priors and array likelihoods had different noise and resolution characteristics. Prototype scope focused on controlled test-area validation rather than full production deployment.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - problem and constraints",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4229,7 +4229,7 @@
       "section": "Approach and results",
       "text": "Approach: Built a camera-derived spatial prior from image-processing outputs. Generated spatial likelihood maps from array measurements and fused them with an optimal-transport-based objective. Validated localization behavior through controlled experiments and shared findings with partners. Results: Produced a working multi-sensor localization pipeline for controlled experiments. Authored a research report documenting the setup, method, and findings. Next improvements: Evaluate robustness under additional lighting and motion conditions. Add confidence scoring and failure-case analysis for each tracking sequence.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - approach and results",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4288,7 +4288,7 @@
       "section": "Role and scope",
       "text": "Role: Built the fusion prototype and research artifacts for combining camera-derived priors with array measurements in controlled localization experiments. Skills learned or used: Computer vision, Sensor fusion, Optimal transport, Experimental validation, Research reporting.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - role and scope",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4347,7 +4347,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Converted camera outputs into a spatial prior that could be fused with array-based likelihood maps. Used an optimal-transport-based objective to reconcile sensing modalities with different noise and resolution characteristics. Kept validation focused on controlled experiments rather than claiming production readiness. Tradeoffs: Accepted controlled-scope validation so the research question could be tested cleanly. Used a mathematically richer fusion method to better represent uncertainty across modalities.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - decisions and tradeoffs",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4406,7 +4406,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Single-sensor localization was not robust enough on its own. Misalignment, synchronization, lighting, and motion conditions could degrade the fusion signal. Lessons learned: Sensor fusion is as much about uncertainty alignment as algorithm choice. Research prototypes need clear boundaries around test conditions. Confidence and failure-case analysis should be designed into localization experiments early.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - failures and lessons",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4465,7 +4465,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: public. Evidence notes: Public portfolio artifacts are available; details are limited to material that can be shared openly. Next improvements: Evaluate robustness under additional lighting and motion conditions. Add confidence scoring and failure-case analysis for each tracking sequence.",
       "citationLabel": "Forvia Multi-Sensor Localization Research - evidence and next improvements",
-      "publicUrl": "../case-study-forvia.html",
+      "publicUrl": "/case-study-forvia.html",
       "roleTags": [
         "research-engineer",
         "ml-engineer",
@@ -4523,7 +4523,7 @@
       "section": "Experience highlights",
       "text": "Jun 2026 - Aug 2026 in New York, NY. Completed a governed historical price-event analysis across approximately 2.9 million daily, style-level sales records and 68 validated price changes, comparing unit demand, revenue, and recovery patterns across markets and product segments. Reconciled source totals, validated event dates and joins, tested alternative baselines and windows, and reviewed low-volume and extreme results to produce planning evidence with explicit uncertainty and causal limitations. Translated the findings into a partial Excel/Power BI planning prototype and an executive decision narrative presented to Global Demand Planning leadership; the work supported planning judgment rather than claiming universal causal elasticity or a finished automated tool.",
       "citationLabel": "Demand Planning Intern, Supply Chain & Logistics - Tiffany & Co., Global Demand Planning",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-0",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer"
@@ -4580,7 +4580,7 @@
       "section": "Role and scope",
       "text": "Role: Demand planning intern developing a governed historical price-event analysis and an initial planner-facing prototype for future pricing scenarios. Skills learned or used: Demand planning, Event-study analysis, Data validation, Excel and Power BI, Executive communication.",
       "citationLabel": "Demand Planning Intern, Supply Chain & Logistics at Tiffany & Co., Global Demand Planning - role and scope",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-0",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer"
@@ -4637,7 +4637,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Reframed the assignment from universal price elasticity to observed event-time evidence that planners could challenge and contextualize. Segmented results by market, product family, collection, tier, and price point instead of relying on one global average. Separated validated analytical findings from the incomplete scenario-input and automated-refresh workflow. Tradeoffs: Balanced a common global methodology with meaningful regional and product-level differences. Prioritized validated evidence and transparent uncertainty over overstating causal precision or product completeness.",
       "citationLabel": "Demand Planning Intern, Supply Chain & Logistics at Tiffany & Co., Global Demand Planning - decisions and tradeoffs",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-0",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer"
@@ -4694,7 +4694,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Low-volume events could produce extreme percentage changes that were mathematically correct but commercially misleading. Promotions, seasonality, availability, launches, client mix, and communication timing prevented a clean causal interpretation of every price event. Lessons learned: Demand-planning analysis needs reconciled data, governed event definitions, and business review before results become decision-ready. Units and revenue can respond differently to the same price event, so planners need both measures and recovery timing. An analytical prototype should be described separately from a completed self-service planning product.",
       "citationLabel": "Demand Planning Intern, Supply Chain & Logistics at Tiffany & Co., Global Demand Planning - failures and lessons",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-0",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer"
@@ -4751,7 +4751,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized internship description; product-level results, commercially sensitive forecasts, and proprietary company data are intentionally omitted. Next improvements: Complete the scenario-input workflow and automated refresh for a self-service planning tool. Extend uncertainty reporting and validation as additional price events become available.",
       "citationLabel": "Demand Planning Intern, Supply Chain & Logistics at Tiffany & Co., Global Demand Planning - evidence and next improvements",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-0",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer"
@@ -4808,7 +4808,7 @@
       "section": "Experience highlights",
       "text": "Mar 2026 - Jul 2026 in New York, NY. Developing a discrete-event simulation of outpatient appointment scheduling to study the link between delays, no-shows, cancellations, and patient access. Evaluating policies such as FCFS, reserved capacity, booking windows, and overbooking across utilization and financial metrics.",
       "citationLabel": "Research Assistant - Columbia Business School & CUIMC",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-1",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -4866,7 +4866,7 @@
       "section": "Role and scope",
       "text": "Role: Research assistant developing simulation and policy-comparison tools for outpatient appointment scheduling research. Skills learned or used: Discrete-event simulation, Healthcare operations, Policy evaluation, Python, Research methods.",
       "citationLabel": "Research Assistant at Columbia Business School & CUIMC - role and scope",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-1",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -4923,7 +4923,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Modeled appointment scheduling as a dynamic system with delays, no-shows, cancellations, and access effects. Compared policy families rather than optimizing one isolated metric. Tradeoffs: Used simulation to represent operational behavior while keeping calibration limits explicit. Balanced utilization, access, and financial metrics instead of treating one as sufficient.",
       "citationLabel": "Research Assistant at Columbia Business School & CUIMC - decisions and tradeoffs",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-1",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -4981,7 +4981,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: A policy can improve one metric while creating hidden access or workload costs. Research conclusions can overreach if calibration status is not made explicit. Lessons learned: Healthcare operations models need to expose tradeoffs between patient access and operational feasibility. Reusable experiment code is essential for credible policy comparison.",
       "citationLabel": "Research Assistant at Columbia Business School & CUIMC - failures and lessons",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-1",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -5039,7 +5039,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized research description; patient data and internal workflows are not public. Next improvements: Add calibrated experiments once data access and workflow assumptions are finalized. Document policy comparison results with clearer metric dashboards.",
       "citationLabel": "Research Assistant at Columbia Business School & CUIMC - evidence and next improvements",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-1",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -5097,7 +5097,7 @@
       "section": "Experience highlights",
       "text": "Feb 2026 - Aug 2026 in Remote, France. Completed a scoping engagement for two separate hospital decision-support workstreams: emergency activity forecasting and assisted physician scheduling for approximately 80 physicians across about 15 activity lines. Translated stakeholder interviews, operational rules, available exports, governance constraints, and data limitations into functional requirements, exploratory forecasting models, and a dashboard prototype. Recommended prioritizing a complete, human-validated, Excel-exportable scheduling MVP while keeping patient-flow forecasting as an internal data-qualification prototype rather than a real-time or patient-facing system. Separately built a respiratory-system planning component as an additional workstream within the broader hospital engagement.",
       "citationLabel": "Data & Operations Consultant (Healthcare Planning & Forecasting) - Junior CentraleSupelec (JCS) – Nantes University Hospital",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-2",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5155,7 +5155,7 @@
       "section": "Role and scope",
       "text": "Role: Consultant completing a hospital operations scoping engagement for emergency activity forecasting and assisted physician scheduling, with respiratory-system planning as a separate additional workstream. Skills learned or used: Healthcare planning, Requirements elicitation, Forecasting, Scheduling optimization, Operations consulting.",
       "citationLabel": "Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital - role and scope",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-2",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5213,7 +5213,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Started with stakeholder requirements and operational rules before selecting modeling approaches. Kept emergency activity forecasting and physician scheduling as separate functional and contractual workstreams. Recommended physician scheduling as the first MVP, with complete, checked, editable, Excel-exportable schedules and systematic human validation. Kept respiratory-system planning clearly separated as an additional workstream. Tradeoffs: Balanced predictive ambition with the available offline exports, uncertain target definitions, and the need for explainable outputs that hospital stakeholders could validate. Kept the public description high-level to avoid exposing hospital operational details.",
       "citationLabel": "Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital - decisions and tradeoffs",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-2",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5271,7 +5271,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: The available aggregate data could reproduce broad volume patterns but did not support real-time or patient-facing performance claims. Scheduling automation could not be trusted until staffing rules, priorities, exceptions, and validation responsibilities were formally documented. Lessons learned: Healthcare decision-support work starts with operations discovery, not code. A useful first scheduling product can prioritize completeness, validation, editability, and export over mathematical optimality. Sensitive domains require clear boundaries around what can be shown publicly.",
       "citationLabel": "Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital - failures and lessons",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-2",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5329,7 +5329,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized consulting description; hospital data, internal workflows, and stakeholder details are confidential. Next improvements: Validate the physician, activity, availability, and business-rule inputs before beginning a separate scheduling MVP. Stabilize the forecasting target, timestamps, sector mapping, evaluation protocol, and governance before expanding the patient-flow prototype.",
       "citationLabel": "Data & Operations Consultant (Healthcare Planning & Forecasting) at Junior CentraleSupelec (JCS) – Nantes University Hospital - evidence and next improvements",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-2",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5387,7 +5387,7 @@
       "section": "Experience highlights",
       "text": "May 2025 - Aug 2025 in Madrid, Spain. Reconciled fragmented commercial, budget, and ERP-style data across 6 countries and about 60 resellers to build a consistent European reporting layer. Built 5 dashboards standardizing GP, NSV, and volume KPIs, giving negotiation teams a consolidated cross-country view. Created mapping tables and repeatable transformation logic to align inconsistent identifiers, naming conventions, and local business definitions across sources.",
       "citationLabel": "Data Analyst, Key Account Management - SIGMA Group, Commercial Excellence Europe",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-3",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -5443,7 +5443,7 @@
       "section": "Role and scope",
       "text": "Role: Data analyst building cross-country reporting and transformation logic for commercial excellence teams. Skills learned or used: Commercial analytics, Dashboarding, Data reconciliation, KPI standardization, Stakeholder reporting.",
       "citationLabel": "Data Analyst, Key Account Management at SIGMA Group, Commercial Excellence Europe - role and scope",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-3",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -5499,7 +5499,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Created mapping tables to reconcile inconsistent identifiers, naming conventions, and business definitions. Standardized GP, NSV, and volume KPIs across countries and resellers. Built dashboards around negotiation-team needs rather than only source-system structure. Tradeoffs: Prioritized consistent reporting definitions over preserving every local reporting convention. Balanced dashboard speed with traceable transformation logic.",
       "citationLabel": "Data Analyst, Key Account Management at SIGMA Group, Commercial Excellence Europe - decisions and tradeoffs",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-3",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -5555,7 +5555,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Fragmented source data can make simple KPI comparisons misleading. Dashboard adoption depends on trust in mappings, not just visual polish. Lessons learned: Data products often start with definitions and reconciliation before modeling. Cross-country analytics requires explicit handling of local business rules. Reusable transformation logic is more valuable than one-off reporting fixes.",
       "citationLabel": "Data Analyst, Key Account Management at SIGMA Group, Commercial Excellence Europe - failures and lessons",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-3",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -5611,7 +5611,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted. Next improvements: Add stronger automated checks around mapping completeness. Document KPI lineage so future dashboards can reuse the reporting layer.",
       "citationLabel": "Data Analyst, Key Account Management at SIGMA Group, Commercial Excellence Europe - evidence and next improvements",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-3",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -5667,7 +5667,7 @@
       "section": "Experience highlights",
       "text": "Sep 2024 - May 2025 in Paris, France. Led end-to-end development of CRAFT, an anomaly detection system over 30M+ accounting entries, from business scoping to near-production deployment for corporate finance teams. Developed explainable anomaly-detection pipelines for hierarchical mixed data, integrating business rules, evolving mappings, and stakeholder-validated review workflows. Designed clustering and multivariate forecasting methods for 300+ monthly sales series, enabling cluster-level forecasting templates in small-data settings.",
       "citationLabel": "Data Scientist - CHANEL Europe, Advanced Analytics & Data Science",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-4",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5725,7 +5725,7 @@
       "section": "Role and scope",
       "text": "Role: Data scientist leading anomaly detection, review workflow, and forecasting work for European finance and business analytics use cases. Skills learned or used: Anomaly detection, Forecasting, Clustering, Finance analytics, Stakeholder validation, Data pipelines.",
       "citationLabel": "Data Scientist at CHANEL Europe, Advanced Analytics & Data Science - role and scope",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-4",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5783,7 +5783,7 @@
       "section": "Decisions and tradeoffs",
       "text": "Decisions: Scoped CRAFT end to end from business problem through near-production anomaly-detection workflow. Integrated business rules, evolving mappings, and stakeholder validation into the modeling pipeline. Used clustering and multivariate forecasting methods to support template generation in small-data sales settings. Tradeoffs: Balanced technical model depth with explainability needed by finance teams. Kept portfolio evidence sanitized while preserving the method and decision logic.",
       "citationLabel": "Data Scientist at CHANEL Europe, Advanced Analytics & Data Science - decisions and tradeoffs",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-4",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5841,7 +5841,7 @@
       "section": "Failures and lessons",
       "text": "Failure modes: Accounting anomaly systems can fail when they ignore hierarchical business context. Small-data forecasting requires careful grouping because individual series can be too sparse. Lessons learned: Production-relevant ML requires business scoping, review workflows, and data quality work before modeling pays off. Explainability is a product requirement when outputs drive finance review. Confidential projects need explicit evidence boundaries in public storytelling.",
       "citationLabel": "Data Scientist at CHANEL Europe, Advanced Analytics & Data Science - failures and lessons",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-4",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5899,7 +5899,7 @@
       "section": "Evidence and next improvements",
       "text": "Evidence level: sanitized. Evidence notes: Sanitized public description; confidential datasets, internal stakeholders, and proprietary implementation details are intentionally omitted. Next improvements: Add fuller public method diagrams where confidentiality allows. Show more sanitized examples of how stakeholder feedback shaped model outputs.",
       "citationLabel": "Data Scientist at CHANEL Europe, Advanced Analytics & Data Science - evidence and next improvements",
-      "publicUrl": "../index.html#experience",
+      "publicUrl": "/work/#experience-4",
       "roleTags": [
         "product-data-scientist",
         "ml-engineer",
@@ -5957,7 +5957,7 @@
       "section": "Education",
       "text": "Expected Dec 2026 in New York, NY. GPA: 3.96/4.00 Coursework: AI Engineering, Marketing Analytics, Business Analytics, Data Analytics, Probability Statistics and Simulation",
       "citationLabel": "MS in Business Analytics - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -6000,7 +6000,7 @@
       "section": "Coursework - Data Science, Machine Learning and AI",
       "text": "Coursework category: Data Science, Machine Learning and AI. Courses and applied work: Data Analytics: Practical data analysis in Python, including data acquisition, cleaning, database querying, machine learning, visualization, and real-dataset project work. Business Analytics: Analytics opportunity framing, machine learning, A/B testing, causal inference, ethics, and optimization for data-driven business decisions. AI Engineering Applications: Contemporary applications of artificial intelligence and operations research, with emphasis on applied AI use cases and engineering problems. MSBA Quantitative Bootcamp: Review of core quantitative foundations for analytics, including linear algebra, calculus, statistics, and probability. Python for Analytics: Python programming fundamentals for analytics coursework and data-focused implementation.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6060,7 +6060,7 @@
       "section": "Coursework - Probability, Statistics and Simulation",
       "text": "Coursework category: Probability, Statistics and Simulation. Courses and applied work: Probability, Statistics and Simulation: Probability theory, independence, conditioning, random variables, law of large numbers, central limit theorem, stochastic simulation, estimation, hypothesis testing, and regression.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -6115,7 +6115,7 @@
       "section": "Coursework - Optimization, Operations Research and Decision Science",
       "text": "Coursework category: Optimization, Operations Research and Decision Science. Courses and applied work: Optimization Models and Methods: Deterministic optimization models, including linear programming, simplex methods, integer programming, dynamic programming, and nonlinear optimization. Performance, Objectives and Results Using Data Analytics: OKRs, measurement frameworks, A/B testing, validation, correlation, product metrics, and practical data-driven decision-making.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6175,7 +6175,7 @@
       "section": "Coursework - Business, Economics, Finance and Marketing",
       "text": "Coursework category: Business, Economics, Finance and Marketing. Courses and applied work: Business Analytics: Bridge between analytics, machine learning, experimentation, optimization, and business value creation. MS Marketing Analytics: Quantitative marketing analysis, customer value, segmentation, targeting, positioning, campaign measurement, and data-driven marketing decisions. MS Digital Marketing: Digital marketing channels, online customer acquisition, search, social media, campaign design, and measurement.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6235,7 +6235,7 @@
       "section": "Coursework - Entrepreneurship and Innovation",
       "text": "Coursework category: Entrepreneurship and Innovation. Courses and applied work: Foundations of Entrepreneurship: Entrepreneurial process, opportunity identification, startup creation, venture evaluation, and entrepreneurial skills. Think Bigger: Structured ideation methodology grounded in cognitive science and creative problem-solving.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -6290,7 +6290,7 @@
       "section": "Coursework - Projects and Applied Work",
       "text": "Coursework category: Projects and Applied Work. Courses and applied work: Analytics in Practice: Client-facing analytics project involving requirement identification, data cleaning, statistical, operations research, and machine learning techniques, and client-ready delivery. Business Analytics Seminar: Practitioner and research seminar exposure to real-world analytics applications and synthesis of professional insights.",
       "citationLabel": "MS in Business Analytics coursework - Columbia University",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6350,7 +6350,7 @@
       "section": "Education",
       "text": "Sep 2022 - Apr 2026 in Gif-sur-Yvette, France. GPA: 3.93/4.00 Coursework: Algorithms and Networks, Machine Learning, HPC and Cloud Computing, Signal Processing, Game Theory",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -6409,7 +6409,7 @@
       "section": "Coursework - Data Science, Machine Learning and AI",
       "text": "Coursework category: Data Science, Machine Learning and AI. Courses and applied work: Machine Learning: General machine learning framework, data preparation, statistical learning theory, risk, overfitting, regularization, supervised and unsupervised learning, SVMs, kernels, boosting, bagging, and decision trees. Statistics and Learning: Statistical theory connected to machine learning, including estimation, hypothesis testing, probabilistic reasoning, and learning models. Prediction of Wind Farm Production Using IoT Data: Applied project combining IoT data and predictive modeling to forecast wind farm production from sensor data. Design of Intelligent Systems for Automated Air Traffic Control: Applied intelligent-systems project for air traffic control, focused on AI, decision systems, and modeling complex operational environments.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6469,7 +6469,7 @@
       "section": "Coursework - Probability, Statistics and Simulation",
       "text": "Coursework category: Probability, Statistics and Simulation. Courses and applied work: Convergence, Integration and Probability: Advanced mathematical course covering convergence, integration, probability theory, and measure-theoretic reasoning. Statistics and Learning: Statistical inference and learning algorithms, reinforcing both theoretical and applied data analysis foundations.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -6528,7 +6528,7 @@
       "section": "Coursework - Optimization, Operations Research and Decision Science",
       "text": "Coursework category: Optimization, Operations Research and Decision Science. Courses and applied work: Optimization: Mathematical optimization, including linear, nonlinear, and dynamic optimization for constrained decision problems. Control Theory: Dynamic systems, feedback, stability, transfer functions, frequency response, and controller design. Modeling Strategic Interactions through Games: Game-theoretic modeling of strategic interactions, incentives, and competitive decision-making. Computational Approach to Games: Algorithmic and computational methods for analyzing games. Evolutionary Games: Game dynamics, evolutionary models, adaptive systems, and strategic behavior over time.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6588,7 +6588,7 @@
       "section": "Coursework - Computer Science, Software and Systems",
       "text": "Coursework category: Computer Science, Software and Systems. Courses and applied work: Information Systems and Programming: Information systems, Python programming, databases, SQL, computer architecture, operating systems, networks, and information security. Algorithmics and Complexity: Data structures, graph algorithms, shortest paths, minimum spanning trees, maximum flows, dynamic programming, and complexity theory. High Performance Computing: Parallel computing, distributed systems, Linux environments, scalability, and performance analysis. Cloud Computing and Distributed Computing: Virtualization, cloud service models, containers, orchestration, microservices, Hadoop, Spark, distributed storage, and cloud-native applications. Networks and Security: Network principles, cryptography, hashing, encryption, digital signatures, key exchange, and security mechanisms. Electronic Systems: Analog and digital electronics, sensors, actuators, microcontrollers, circuit prototyping, and embedded systems. Principles of Information Theory and Communication Networks for IoT: Information theory, communication networks, connected devices, data transmission, connectivity, and IoT systems. The Internet of Things: Connected objects, sensors, data transmission, cloud processing, and IoT applications. Design and Verification of Critical Systems: Formal modeling, verification, safety-critical systems, temporal logic, and model checking. Complex Industrial Systems and Critical Software-Intensive Systems: Modeling and analysis of complex industrial and software-intensive systems, with systems engineering and safety-aware software design.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6648,7 +6648,7 @@
       "section": "Coursework - Mathematics, Physics and Engineering Sciences",
       "text": "Coursework category: Mathematics, Physics and Engineering Sciences. Courses and applied work: Partial Differential Equations: Classical PDEs including heat, wave, Laplace, Poisson, Schrodinger, and Maxwell equations for advanced mathematical modeling. Model Representations and Analysis: Mathematical and graphical representations of complex systems for engineering analysis. Signal Processing: Discrete-time signals, Fourier and Z transforms, frequency-domain analysis, and digital filters. Quantum and Statistical Physics: Quantum mechanics and statistical physics, including quantization, harmonic oscillators, radiation fields, entropy, and physical systems. Electrical Energy: Electrical machines, motors, generators, energy conversion, magnetic circuits, and power systems. Transport Phenomena: Diffusion, heat conduction, convection, fluid dynamics, conservation laws, dimensional analysis, and Navier-Stokes equations.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6708,7 +6708,7 @@
       "section": "Coursework - Business, Economics, Finance and Marketing",
       "text": "Coursework category: Business, Economics, Finance and Marketing. Courses and applied work: Economics of Innovation and Growth: Innovation-led growth, competition, firm dynamics, R&D policy, patents, and technological progress. Economics: Microeconomics and macroeconomics, including markets, competition, policy, inflation, unemployment, and trade. Business Management: Management, operations, strategy, organizational behavior, marketing, finance, information systems, and business law. Corporate Accounting and Finance: Accounting documents, financial statements, financial analysis, and corporate finance fundamentals. Business Games: Business simulations for decision-making, leadership, negotiation, teamwork, and strategy.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "optimization-analytics",
@@ -6767,7 +6767,7 @@
       "section": "Coursework - Entrepreneurship and Innovation",
       "text": "Coursework category: Entrepreneurship and Innovation. Courses and applied work: Start-Up Week: Intensive entrepreneurial project experience involving team ideation, prototyping, and pitching. Economics of Innovation and Growth: Economic analysis of innovation, R&D, patents, competition, and technology-driven growth.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist"
       ],
@@ -6823,7 +6823,7 @@
       "section": "Coursework - Sustainability, Climate and Urban Systems",
       "text": "Coursework category: Sustainability, Climate and Urban Systems. Courses and applied work: Climate Sciences: Climate systems, atmospheric phenomena, and human impact on climate. Circular Economy and Industrial Ecology Methods: Circular economy, industrial symbiosis, material flows, environmental impact assessment, and sustainable production systems. Circular Economy Industrial Project: Applied industrial project focused on circular economy and industrial ecology methods. Building the City: Town Planning, Architecture and Engineering: Urban planning, architecture, infrastructure, and engineering for city development.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6883,7 +6883,7 @@
       "section": "Coursework - Social Sciences, Law and Humanities",
       "text": "Coursework category: Social Sciences, Law and Humanities. Courses and applied work: Science, Technology, Society: Interaction between science, technology, society, policy, economics, ethics, and sustainability. Sociology of Organizations: Organizational structures, cultures, bureaucracy, decision-making, power, change, and conflict. Philosophy: Critical thinking, reasoning, argumentation, ethics, and analytical reflection. Law: Legal and ethical environment of business, regulatory systems, liability, contracts, and legal reasoning.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -6943,7 +6943,7 @@
       "section": "Coursework - Projects and Applied Work",
       "text": "Coursework category: Projects and Applied Work. Courses and applied work: Semester 6 Project: Built a CRM-style student-club application with Power Apps and Power Automate connected to a SharePoint database. Semester 7 Project: Enhanced Synchronization in Mechanical Ventilation: Developed a Matlab application for patient-ventilator synchronization, abnormal respiratory cycle detection, parameter estimation, literature review, respiratory cycle segmentation, manual labeling, phase-space curvature feature extraction, classification, and robust regression. Semester 8 Project: Forvia Tracking: Built a camera-radar fusion system for object localization and tracking in autonomous and connected vehicles using computer vision, radar signal processing, probabilistic modeling, and real-time tracking pipelines. Circular Economy Industrial Project: Applied industrial sustainability project using circular economy and industrial ecology methods.",
       "citationLabel": "Diplome d'Ingenieur (MEng) in Mathematics and Data Science coursework - Universite Paris-Saclay: CentraleSupélec",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "product-data-scientist",
         "ai-engineer",
@@ -7003,7 +7003,7 @@
       "section": "Education",
       "text": "Sep 2019 - Jul 2022 in Paris, France. Ranked top 2 percent of national competitive entrance exams Two to three year intensive program preparing for France's top engineering schools",
       "citationLabel": "Intensive Preparatory Course in Physics and Engineering - Lycee Charlemagne and Lycee Saint-Louis",
-      "publicUrl": "../index.html#education",
+      "publicUrl": "/work/#education",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -7054,7 +7054,7 @@
       "section": "Skills",
       "text": "Python, Pandas, NumPy, scikit-learn, PyTorch, Statistical Modeling",
       "citationLabel": "Data Science skills",
-      "publicUrl": "../index.html#skills",
+      "publicUrl": "/work/#skills",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -7086,7 +7086,7 @@
       "section": "Skills",
       "text": "SQL, Power Query, Power Pivot, Excel Dashboards, Statistics",
       "citationLabel": "Analytics and BI skills",
-      "publicUrl": "../index.html#skills",
+      "publicUrl": "/work/#skills",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -7121,7 +7121,7 @@
       "section": "Skills",
       "text": "Gurobi, Simulation, Experimental Design, Signal Processing",
       "citationLabel": "Optimization and Research skills",
-      "publicUrl": "../index.html#skills",
+      "publicUrl": "/work/#skills",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -7154,7 +7154,7 @@
       "section": "Skills",
       "text": "FastAPI, Next.js, TypeScript, REST APIs, Git",
       "citationLabel": "AI and Product Engineering skills",
-      "publicUrl": "../index.html#skills",
+      "publicUrl": "/work/#skills",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",
@@ -7187,7 +7187,7 @@
       "section": "Skills",
       "text": "French (Native), English (Professional), Spanish (Proficient)",
       "citationLabel": "Languages skills",
-      "publicUrl": "../index.html#skills",
+      "publicUrl": "/work/#skills",
       "roleTags": [
         "ai-engineer",
         "ml-engineer",

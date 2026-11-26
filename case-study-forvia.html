@@ -16,39 +16,39 @@
   <link rel="canonical" href="https://alexandre-sdd.github.io/case-study-forvia.html" />
   <title>Forvia Multi-Sensor Localization Research | Case Study</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/assets/fonts/plex-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/base.css" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body class="case-page" data-case-study-id="forvia-camera-radar-fusion-prototype">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="page case-page">
     <header class="site-header">
       <div class="brand">
-        <a class="brand-name" href="./index.html">Alexandre SEPULVEDA de DIETRICH</a>
-        <span class="brand-title" id="brand-title">Data Scientist and Business Analytics MS candidate</span>
+        <a class="brand-name" href="/work/">Alexandre SEPULVEDA de DIETRICH</a>
+        <span class="brand-title" id="brand-title">Data science, AI &amp; operations research</span>
       </div>
       <nav class="site-nav" aria-label="Primary">
-        <a href="./index.html">Back to Portfolio</a>
+        <a href="/work/">Browse my work</a>
         <a id="case-nav-resume-link" href="./assets/resume/resume_april.pdf" target="_blank" rel="noreferrer">Resume</a>
         <a href="mailto:aes2399@columbia.edu">Contact</a>
+      <a href="/" data-interview-return>Back to interview</a>
       </nav>
     </header>
 
-    <main>
+    <main id="main">
       <section class="case-hero">
-        <p class="eyebrow">Case Study</p>
         <h1 id="case-title">Forvia Multi-Sensor Localization Research</h1>
         <p class="meta" id="case-meta">Research Project · CentraleSupélec L2S Lab and Forvia · Gif-sur-Yvette, France · Feb 2024 - Jun 2024</p>
         <p class="case-summary" id="case-summary">Research project on multi-sensor localization using camera-derived priors and array measurements with an optimal-transport-based fusion approach.</p>
         <div class="case-top-links artifacts-row" id="case-artifacts-top" aria-label="Case-study artifacts">
           <a class="artifact-link" href="https://github.com/alexandre-sdd/Forvia_OT_tracking" target="_blank" rel="noreferrer">
             <span class="artifact-icon" aria-hidden="true">&lt;/&gt;</span>
-            <span>Code</span>
+            <span>Forvia tracking repository</span>
           </a>
           <a class="artifact-link" href="./assets/projects/Forvia_Tracking.pdf">
             <span class="artifact-icon" aria-hidden="true">Doc</span>
-            <span>Write-up</span>
+            <span>Multi-sensor localization research report</span>
           </a>
         </div>
       </section>
@@ -74,19 +74,6 @@
             <li>This page focuses on the research framing, method, and experimental outcomes.</li>
           </ul>
         </article>
-      </section>
-
-      <section class="section">
-        <div class="section-header">
-          <h2>Visuals</h2>
-          <p>Supporting visuals are simplified here; the report contains the fuller methodological detail.</p>
-        </div>
-        <div class="case-media-grid" id="case-media-grid">
-          <figure class="media-card">
-            <img src="./assets/projects/forvia-thumb.svg" alt="Placeholder visual for Forvia multi-sensor localization case study." loading="lazy" decoding="async" />
-            <figcaption>GIF · Research report is available in project artifacts.</figcaption>
-          </figure>
-        </div>
       </section>
 
       <section class="case-grid case-grid-plain">
@@ -176,11 +163,11 @@
           <div class="artifacts-row" id="case-artifacts-block" aria-label="Case-study artifacts details">
             <a class="artifact-link" href="https://github.com/alexandre-sdd/Forvia_OT_tracking" target="_blank" rel="noreferrer">
               <span class="artifact-icon" aria-hidden="true">&lt;/&gt;</span>
-              <span>Code</span>
+              <span>Forvia tracking repository</span>
             </a>
             <a class="artifact-link" href="./assets/projects/Forvia_Tracking.pdf">
               <span class="artifact-icon" aria-hidden="true">Doc</span>
-              <span>Write-up</span>
+              <span>Multi-sensor localization research report</span>
             </a>
           </div>
         </article>
@@ -201,5 +188,6 @@
   </div>
 
   <script src="./case-study.js"></script>
+  <script src="/navigation.js" defer></script>
 </body>
 </html>

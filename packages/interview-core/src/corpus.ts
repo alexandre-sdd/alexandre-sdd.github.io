@@ -118,12 +118,11 @@ const STOPWORDS = new Set([
   "your"
 ]);
 
-function toInterviewRelativeUrl(url: string | undefined, fallback = "../index.html"): string {
+function toPublicUrl(url: string | undefined, fallback = "/work/"): string {
   if (!url) return fallback;
   if (/^https?:\/\//i.test(url)) return url;
-  if (url.startsWith("./")) return `../${url.slice(2)}`;
-  if (url.startsWith("#")) return `../index.html${url}`;
-  return `../${url}`;
+  if (url.startsWith("#")) return `/work/${url}`;
+  return `/${url.replace(/^(\.\/|\.\.\/|\/)+/, "")}`;
 }
 
 function normalizeText(value: string): string {
@@ -278,7 +277,7 @@ function addOverviewChunks(chunks: CorpusChunk[], content: PortfolioContent): vo
     section: "Portfolio overview",
     text: `${content.headline}. ${content.targetRoleLine}. ${content.about}. Highlights: ${content.heroProofBullets.join(" ")} Impact: ${content.impactHighlights.join(" ")}`,
     citationLabel: "Portfolio overview",
-    publicUrl: "../index.html#home",
+    publicUrl: "/work/#home",
     roleTags: [DEFAULT_ROLE_ID, "ml-engineer", "product-data-scientist"],
     evidenceStrength: "core",
     keywords: ["portfolio", "overview", "profile"]
@@ -286,9 +285,9 @@ function addOverviewChunks(chunks: CorpusChunk[], content: PortfolioContent): vo
 }
 
 function projectEvidenceUrl(project: ProjectRecord): string {
-  return toInterviewRelativeUrl(
+  return toPublicUrl(
     project.artifacts?.writeup || project.artifacts?.code || project.artifacts?.demo,
-    "../index.html#projects"
+    "/work/#projects"
   );
 }
 
@@ -368,7 +367,7 @@ function addProjectChunks(chunks: CorpusChunk[], project: ProjectRecord): void {
 
 function addCaseStudyChunks(chunks: CorpusChunk[], caseStudy: CaseStudyRecord): void {
   const roleTags = PROJECT_ROLE_TAGS[caseStudy.id] ?? [DEFAULT_ROLE_ID];
-  const publicUrl = toInterviewRelativeUrl(caseStudy.page, "../index.html#case-studies");
+  const publicUrl = toPublicUrl(caseStudy.page, "/work/#case-studies");
   const baseKeywords = [caseStudy.id, caseStudy.title, ...(caseStudy.techStack ?? [])];
 
   addChunk(chunks, {
@@ -442,7 +441,7 @@ function addExperienceChunks(chunks: CorpusChunk[], experience: ExperienceRecord
     section: "Experience highlights",
     text: `${experience.dates} in ${experience.location}. ${experience.highlights.join(" ")}`,
     citationLabel: `${experience.role} - ${experience.company}`,
-    publicUrl: "../index.html#experience",
+    publicUrl: `/work/#experience-${index}`,
     roleTags,
     evidenceStrength: "supporting",
     keywords: [experience.company, experience.role]
@@ -453,7 +452,7 @@ function addExperienceChunks(chunks: CorpusChunk[], experience: ExperienceRecord
     sourceType: "experience",
     sourceId,
     title,
-    publicUrl: "../index.html#experience",
+    publicUrl: `/work/#experience-${index}`,
     roleTags,
     learning: experience.learning,
     keywords: [experience.company, experience.role]
@@ -526,7 +525,7 @@ function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, i
     section: "Education",
     text: `${education.dates} in ${education.location}. ${education.details.join(" ")}`,
     citationLabel: `${education.degree} - ${education.school}`,
-    publicUrl: "../index.html#education",
+    publicUrl: "/work/#education",
     roleTags: ["ai-engineer", "ml-engineer", "research-engineer", "optimization-analytics"],
     evidenceStrength: "supporting",
     keywords: [education.school, education.degree, ...aliases]
@@ -545,7 +544,7 @@ function addEducationChunks(chunks: CorpusChunk[], education: EducationRecord, i
       section: `Coursework - ${group.category}`,
       text,
       citationLabel: `${education.degree} coursework - ${education.school}`,
-      publicUrl: "../index.html#education",
+      publicUrl: "/work/#education",
       roleTags: inferEducationRoleTags(group.category, text),
       evidenceStrength: "supporting",
       keywords: inferKeywords(text, [
@@ -571,7 +570,7 @@ function addSkillChunks(chunks: CorpusChunk[], skillGroup: SkillGroupRecord, ind
     section: "Skills",
     text: skillGroup.items.join(", "),
     citationLabel: `${skillGroup.group} skills`,
-    publicUrl: "../index.html#skills",
+    publicUrl: "/work/#skills",
     roleTags: ["ai-engineer", "ml-engineer", "research-engineer", "optimization-analytics", "product-data-scientist"],
     evidenceStrength: "supporting",
     keywords: [skillGroup.group, ...skillGroup.items]

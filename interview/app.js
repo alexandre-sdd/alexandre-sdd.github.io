@@ -1,549 +1,320 @@
-const FALLBACK_MODE = {
-  defaultRoleId: "ai-engineer",
-  roles: [],
-  seededQuestions: [],
-  corpus: {
-    chunkCount: 0,
-    generatedAt: ""
-  }
-};
+import { evidenceUrl } from './urls.js';
 
-const state = {
-  apiBaseUrl: "",
-  mode: "unknown",
-  config: FALLBACK_MODE,
-  selectedRoleId: "ai-engineer",
-  messages: [],
-  isConnected: false,
-  isStreaming: false,
-  messageCounter: 0,
-  showDevControls: false
-};
-
-const STREAM_RENDER_DELAY_MS = 22;
 const MAX_HISTORY_MESSAGES = 8;
 const SUMMARY_SOURCE_LIMIT = 5;
-const PROCESS_STEPS = {
-  retrieve: "Finding relevant portfolio evidence.",
-  ground: "Preparing source-backed context.",
-  draft: "Writing the answer from retrieved evidence.",
-  sources: "Checking the source links for this answer."
-};
-const PROCESS_TIMELINE = [
-  { delay: 500, step: PROCESS_STEPS.ground },
-  { delay: 1300, step: PROCESS_STEPS.draft }
+const STORAGE_KEY = 'ai-lexandre-conversation-v1';
+const params = new URLSearchParams(location.search);
+const localRoles = [
+  {id:'ai-engineer',label:'AI Engineer',summary:'Architecture, shipping, and reliable AI systems.'},
+  {id:'ml-engineer',label:'ML Engineer',summary:'Data decisions, evaluation, and operational constraints.'},
+  {id:'optimization-analytics',label:'Optimization / Analytics',summary:'Formulations, constraints, scheduling, and policy tradeoffs.'},
+  {id:'research-engineer',label:'Research Engineer',summary:'Experiments, methodology, and research implementation.'},
+  {id:'product-data-scientist',label:'Product / Data Scientist',summary:'User needs, stakeholder decisions, and product tradeoffs.'}
 ];
+const state = {apiBaseUrl:'',apiOverride:'',mode:'unknown',roles:localRoles,selectedRoleId:'ai-engineer',messages:[],isStreaming:false,isConnected:false,messageCounter:0,scrollY:0,details:[],undo:null};
+const $ = (id) => document.getElementById(id);
+const els = Object.fromEntries(['conversation','interview-form','question-input','submit-status','submit-button','submit-label','clear-thread','undo-clear','role-picker','role-summary','role-description','composer-tools','starter-prompts','service-notice','reconnect','dev-panel','dev-status'].map(id=>[id,$(id)]));
+const devMode = params.has('dev') || Boolean(window.INTERVIEW_CONFIG?.showDevControls);
+let streamRender = 0;
 
-// Human-readable label for each V2 intent. null = don't show a routing trace.
-const INTENT_LABELS = {
-  "education-schools": "School list",
-  "education-coursework": "Coursework",
-  "experience-list": "Work history",
-  "experience-specific": "Work detail",
-  "project-list": "Project list",
-  "project-specific": "Project detail",
-  "role-fit": "Role fit",
-  "technical-depth": "Technical",
-  behavioral: "Behavioral",
-  "follow-up": "Follow-up",
-  inventory: "Full portfolio",
-  general: null
-};
-
-const qs = (selector, scope = document) => scope.querySelector(selector);
-const params = new URLSearchParams(window.location.search);
-
-const els = {
-  rolePicker: qs("#role-picker"),
-  conversation: qs("#conversation"),
-  interviewForm: qs("#interview-form"),
-  questionInput: qs("#question-input"),
-  submitStatus: qs("#submit-status"),
-  submitButton: qs("#submit-button"),
-  clearThread: qs("#clear-thread"),
-  devPanel: qs("#dev-panel"),
-  devStatus: qs("#dev-status")
-};
-
-function getConfigValue(key) {
-  return window.INTERVIEW_CONFIG?.[key];
+function storeSession() {
+  try {
+    sessionStorage.setItem('ai-lexandre-return-url',location.pathname+location.search);
+    state.details=[...document.querySelectorAll('.message-details[open]')].map(el=>el.id);
+    sessionStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,messages:state.messages,selectedRoleId:state.selectedRoleId,messageCounter:state.messageCounter,draft:els['question-input'].value,scrollY:window.scrollY,apiOverride:state.apiOverride,details:[...document.querySelectorAll('.message-details[open]')].map(el=>el.id)}));
+  } catch { /* The interview still works with storage blocked or full. */ }
 }
 
-function normalizedApiBase(url) {
-  return (url || "").trim().replace(/\/+$/, "");
+function restoreSession() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || 'null');
+    if (saved?.version !== 1 || !Array.isArray(saved.messages)) return;
+    state.messages = saved.messages.filter(m=>m && ['user','assistant'].includes(m.role) && typeof m.content==='string' && typeof m.id==='string').map(m=>({...m,isStreaming:false,interrupted:m.isStreaming || m.interrupted}));
+    state.selectedRoleId = saved.selectedRoleId || state.selectedRoleId;
+    state.messageCounter = Number(saved.messageCounter) || state.messages.length;
+    state.scrollY = Number(saved.scrollY) || 0;
+    state.details = Array.isArray(saved.details) ? saved.details : [];
+    state.apiOverride = saved.apiOverride || '';
+    els['question-input'].value = typeof saved.draft==='string' ? saved.draft : '';
+  } catch { /* Ignore older, invalid, or unavailable storage. */ }
 }
 
-function resolveApiBaseUrl() {
-  const fromQuery = params.get("api");
-  if (fromQuery) return normalizedApiBase(fromQuery);
-
-  localStorage.removeItem("interview_api_base_url");
-  return normalizedApiBase(getConfigValue("apiBaseUrl") || getConfigValue("localApiBaseUrl") || "");
+function status(text='',tone='default') {
+  els['submit-status'].textContent = text;
+  els['submit-status'].dataset.tone = tone;
 }
 
-function apiUrl(path) {
-  return `${state.apiBaseUrl}${path}`;
+function renderControls() {
+  els['submit-button'].disabled = state.isStreaming;
+  els['submit-button'].setAttribute('aria-busy',String(state.isStreaming));
+  els['submit-label'].textContent = state.isStreaming ? 'Answering' : 'Ask';
+  els['clear-thread'].disabled = state.isStreaming;
+  els['clear-thread'].hidden = state.messages.length===0;
+  els['undo-clear'].hidden = !state.undo;
+  els['role-picker'].disabled = state.isStreaming;
+  els['starter-prompts'].hidden = state.messages.length>0;
+  els['service-notice'].hidden = state.isConnected || state.mode==='unknown';
+  els['dev-panel'].hidden = !devMode;
+  els['dev-status'].textContent = `API: ${state.apiBaseUrl} · mode: ${state.mode}`;
 }
 
-function nextMessageId() {
-  state.messageCounter += 1;
-  return `msg-${state.messageCounter}`;
-}
-
-function setStatus(message, tone = "default") {
-  els.submitStatus.textContent = message;
-  els.submitStatus.dataset.tone = tone;
-}
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function featuredRoles() {
-  const featuredIds = getConfigValue("featuredRoleIds") || [];
-  const featured = state.config.roles.filter((role) => featuredIds.includes(role.id));
-  return featured.length > 0 ? featured : state.config.roles.slice(0, 3);
-}
-
-function selectedRole() {
-  return featuredRoles().find((role) => role.id === state.selectedRoleId) || featuredRoles()[0] || null;
-}
-
-function starterQuestions() {
-  const currentRole = selectedRole();
-  const count = getConfigValue("starterQuestionCount") || 3;
-  if (!currentRole) return [];
-
-  return state.config.seededQuestions
-    .filter((item) => item.roleIds.includes(currentRole.id))
-    .sort((a, b) => {
-      // Prefer questions where this role appears first (designed primarily for it)
-      const aFirst = a.roleIds[0] === currentRole.id ? 0 : 1;
-      const bFirst = b.roleIds[0] === currentRole.id ? 0 : 1;
-      if (aFirst !== bFirst) return aFirst - bFirst;
-      // Among ties, prefer questions with fewer total roles (more specific)
-      return a.roleIds.length - b.roleIds.length;
-    })
-    .slice(0, count);
-}
-
-function createPresetButton(role) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = `preset-button${role.id === state.selectedRoleId ? " is-active" : ""}`;
-  button.textContent = role.label;
-  button.title = role.summary;
-  button.addEventListener("click", () => {
-    state.selectedRoleId = role.id;
-    updatePromptPlaceholder();
-    renderRolePicker();
-    renderConversation();
-  });
-  return button;
-}
-
-function createFollowUpChip(text) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "follow-up-chip";
-  button.textContent = text;
-  button.addEventListener("click", () => {
-    els.questionInput.value = text;
-    els.questionInput.focus();
-  });
-  return button;
-}
-
-function sourceTypeLabel(sourceType) {
-  const labels = {
-    "case-study": "Case study",
-    education: "Education",
-    experience: "Experience",
-    overview: "Overview",
-    project: "Project",
-    skills: "Skills"
-  };
-
-  return labels[sourceType] || "Source";
-}
-
-// Build the routing trace section from a MemoryState object.
-// Shows the classified intent, active topic, and detected entities.
-function createRoutingTrace(memoryState) {
-  if (!memoryState) return null;
-
-  const intentLabel = INTENT_LABELS[memoryState.lastIntent];
-  const hasEntities = memoryState.askedEntities?.length > 0;
-  const showTopic = memoryState.activeTopic && memoryState.activeTopic !== "general";
-
-  if (!intentLabel && !hasEntities && !showTopic) return null;
-
-  const details = document.createElement("details");
-  details.className = "message-details routing-details";
-
-  const summary = document.createElement("summary");
-  summary.textContent = "Routing";
-  details.appendChild(summary);
-
-  const trace = document.createElement("div");
-  trace.className = "routing-trace";
-
-  if (intentLabel) {
-    const row = document.createElement("div");
-    row.className = "routing-row";
-    const label = document.createElement("span");
-    label.className = "routing-label";
-    label.textContent = "Intent";
-    const badge = document.createElement("span");
-    badge.className = "routing-badge routing-badge-intent";
-    badge.textContent = intentLabel;
-    row.appendChild(label);
-    row.appendChild(badge);
-    trace.appendChild(row);
+function renderRoles() {
+  els['role-picker'].replaceChildren();
+  for (const role of state.roles) {
+    const option = document.createElement('option');
+    option.value=role.id;option.textContent=role.label;
+    els['role-picker'].append(option);
   }
+  if (!state.roles.some(r=>r.id===state.selectedRoleId)) state.selectedRoleId=state.roles[0]?.id || 'ai-engineer';
+  els['role-picker'].value=state.selectedRoleId;
+  const role=state.roles.find(r=>r.id===state.selectedRoleId);
+  els['role-summary'].textContent=`Role focus: ${role?.label || 'AI Engineer'}`;
+  els['role-description'].textContent=role?.summary || '';
+}
 
-  if (showTopic) {
-    const row = document.createElement("div");
-    row.className = "routing-row";
-    const label = document.createElement("span");
-    label.className = "routing-label";
-    label.textContent = "Topic";
-    const badge = document.createElement("span");
-    badge.className = "routing-badge routing-badge-topic";
-    badge.textContent = memoryState.activeTopic;
-    row.appendChild(label);
-    row.appendChild(badge);
-    trace.appendChild(row);
+function element(tag,className,text) {
+  const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=text;return el;
+}
+
+function setAnswer(body,text) {
+  const fragment=document.createDocumentFragment();
+  for (const paragraph of text.split(/\n\s*\n/).filter(Boolean)) {
+    const p=element('p');
+    // Interpret emphasis only; model output never becomes executable HTML.
+    for (const [i,part] of paragraph.split(/\*\*(.*?)\*\*/g).entries()) p.append(i%2?element('strong','',part):document.createTextNode(part));
+    fragment.append(p);
   }
+  body.replaceChildren(fragment);
+}
 
-  if (hasEntities) {
-    const row = document.createElement("div");
-    row.className = "routing-row";
-    const label = document.createElement("span");
-    label.className = "routing-label";
-    label.textContent = "Entities";
-    const badgesGroup = document.createElement("span");
-    badgesGroup.className = "routing-badges";
-    memoryState.askedEntities.slice(0, 4).forEach((entity) => {
-      const badge = document.createElement("span");
-      badge.className = "routing-badge routing-badge-entity";
-      badge.textContent = entity;
-      badgesGroup.appendChild(badge);
-    });
-    row.appendChild(label);
-    row.appendChild(badgesGroup);
-    trace.appendChild(row);
+function sourceLink(url,title) {
+  const href=evidenceUrl(url);if(!href)return null;
+  const link=element('a','',title);link.href=href;
+  // Navigate normally so Back restores this exact reading position.
+  link.addEventListener('click',storeSession);
+  return link;
+}
+
+function evidenceFor(message) {
+  const entries=[];
+  for(const source of message.projectsUsed || []) {
+    const url=evidenceUrl(source.publicUrl);if(!url)continue;
+    entries.push({url,title:source.title,description:source.why || 'Published portfolio evidence'});
   }
+  for(const citation of message.citations || []) {
+    const url=evidenceUrl(citation.publicUrl);if(!url)continue;
+    const existing=entries.find(e=>e.url===url);
+    if(existing) {if(!existing.excerpt)existing.excerpt=citation.excerpt;continue;}
+    entries.push({url,title:citation.citationLabel || 'Published evidence',excerpt:citation.excerpt});
+  }
+  const chanel=entries.find(e=>/case-study-chanel|Combination_Outlier_Detection/.test(e.url));
+  if(chanel) {
+    // This is the public method document behind the cited CHANEL case study.
+    const note={url:'/assets/projects/Combination_Outlier_Detection.pdf',title:'Combination Outlier Detection',description:'CHANEL · public method note. Company data and code are confidential.'};
+    if(/chanel|craft|combination_outlier/i.test(`${entries[0].title} ${entries[0].url}`)) entries.unshift(note);
+    else entries.push(note);
+  }
+  const seen=new Set();
+  return entries.filter(e=>{if(seen.has(e.url))return false;seen.add(e.url);return true;});
+}
 
-  details.appendChild(trace);
-  return details;
+function fillQuestion(text) {
+  els['question-input'].value=text;
+  els['question-input'].focus();
+  storeSession();
 }
 
 function createSources(message) {
-  const hasProjectsUsed = message.projectsUsed?.length > 0;
-  const hasCitations = message.citations?.length > 0;
-  const hasFollowUps = message.followUps?.length > 0;
-  const hasRouting = Boolean(message.memoryState && INTENT_LABELS[message.memoryState?.lastIntent] !== undefined);
-
-  if (!hasProjectsUsed && !hasCitations && !hasFollowUps && !hasRouting) {
-    return null;
-  }
-
-  const footer = document.createElement("div");
-  footer.className = "message-footer";
-
-  if (hasProjectsUsed) {
-    const row = document.createElement("div");
-    row.className = "source-row";
-
-    message.projectsUsed.forEach((source) => {
-      const link = document.createElement(source.publicUrl ? "a" : "span");
-      link.className = "source-chip";
-      link.textContent = source.sourceType && source.sourceType !== "project" ? `${sourceTypeLabel(source.sourceType)}: ${source.title}` : source.title;
-      link.title = source.why ? `${sourceTypeLabel(source.sourceType)} · ${source.why}` : sourceTypeLabel(source.sourceType);
-      if (source.publicUrl) {
-        link.href = source.publicUrl;
-        link.target = "_blank";
-        link.rel = "noreferrer";
+  const entries=evidenceFor(message);
+  const footer=element('div','message-footer');
+  if(entries.length) {
+    const primary=element('div','primary-evidence');
+    primary.append(sourceLink(entries[0].url,entries[0].title));
+    primary.append(element('p','evidence-description',entries[0].description || 'Read the published evidence behind this answer.'));
+    footer.append(primary);
+    if(entries.length>1 || entries[0].excerpt) {
+      const details=element('details','message-details');details.id=`evidence-${message.id}`;
+      details.open=state.details.includes(details.id);
+      details.append(element('summary','',`More evidence${entries.length>1?` (${entries.length-1})`:''}`));
+      const list=element('div','evidence-list');
+      for(const entry of entries.slice(entries[0].excerpt?0:1)) {
+        const item=element('div','evidence-item');item.append(sourceLink(entry.url,entry.title));
+        if(entry.excerpt || entry.description)item.append(element('p','',entry.excerpt || entry.description));
+        list.append(item);
       }
-      row.appendChild(link);
-    });
-
-    footer.appendChild(row);
+      details.append(list);details.addEventListener('toggle',storeSession);footer.append(details);
+    }
   }
-
-  if (hasFollowUps) {
-    const followUpRow = document.createElement("div");
-    followUpRow.className = "follow-up-row";
-    message.followUps.slice(0, 2).forEach((item) => followUpRow.appendChild(createFollowUpChip(item)));
-    footer.appendChild(followUpRow);
+  if(message.followUps?.length && !message.isStreaming) {
+    const followUps=element('div','follow-up-row');
+    for(const text of message.followUps.slice(0,2)) {
+      const button=element('button','follow-up-chip',text);button.type='button';button.addEventListener('click',()=>fillQuestion(text));followUps.append(button);
+    }
+    footer.append(followUps);
   }
-
-  if (hasCitations) {
-    const details = document.createElement("details");
-    details.className = "message-details";
-    const summary = document.createElement("summary");
-    summary.textContent = "Source basis";
-    details.appendChild(summary);
-
-    const list = document.createElement("div");
-    list.className = "evidence-list";
-
-    message.citations.forEach((citation) => {
-      const item = document.createElement("article");
-      item.className = "evidence-item";
-      const title = document.createElement("a");
-      title.href = citation.publicUrl;
-      title.target = "_blank";
-      title.rel = "noreferrer";
-      title.textContent = citation.citationLabel;
-      item.appendChild(title);
-
-      const excerpt = document.createElement("p");
-      excerpt.textContent = citation.excerpt;
-      item.appendChild(excerpt);
-
-      list.appendChild(item);
-    });
-
-    details.appendChild(list);
-    footer.appendChild(details);
+  if(devMode && message.memoryState) {
+    const details=element('details','message-details');details.append(element('summary','','Routing'));
+    details.append(element('pre','routing-trace',JSON.stringify(message.memoryState,null,2)));footer.append(details);
   }
-
-  // Routing trace from V2 memoryState — shows intent, topic, and entities
-  const routingTrace = createRoutingTrace(message.memoryState);
-  if (routingTrace) footer.appendChild(routingTrace);
-
   return footer;
 }
 
-function createMessageElement(message) {
-  const article = document.createElement("article");
-  article.className = `message message-${message.role}${message.isStreaming ? " is-streaming" : ""}`;
-
-  const meta = document.createElement("div");
-  meta.className = "message-meta";
-  meta.textContent = message.role === "assistant" ? "Alex" : "Interviewer";
-  article.appendChild(meta);
-
-  if (message.role === "assistant" && message.processStep) {
-    const process = document.createElement("div");
-    process.className = "message-process";
-    process.textContent = message.processStep;
-    article.appendChild(process);
-  }
-
-  const body = document.createElement("div");
-  body.className = "message-body";
-  body.textContent = message.content;
-  article.appendChild(body);
-
-  if (message.role === "assistant") {
-    const sources = createSources(message);
-    if (sources) article.appendChild(sources);
-  }
-
-  return article;
-}
-
-function createEmptyState() {
-  const wrapper = document.createElement("div");
-  wrapper.className = "empty-state";
-
-  const card = document.createElement("div");
-  card.className = "empty-state-card";
-
-  const heading = document.createElement("h2");
-  heading.textContent = "Start like an interviewer";
-  card.appendChild(heading);
-
-  const copy = document.createElement("p");
-  copy.textContent = "Ask for exact role, technical judgment, tradeoffs, outcomes, and what I would improve next.";
-  card.appendChild(copy);
-
-  const promptRow = document.createElement("div");
-  promptRow.className = "starter-prompts";
-
-  starterQuestions().forEach((item) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "starter-button";
-    button.textContent = item.question;
-    button.addEventListener("click", () => {
-      els.questionInput.value = item.question;
-      els.questionInput.focus();
-    });
-    promptRow.appendChild(button);
-  });
-
-  card.appendChild(promptRow);
-  wrapper.appendChild(card);
-
-  return wrapper;
-}
-
-function renderRolePicker() {
-  els.rolePicker.innerHTML = "";
-  featuredRoles().forEach((role) => els.rolePicker.appendChild(createPresetButton(role)));
-}
-
 function renderConversation() {
-  els.conversation.innerHTML = "";
-
-  if (state.messages.length === 0) {
-    els.conversation.appendChild(createEmptyState());
-    return;
-  }
-
-  state.messages.forEach((message) => {
-    els.conversation.appendChild(createMessageElement(message));
-  });
-
-  els.conversation.scrollTop = els.conversation.scrollHeight;
-}
-
-function renderDevPanel() {
-  if (!state.showDevControls) {
-    els.devPanel.classList.add("is-hidden");
-    return;
-  }
-
-  els.devPanel.classList.remove("is-hidden");
-  els.devStatus.textContent = `API: ${state.apiBaseUrl || "unset"} · mode: ${state.mode} · connected: ${state.isConnected ? "yes" : "no"}`;
-}
-
-function updatePromptPlaceholder() {
-  const role = selectedRole();
-  const placeholders = {
-    "ai-engineer": "Ask what I built, why the architecture worked, and what failure mode I handled.",
-    "ml-engineer": "Ask what data decision, evaluation choice, or production constraint mattered most.",
-    "optimization-analytics": "Ask what constraint, solver choice, or scheduling tradeoff changed the answer."
-  };
-
-  els.questionInput.placeholder = placeholders[role?.id] || "Ask what my exact role was, what tradeoff mattered, or why the work fits.";
-}
-
-function setStreamingState(isStreaming) {
-  state.isStreaming = isStreaming;
-  els.submitButton.disabled = isStreaming;
-  els.questionInput.disabled = isStreaming;
-}
-
-function upsertMessage(id, updater) {
-  const message = state.messages.find((item) => item.id === id);
-  if (!message) return;
-  updater(message);
-  renderConversation();
-}
-
-function setMessageProcess(messageId, step) {
-  upsertMessage(messageId, (message) => {
-    message.processStep = step;
-  });
-}
-
-function startProcessTimeline(messageId) {
-  const timers = PROCESS_TIMELINE.map(({ delay, step }) =>
-    window.setTimeout(() => {
-      setMessageProcess(messageId, step);
-    }, delay)
-  );
-
-  return () => timers.forEach((timer) => window.clearTimeout(timer));
-}
-
-async function flushStreamQueue(messageId) {
-  const message = state.messages.find((item) => item.id === messageId);
-  if (!message || message.streamFlushActive) return;
-
-  message.streamFlushActive = true;
-
-  while (true) {
-    const current = state.messages.find((item) => item.id === messageId);
-    if (!current) break;
-
-    if (current.streamQueue && current.streamQueue.length > 0) {
-      current.content += current.streamQueue.shift();
-      current.isStreaming = true;
-      renderConversation();
-      await wait(STREAM_RENDER_DELAY_MS);
-      continue;
+  els.conversation.replaceChildren();
+  for(let i=0;i<state.messages.length;i++) {
+    const question=state.messages[i];if(question.role!=='user')continue;
+    const exchange=element('section','exchange');exchange.id=question.id;
+    const heading=element('h2','question',question.content);heading.tabIndex=-1;exchange.append(heading);
+    const answer=state.messages[i+1];
+    if(answer?.role==='assistant') {
+      const article=element('div','assistant-message');article.id=answer.id;
+      article.append(element('p','answer-label',answer.isStreaming?'AI-lexandre is answering…':'AI-lexandre'));
+      const body=element('div','answer');setAnswer(body,answer.content);article.append(body);
+      if(answer.interrupted)article.append(element('p','evidence-description','This answer was interrupted. You can ask the question again to continue.'));
+      article.append(createSources(answer));exchange.append(article);
     }
-
-    if (current.finalPayload) {
-      current.content = current.finalPayload.answer;
-      current.citations = current.finalPayload.citations;
-      current.projectsUsed = current.finalPayload.projectsUsed;
-      current.followUps = current.finalPayload.followUps;
-      current.memoryState = current.finalPayload.memoryState;
-      current.isStreaming = false;
-      current.processStep = null;
-      current.finalPayload = null;
-      current.streamFlushActive = false;
-      renderConversation();
-      return;
-    }
-
-    current.streamFlushActive = false;
-    renderConversation();
-    return;
+    els.conversation.append(exchange);
   }
+  renderControls();
 }
 
-async function checkHealth() {
-  const response = await fetch(apiUrl("/v1/health"));
-  if (!response.ok) throw new Error("Health check failed.");
-  return response.json();
-}
-
-async function loadConfig() {
-  const response = await fetch(apiUrl("/v1/config"));
-  if (!response.ok) throw new Error("Config load failed.");
-  return response.json();
+function renderStream(message) {
+  if(streamRender)return;
+  streamRender=requestAnimationFrame(()=>{
+    streamRender=0;
+    const article=$(message.id);if(!article)return;
+    setAnswer(article.querySelector('.answer'),message.content);
+    // Never scroll on token arrival. The reader owns the page position.
+  });
 }
 
 async function reconnect() {
+  els.reconnect.disabled=true;
   try {
-    const [health, config] = await Promise.all([checkHealth(), loadConfig()]);
-    state.isConnected = true;
-    state.mode = health.mode;
-    state.config = config;
-
-    const currentFeatured = featuredRoles();
-    if (!currentFeatured.some((role) => role.id === state.selectedRoleId)) {
-      state.selectedRoleId = currentFeatured[0]?.id || config.defaultRoleId || state.selectedRoleId;
-    }
-
-    renderRolePicker();
-    renderConversation();
-    updatePromptPlaceholder();
-    setStatus("");
-  } catch (error) {
-    state.isConnected = false;
-    state.mode = "unreachable";
-    state.config = FALLBACK_MODE;
-    renderRolePicker();
-    renderConversation();
-    setStatus("The interview service is unavailable.", "danger");
-    console.error(error);
-  }
-
-  renderDevPanel();
-}
-
-function readNdjsonLine(line) {
-  if (!line.trim()) return null;
-  try {
-    return JSON.parse(line);
+    const [healthResponse,configResponse]=await Promise.all([
+      fetch(`${state.apiBaseUrl}/v1/health`,{signal:AbortSignal.timeout(6000)}),
+      fetch(`${state.apiBaseUrl}/v1/config`,{signal:AbortSignal.timeout(6000)})
+    ]);
+    if(!healthResponse.ok || !configResponse.ok)throw new Error('Interview unavailable');
+    const [health,config]=await Promise.all([healthResponse.json(),configResponse.json()]);
+    state.mode=health.mode;
+    if(config.roles?.length)state.roles=config.roles;
+    state.isConnected=true;
+    if(!state.isStreaming)status();
   } catch {
-    return null;
+    state.isConnected=false;state.mode='unreachable';
+    if(!state.isStreaming)status('You can browse the work below or try the service again.');
+  } finally {
+    renderRoles();renderControls();els.reconnect.disabled=false;
   }
 }
 
-// Build the memory payload to send to the API.
-// Phase 3: if the last response included a structured memoryState, send it
-// back directly so the planner can use it without string parsing.
-// Fallback: build the legacy conversationSummary string.
+function nextMessageId() {state.messageCounter+=1;return `msg-${state.messageCounter}`;}
+
+function requestBody(question,memory) {
+  return JSON.stringify({question,roleId:state.selectedRoleId,history:memory.history,conversationSummary:memory.conversationSummary,memoryState:memory.memoryState});
+}
+
+function finishAnswer(message,payload) {
+  if(typeof payload?.answer!=='string')throw new Error('Incomplete interview answer');
+  Object.assign(message,{content:payload.answer,citations:payload.citations || [],projectsUsed:payload.projectsUsed || [],followUps:payload.followUps || [],memoryState:payload.memoryState,isStreaming:false,interrupted:false});
+  state.mode=payload.mode;state.isConnected=true;
+}
+
+async function streamQuestion(question,message,memory) {
+  const response=await fetch(`${state.apiBaseUrl}/v1/interview/stream`,{method:'POST',headers:{'Content-Type':'application/json'},body:requestBody(question,memory),signal:AbortSignal.timeout(90000)});
+  if(!response.ok || !response.body)throw new Error('Streaming unavailable');
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let buffer='',finished=false;
+  function handleFrame(frame) {
+    const data=frame.split('\n').filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trimStart()).join('\n');
+    if(!data)return;
+    const event=JSON.parse(data);
+    if(event.type==='meta') {message.projectsUsed=event.projectsUsed || [];message.citations=event.citations || [];}
+    if(event.type==='token') {message.content+=event.text || '';renderStream(message);}
+    if(event.type==='done') {finishAnswer(message,event.payload);finished=true;}
+    if(event.type==='error')throw new Error('Stream failed');
+  }
+  try {
+    while(true) {
+      const {value,done}=await reader.read();
+      buffer+=decoder.decode(value,{stream:!done});
+      const frames=buffer.split(/\r?\n\r?\n/);buffer=frames.pop() || '';
+      for(const frame of frames)handleFrame(frame);
+      if(done) {if(buffer.trim())handleFrame(buffer);break;}
+    }
+    if(!finished)throw new Error('Stream ended before completion');
+  } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}
+}
+
+async function submitQuestion(question) {
+  const memory=buildConversationMemory();
+  const user={id:nextMessageId(),role:'user',content:question};
+  const assistant={id:nextMessageId(),role:'assistant',content:'',citations:[],projectsUsed:[],followUps:[],isStreaming:true};
+  state.messages.push(user,assistant);state.isStreaming=true;state.undo=null;
+  renderConversation();status('Answering from published evidence…');storeSession();
+  // One movement in direct response to submitting, never on later tokens.
+  $(user.id).querySelector('h2').focus({preventScroll:true});
+  $(user.id).scrollIntoView({block:'start',behavior:'instant'});
+  try {
+    try {await streamQuestion(question,assistant,memory);}
+    catch {
+      status('Trying the standard response…');
+      const response=await fetch(`${state.apiBaseUrl}/v1/interview/respond`,{method:'POST',headers:{'Content-Type':'application/json'},body:requestBody(question,memory),signal:AbortSignal.timeout(90000)});
+      if(!response.ok)throw new Error('Interview unavailable');
+      finishAnswer(assistant,await response.json());
+    }
+    status('Answer ready. Ask a follow-up or explore the evidence.');
+  } catch {
+    assistant.isStreaming=false;assistant.interrupted=true;
+    if(!assistant.content)assistant.content='The interview service couldn’t answer right now. Your question is saved; try again or browse the published work.';
+    state.isConnected=false;state.mode='unreachable';
+    if(!els['question-input'].value)els['question-input'].value=question;
+    status('The service is unavailable. Try your question again or browse my work.','danger');
+  } finally {
+    if(streamRender){cancelAnimationFrame(streamRender);streamRender=0;}
+    state.isStreaming=false;renderConversation();storeSession();
+  }
+}
+
+function bindEvents() {
+  els['interview-form'].addEventListener('submit',event=>{
+    event.preventDefault();if(state.isStreaming)return;
+    const question=els['question-input'].value.trim();if(!question)return;
+    els['question-input'].value='';void submitQuestion(question);
+  });
+  els['question-input'].addEventListener('keydown',event=>{
+    if(event.key==='Enter' && !event.shiftKey && !event.isComposing && !state.isStreaming) {event.preventDefault();els['interview-form'].requestSubmit();}
+  });
+  els['question-input'].addEventListener('input',storeSession);
+  els['role-picker'].addEventListener('change',()=>{state.selectedRoleId=els['role-picker'].value;renderRoles();storeSession();});
+  document.querySelectorAll('.starter-button').forEach(button=>{button.disabled=false;button.addEventListener('click',()=>fillQuestion(button.textContent));});
+  els.reconnect.addEventListener('click',reconnect);
+  els['clear-thread'].addEventListener('click',()=>{
+    if(state.isStreaming)return;
+    state.undo=state.messages;state.messages=[];state.details=[];renderConversation();status('New conversation. You can undo this.');storeSession();els['question-input'].focus();
+  });
+  els['undo-clear'].addEventListener('click',()=>{if(!state.undo)return;state.messages=state.undo;state.undo=null;renderConversation();status('Conversation restored.');storeSession();});
+  window.addEventListener('pagehide',storeSession);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)storeSession();});
+  let savingScroll=false;
+  window.addEventListener('scroll',()=>{if(savingScroll)return;savingScroll=true;requestAnimationFrame(()=>{storeSession();savingScroll=false;});},{passive:true});
+}
+
+function init() {
+  restoreSession();
+  state.apiOverride=params.get('api') || state.apiOverride;
+  state.apiBaseUrl=(state.apiOverride || window.INTERVIEW_CONFIG?.apiBaseUrl || window.INTERVIEW_CONFIG?.localApiBaseUrl || '').trim().replace(/\/+$/,'');
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
+  els['question-input'].disabled=false;els['composer-tools'].hidden=false;
+  bindEvents();renderRoles();renderConversation();
+  // Give restored text its final font metrics before restoring the reading position.
+  const restoreY=state.scrollY;
+  Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,800))]).then(()=>requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'instant'})));
+  void reconnect();
+}
+
+// Compact memory builder is shared with the previous client protocol.
 function buildConversationMemory() {
   const completeMessages = state.messages.filter((message) => message.content && !message.isStreaming);
   const history = completeMessages.slice(-MAX_HISTORY_MESSAGES).map((message) => ({
@@ -593,213 +364,5 @@ function buildConversationMemory() {
   };
 }
 
-async function streamQuestion(question, assistantId, memory) {
-  const response = await fetch(apiUrl("/v1/interview/stream"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      question,
-      roleId: state.selectedRoleId,
-      history: memory.history,
-      conversationSummary: memory.conversationSummary,
-      memoryState: memory.memoryState
-    })
-  });
-
-  if (!response.ok || !response.body) {
-    throw new Error("Streaming unavailable.");
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    // SSE wire format: each event is "data: {json}\n\n"
-    // Split on double-newline boundaries; keep the incomplete last chunk.
-    const chunks = buffer.split("\n\n");
-    buffer = chunks.pop() || "";
-
-    for (const chunk of chunks) {
-      // Find the "data: " line inside the SSE chunk
-      const dataLine = chunk.split("\n").find((l) => l.startsWith("data: "));
-      if (!dataLine) continue;
-      const event = readNdjsonLine(dataLine.slice(6)); // strip "data: "
-      if (!event) continue;
-
-      if (event.type === "meta") {
-        upsertMessage(assistantId, (message) => {
-          message.projectsUsed = event.projectsUsed;
-          message.citations = event.citations;
-          message.processStep = PROCESS_STEPS.ground;
-        });
-      }
-
-      if (event.type === "token") {
-        upsertMessage(assistantId, (message) => {
-          if (!message.streamQueue) message.streamQueue = [];
-          message.streamQueue.push(event.text);
-          message.isStreaming = true;
-          message.processStep = PROCESS_STEPS.draft;
-        });
-        void flushStreamQueue(assistantId);
-      }
-
-      if (event.type === "done") {
-        upsertMessage(assistantId, (message) => {
-          message.finalPayload = event.payload;
-          message.processStep = PROCESS_STEPS.sources;
-        });
-        void flushStreamQueue(assistantId);
-        state.mode = event.payload.mode;
-      }
-
-      if (event.type === "error") {
-        throw new Error(event.message || "Stream failed.");
-      }
-    }
-  }
-}
-
-async function askQuestion(question, memory) {
-  const response = await fetch(apiUrl("/v1/interview/respond"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      question,
-      roleId: state.selectedRoleId,
-      history: memory.history,
-      conversationSummary: memory.conversationSummary,
-      memoryState: memory.memoryState
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error("Interview request failed.");
-  }
-
-  return response.json();
-}
-
-async function submitQuestion(question) {
-  const memory = buildConversationMemory();
-
-  const userMessage = {
-    id: nextMessageId(),
-    role: "user",
-    content: question
-  };
-
-  const assistantMessage = {
-    id: nextMessageId(),
-    role: "assistant",
-    content: "",
-    citations: [],
-    projectsUsed: [],
-    followUps: [],
-    memoryState: null,
-    processStep: PROCESS_STEPS.retrieve,
-    isStreaming: true
-  };
-
-  state.messages.push(userMessage, assistantMessage);
-  renderConversation();
-  setStreamingState(true);
-  setStatus("Streaming...");
-  const stopProcessTimeline = startProcessTimeline(assistantMessage.id);
-
-  try {
-    await streamQuestion(question, assistantMessage.id, memory);
-    setStatus("", "success");
-  } catch (streamError) {
-    try {
-      setStatus("Preparing answer...");
-      const payloadPromise = askQuestion(question, memory);
-      setMessageProcess(assistantMessage.id, PROCESS_STEPS.ground);
-      await wait(260);
-      setMessageProcess(assistantMessage.id, PROCESS_STEPS.draft);
-      const payload = await payloadPromise;
-      setMessageProcess(assistantMessage.id, PROCESS_STEPS.sources);
-      await wait(260);
-      upsertMessage(assistantMessage.id, (message) => {
-        message.content = payload.answer;
-        message.citations = payload.citations;
-        message.projectsUsed = payload.projectsUsed;
-        message.followUps = payload.followUps;
-        message.memoryState = payload.memoryState;
-        message.isStreaming = false;
-        message.processStep = null;
-        message.streamQueue = [];
-        message.finalPayload = null;
-      });
-      state.mode = payload.mode;
-      await wait(1200);
-      setStatus("", "success");
-    } catch (error) {
-      upsertMessage(assistantMessage.id, (message) => {
-        message.content = "The interview service could not answer right now.";
-        message.isStreaming = false;
-        message.processStep = null;
-        message.streamQueue = [];
-        message.finalPayload = null;
-      });
-      setStatus("Request failed.", "danger");
-      console.error(error);
-    }
-    console.error(streamError);
-  } finally {
-    stopProcessTimeline();
-    setStreamingState(false);
-    renderDevPanel();
-  }
-}
-
-async function handleSubmit(event) {
-  event.preventDefault();
-  if (state.isStreaming) return;
-
-  const question = els.questionInput.value.trim();
-  if (!question) return;
-
-  els.questionInput.value = "";
-  await submitQuestion(question);
-}
-
-function handleKeydown(event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    els.interviewForm.requestSubmit();
-  }
-}
-
-function clearThread() {
-  if (state.isStreaming) return;
-  state.messages = [];
-  renderConversation();
-  setStatus("");
-}
-
-function bindEvents() {
-  els.interviewForm.addEventListener("submit", handleSubmit);
-  els.questionInput.addEventListener("keydown", handleKeydown);
-  els.clearThread.addEventListener("click", clearThread);
-}
-
-function init() {
-  state.apiBaseUrl = resolveApiBaseUrl();
-  state.showDevControls = params.has("dev") || Boolean(getConfigValue("showDevControls"));
-
-  bindEvents();
-  updatePromptPlaceholder();
-  reconnect();
-}
 
 init();

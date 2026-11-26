@@ -52,7 +52,7 @@
       "thumbnail": "./assets/projects/interview-sim-thumb.svg",
       "artifacts": {
         "code": "https://github.com/alexandre-sdd/alexandre-sdd.github.io",
-        "demo": "./interview/",
+        "demo": "./",
         "writeup": "./ai-lexandre-system.html",
         "slides": ""
       },

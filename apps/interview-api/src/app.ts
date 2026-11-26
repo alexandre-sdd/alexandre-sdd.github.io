@@ -162,6 +162,11 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
 
       reply.hijack();
       reply.raw.statusCode = 200;
+      // Hijacking bypasses Fastify's header flush. Preserve CORS and rate-limit
+      // headers already set by plugins, or cross-origin browsers reject SSE.
+      for (const [name, value] of Object.entries(reply.getHeaders())) {
+        if (value !== undefined) reply.raw.setHeader(name, value);
+      }
       // Use text/event-stream (SSE) so Railway's Nginx proxy does not buffer
       // the response. application/x-ndjson gets buffered regardless of
       // X-Accel-Buffering because Nginx does not treat it as a streaming type.
@@ -194,10 +199,10 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
         }
 
         reply.raw.write(
-          `${JSON.stringify({
+          `data: ${JSON.stringify({
             type: "error",
             message: "Invalid interview payload"
-          })}\n`
+          })}\n\n`
         );
         reply.raw.end();
         return;
@@ -213,10 +218,10 @@ export function buildApp(overrides?: Partial<AppConfig>, llmOverride?: LlmServic
       }
 
       reply.raw.write(
-        `${JSON.stringify({
+        `data: ${JSON.stringify({
           type: "error",
           message: "Failed to stream interview answer"
-        })}\n`
+        })}\n\n`
       );
       reply.raw.end();
     }

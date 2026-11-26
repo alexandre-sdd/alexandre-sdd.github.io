@@ -752,15 +752,11 @@ function buildMockAnswerText(
 
 async function streamTextByWord(
   text: string,
-  onToken: (token: string) => Promise<void> | void,
-  delayMs = 10
+  onToken: (token: string) => Promise<void> | void
 ): Promise<void> {
   const chunks = text.match(/\S+\s*/g) ?? [text];
   for (const chunk of chunks) {
     await onToken(chunk);
-    if (delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
   }
 }
 
@@ -935,13 +931,13 @@ export function createInterviewService(config: AppConfig, llmService: LlmService
       }
 
       const generation = await llmService.generate(input);
-      await streamTextByWord(generation.answer, guardedOnToken, 0);
+      await streamTextByWord(generation.answer, guardedOnToken);
       return generation;
     } catch (error) {
       if (emittedToken) throw error;
 
       const fallback = fallbackGenerationFromInput(input);
-      await streamTextByWord(fallback.answer, guardedOnToken, 0);
+      await streamTextByWord(fallback.answer, guardedOnToken);
       return fallback;
     }
   }

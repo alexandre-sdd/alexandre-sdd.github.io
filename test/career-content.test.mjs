@@ -2,18 +2,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const html = fs.readFileSync("index.html", "utf8");
-const script = fs.readFileSync("main.js", "utf8");
+const html = fs.readFileSync("work/index.html", "utf8");
+const script = fs.readFileSync("scripts/build-work.mjs", "utf8");
 const content = JSON.parse(fs.readFileSync("content.json", "utf8"));
 
-test("homepage targets January 2027 full-time roles across the US and Europe", () => {
+test("Work preserves January 2027 availability across the US and Europe", () => {
   assert.equal(content.headline, "Data Scientist | AI/ML Engineering | Operations Research");
   assert.equal(content.availability, "January 2027");
   assert.match(content.targetRoleLine, /full-time Data Science, AI\/ML Engineering, Analytics, and Operations Research/);
   assert.equal(content.recruiterQuickFacts.searchGeography, "United States and Europe");
 
-  assert.match(html, /id="quick-fact-geography">United States and Europe/);
-  assert.match(script, /facts\.searchGeography/);
+  assert.match(html, /United States &amp; Europe/);
   assert.match(script, /Full-time Opportunity - January 2027/);
   assert.doesNotMatch(`${html}\n${script}\n${JSON.stringify(content)}`, /Summer 2026 Internship|Summer 2026 Data Science/);
 });
@@ -43,18 +42,19 @@ test("education and Nantes facts match the refreshed source material", () => {
   assert.equal(nantes.dates, "Feb 2026 - Aug 2026");
   assert.match(nantes.highlights.join(" "), /human-validated, Excel-exportable scheduling MVP/);
   assert.match(nantes.highlights.join(" "), /Separately built a respiratory-system planning component/);
-  assert.match(html, /New York, NY · Mar 2026 - Jul 2026/);
+  assert.match(html, /Mar 2026 - Jul 2026/);
+  assert.match(html, /Columbia Business School &amp; CUIMC/);
 });
 
-test("homepage sections follow the career-first hierarchy", () => {
+test("Work preserves portfolio sections in the evidence-first hierarchy", () => {
   const sectionOrder = [
     'id="home"',
+    'id="projects"',
+    'id="case-studies"',
     'id="impact"',
     'id="about"',
     'id="experience"',
     'id="interview-demo"',
-    'id="projects"',
-    'id="case-studies"',
     'id="education"',
     'id="skills"',
     'id="contact"'

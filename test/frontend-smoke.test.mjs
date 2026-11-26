@@ -4,13 +4,11 @@ import fs from "node:fs";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
-test("portfolio renders learning snippets without a duplicate work memory section", () => {
-  const html = read("index.html");
-  const script = read("main.js");
-
+test("Work uses real evidence without repetitive result and learning scaffolding", () => {
+  const html = read("work/index.html");
   assert.doesNotMatch(html, /id="work-memory"/);
-  assert.doesNotMatch(script, /renderWorkMemory/);
-  assert.match(script, /learning-note/);
+  assert.doesNotMatch(html, /Learned:|Result:|placeholder\.svg|thumb\.svg/);
+  assert.match(html, /Combination Outlier Detection/);
 });
 
 test("case studies render learning sections from content", () => {
@@ -35,11 +33,12 @@ test("interview client sends compact memory instead of full chat history", () =>
   assert.match(script, /conversationSummary/);
 });
 
-test("AI-lexandre system page documents architecture audit and functional tests", () => {
+test("AI-lexandre system page retains architecture and the current functional test set", () => {
   const html = read("ai-lexandre-system.html");
 
-  assert.match(html, /Architecture Audit/);
+  assert.match(html, /System Architecture/);
   assert.match(html, /Functional Test Set/);
-  assert.match(html, /deterministic mock mode/);
-  assert.equal(html.match(/class="test-status test-pass"/g)?.length, 12);
+  assert.match(html, /mock mode/);
+  assert.match(html, /V2 Regression Suite/);
+  assert.equal(html.match(/class="test-status test-pass"/g)?.length, 19);
 });
