@@ -11,6 +11,7 @@ const api=process.env.PORTFOLIO_API || 'http://127.0.0.1:8787';
 const output=new URL('../docs/redesign/screenshots/',import.meta.url);
 await fs.mkdir(output,{recursive:true});
 const axe=await fs.readFile(new URL('../node_modules/axe-core/axe.min.js',import.meta.url),'utf8');
+const {links}=JSON.parse(await fs.readFile(new URL('../content.json',import.meta.url),'utf8'));
 const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL || 'chrome',headless:true});
 const newPage=browser.newPage.bind(browser);
 browser.newPage=async(...args)=>{const page=await newPage(...args);page.setDefaultTimeout(12000);page.setDefaultNavigationTimeout(12000);return page;};
@@ -37,6 +38,12 @@ try {
     await page.goto(`${site}/?api=${api}`);await ready(page);await page.evaluate(()=>document.fonts.ready);
     for(const selector of ['#question-input','#submit-button','.identity-nav a:first-child','.identity-nav a:last-child']) {
       const box=await page.locator(selector).boundingBox();assert.ok(box && box.y>=0 && box.y+box.height<=page.viewportSize().height,`${selector} outside first viewport`);
+    }
+    const contact=page.getByRole('navigation',{name:'Contact Alexandre'});
+    for(const [name,href] of [['Email the real me',`mailto:${links.email}`],['LinkedIn',links.linkedin],['GitHub',links.github]]) {
+      const link=contact.getByRole('link',{name,exact:true});
+      assert.ok(await link.isVisible());
+      assert.equal(await link.getAttribute('href'),href);
     }
     await overflow(page);let axeChecks=await accessibility(page);await screenshot(page,`after-home-${width}`);
     await page.getByRole('button',{name:'Why did CHANEL need two anomaly detectors?',exact:true}).click();
@@ -131,6 +138,9 @@ try {
   await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),'Skip to interview');
   await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),'Browse my work');
   await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),'Résumé');
+  for(const name of ['Email the real me','LinkedIn','GitHub']) {
+    await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),name);
+  }
   await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').getAttribute('id'),'question-input');
   assert.notEqual(await page.locator('#interview-form').evaluate(el=>getComputedStyle(el).outlineStyle),'none');
   await page.keyboard.type('A keyboard question');await page.keyboard.press('Shift+Enter');await page.keyboard.type('with a second line');
