@@ -14,6 +14,7 @@
     "dev:api": "npm run dev --workspace @portfolio/interview-api",
     "start": "npm run start --workspace @portfolio/interview-api",
     "test": "npm run test --workspace @portfolio/interview-core && npm run test --workspace @portfolio/interview-api && npm run test:frontend",
+    "pretest:frontend": "npm run generate --workspace @portfolio/interview-core",
     "test:frontend": "node --test test/*.test.mjs",
     "build:portfolio": "node scripts/build-work.mjs",
     "test:browser": "node scripts/verify-portfolio.mjs"

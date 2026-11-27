@@ -7,3 +7,11 @@ dist/
 *.log
 coverage/
 packages/interview-core/generated/
+docs/redesign/screenshots/
+docs/redesign/verification.json
+playwright-report/
+test-results/
+_site/
+.jekyll-cache/
+.claude/settings.local.json
+.impeccable/config.local.json

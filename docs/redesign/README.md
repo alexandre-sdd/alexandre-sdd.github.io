@@ -8,10 +8,7 @@ The interview is the working artifact. The portrait, modest identity column, coo
 
 The two prototypes use identical identity, portrait, questions, and a static answer paraphrased from the published CHANEL case study. They are composition studies, not model responses.
 
-| Composition | Opening at 1280×720 | Answer at 1280×720 | Opening at 390×844 |
-| --- | --- | --- | --- |
-| Compact identity above | [Opening](screenshots/composition-top-opening-1280.png) | [Answer](screenshots/composition-top-answer-1280.png) | [Mobile](screenshots/composition-top-opening-390.png) |
-| Narrow identity beside | [Opening](screenshots/composition-side-opening-1280.png) | [Answer](screenshots/composition-side-answer-1280.png) | [Mobile](screenshots/composition-side-opening-390.png) |
+The [composition study](compositions.html) supports both layouts and their answered states.
 
 The side composition wins on desktop: the input begins about 150px earlier and the answer has a stable reading column. On mobile the two compositions converge to a compact identity block above the composer. The implemented conversation places the next composer after the exchange, so readers encounter the question, answer, and evidence together.
 
@@ -35,7 +32,7 @@ The final screenshots show clear identity/question/answer/source scale changes, 
 
 ## Interaction and animation review
 
-The answered state now uses a chat layout. [Desktop thread](screenshots/after-chat-1280.png) · [Mobile thread](screenshots/after-chat-390.png)
+The answered state now uses a chat layout.
 
 | Before | After | Why |
 | --- | --- | --- |
@@ -61,7 +58,7 @@ Animation verdict: **Approve** for the implemented scope. No purposeful spatial 
 
 - `npm run build`: passed.
 - `npm test`: 145 passing tests — 20 corpus/retrieval, 114 API/policy, 11 frontend/content/navigation.
-- `npm run test:browser`: 14 passing scenarios. Results are recorded in [verification.json](verification.json).
+- `npm run test:browser`: 14 passing scenarios. Results are recorded in the locally generated `verification.json`.
 - Actual local deterministic mock API: submit an edited suggestion, choose a role, receive genuine SSE, ask a follow-up with compact memory, open a case-study citation, and return with conversation, role, disclosure, and reading position restored. This flow passes at 1280×720 and 390×844. The test asserts both turns use the stream endpoint with no silent fallback.
 - Explicitly failed stream: actual local non-streaming endpoint completes the same exchange.
 - Unavailable service: recovery notice, retry, saved question, Work and résumé routes checked at 1280, 390, and 320px.
@@ -73,20 +70,9 @@ Animation verdict: **Approve** for the implemented scope. No purposeful spatial 
 - Impeccable deterministic source detector: final result `[]`; a skip-link hover contrast finding was fixed. Visual review remains separate from that detector result.
 - `git diff --check`: passed.
 
-## Screenshots
+## Local screenshots
 
-| View | Before | After |
-| --- | --- | --- |
-| Homepage, desktop | [Portfolio homepage](screenshots/before-home-1280.png), [interview](screenshots/before-interview-1280.png) | [Interview homepage](screenshots/after-home-1280.png) |
-| Homepage, mobile | [Portfolio homepage](screenshots/before-home-390.png), [interview](screenshots/before-interview-390.png) | [Interview homepage](screenshots/after-home-390.png) |
-| Work | [Former homepage](screenshots/before-home-1280.png) | [Desktop](screenshots/after-work-1280.png), [mobile](screenshots/after-work-390.png) |
-| CHANEL | [Desktop](screenshots/before-chanel-1280.png) | [Desktop](screenshots/after-chanel-1280.png), [mobile](screenshots/after-chanel-390.png) |
-| Forvia | [Desktop](screenshots/before-forvia-1280.png) | [Desktop](screenshots/after-forvia-1280.png), [mobile](screenshots/after-forvia-390.png) |
-| Actual mock answer | — | [Desktop](screenshots/after-answer-mock-1280.png), [mobile](screenshots/after-answer-mock-390.png) |
-| Long-answer fixture | — | [Desktop](screenshots/after-long-answer-1280.png), [mobile](screenshots/after-long-answer-390.png) |
-| Sources on long fixture | — | [Desktop](screenshots/after-sources-1280.png), [mobile](screenshots/after-sources-390.png) |
-| Service unavailable | — | [Desktop](screenshots/after-unavailable-1280.png), [mobile](screenshots/after-unavailable-390.png) |
-| No JavaScript | — | [Homepage](screenshots/after-no-js-390.png), [Work](screenshots/after-work-no-js-390.png) |
+Start the static site and mock API using the [repository instructions](../../README.md), then run `npm run test:browser`. It writes current desktop and mobile screenshots to `docs/redesign/screenshots/`, including the interview, expanded sources, Work, case studies, and service failure states. The original comparison captures are available in the Git history preceding the screenshot cleanup.
 
 ## Skills actually used
 
