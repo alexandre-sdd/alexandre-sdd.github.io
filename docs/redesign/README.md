@@ -35,11 +35,15 @@ The final screenshots show clear identity/question/answer/source scale changes, 
 
 ## Interaction and animation review
 
+The answered state now uses a chat layout. [Desktop thread](screenshots/after-chat-1280.png) · [Mobile thread](screenshots/after-chat-390.png)
+
 | Before | After | Why |
 | --- | --- | --- |
 | Token queue introduced 22ms client delays; timed progress narration implied work stages | Render real received text on the next frame; no artificial token waits or fabricated progress stages | Submission feedback represents actual request state |
 | Every conversation render forced scrolling to the bottom | Scroll once in response to submission; never scroll on incoming tokens | Readers can scroll back during a response |
-| Sources were pills with generic labels and opened new tabs | Relevant evidence has a descriptive title, with additional excerpts in disclosure; ordinary navigation saves session and reading position | Evidence becomes part of reading and Back remains useful |
+| A prominent heading introduced each question | A right-aligned visitor bubble precedes a signed reply on the left | Speaker changes are visible between turns |
+| Links, descriptions, and follow-up suggestions interrupted each answer | One source count opens the titled links and excerpts. Suggested replies live beside the reply field | Reading and sending a reply take priority |
+| The full-size form moved below long replies and focus jumped to the submitted question | A compact composer stays within reach and keeps a draft through stream completion | Visitors can type the next question while reading |
 | Motion-heavy hover and broad transitions | No moving hover targets or entrances; only brief explicit color transitions, with reduced motion respected | Frequent keyboard and reading actions stay immediate |
 | Raw SSE bypassed Fastify's prepared CORS headers | Copy prepared headers into the raw stream and emit errors in valid SSE frames | Cross-origin streaming works without silently falling back |
 

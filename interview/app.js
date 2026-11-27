@@ -13,7 +13,7 @@ const localRoles = [
 ];
 const state = {apiBaseUrl:'',apiOverride:'',mode:'unknown',roles:localRoles,selectedRoleId:'ai-engineer',messages:[],isStreaming:false,isConnected:false,messageCounter:0,scrollY:0,details:[],undo:null};
 const $ = (id) => document.getElementById(id);
-const els = Object.fromEntries(['conversation','interview-form','question-input','submit-status','submit-button','submit-label','clear-thread','undo-clear','role-picker','role-summary','role-description','composer-tools','starter-prompts','service-notice','reconnect','dev-panel','dev-status'].map(id=>[id,$(id)]));
+const els = Object.fromEntries(['interview','conversation','interview-form','question-input','question-label','submit-status','submit-button','submit-label','clear-thread','undo-clear','suggest-reply','suggested-replies','role-picker','role-summary','role-description','composer-tools','starter-prompts','service-notice','reconnect','dev-panel','dev-status'].map(id=>[id,$(id)]));
 const devMode = params.has('dev') || Boolean(window.INTERVIEW_CONFIG?.showDevControls);
 let streamRender = 0;
 
@@ -42,12 +42,19 @@ function restoreSession() {
 function status(text='',tone='default') {
   els['submit-status'].textContent = text;
   els['submit-status'].dataset.tone = tone;
+  els['submit-status'].classList.toggle('sr-only', state.messages.length > 0 && tone === 'default');
 }
 
 function renderControls() {
+  const inChat = state.messages.length > 0;
+  els.interview.classList.toggle('in-chat', inChat);
+  els['question-input'].placeholder = inChat ? 'Reply to AI-lexandre…' : 'What would you like to know?';
+  els['question-input'].rows = inChat ? 1 : 2;
+  els['question-label'].textContent = inChat ? 'Your reply' : 'Your question';
+  els['question-label'].classList.toggle('sr-only', inChat);
   els['submit-button'].disabled = state.isStreaming;
   els['submit-button'].setAttribute('aria-busy',String(state.isStreaming));
-  els['submit-label'].textContent = state.isStreaming ? 'Answering' : 'Ask';
+  els['submit-label'].textContent = state.isStreaming ? 'Answering' : inChat ? 'Send' : 'Ask';
   els['clear-thread'].disabled = state.isStreaming;
   els['clear-thread'].hidden = state.messages.length===0;
   els['undo-clear'].hidden = !state.undo;
@@ -124,57 +131,88 @@ function fillQuestion(text) {
   storeSession();
 }
 
-function createSources(message) {
-  const entries=evidenceFor(message);
-  const footer=element('div','message-footer');
-  if(entries.length) {
-    const primary=element('div','primary-evidence');
-    primary.append(sourceLink(entries[0].url,entries[0].title));
-    primary.append(element('p','evidence-description',entries[0].description || 'Read the published evidence behind this answer.'));
-    footer.append(primary);
-    if(entries.length>1 || entries[0].excerpt) {
-      const details=element('details','message-details');details.id=`evidence-${message.id}`;
-      details.open=state.details.includes(details.id);
-      details.append(element('summary','',`More evidence${entries.length>1?` (${entries.length-1})`:''}`));
-      const list=element('div','evidence-list');
-      for(const entry of entries.slice(entries[0].excerpt?0:1)) {
-        const item=element('div','evidence-item');item.append(sourceLink(entry.url,entry.title));
-        if(entry.excerpt || entry.description)item.append(element('p','',entry.excerpt || entry.description));
-        list.append(item);
-      }
-      details.append(list);details.addEventListener('toggle',storeSession);footer.append(details);
+function appendReplyDetails(article, message) {
+  const entries = evidenceFor(message);
+  if (entries.length) {
+    const details = element('details', 'message-details');
+    details.id = `evidence-${message.id}`;
+    details.open = state.details.includes(details.id);
+    const summary = element('summary', '', `${entries.length} ${entries.length === 1 ? 'source' : 'sources'}`);
+    const list = element('ul', 'evidence-list');
+    for (const entry of entries) {
+      const item = element('li');
+      item.append(sourceLink(entry.url, entry.title));
+      const description = entry.excerpt || entry.description;
+      if (description) item.append(element('p', '', description));
+      list.append(item);
     }
+    details.append(summary, list);
+    details.addEventListener('toggle', storeSession);
+    article.append(details);
   }
-  if(message.followUps?.length && !message.isStreaming) {
-    const followUps=element('div','follow-up-row');
-    for(const text of message.followUps.slice(0,2)) {
-      const button=element('button','follow-up-chip',text);button.type='button';button.addEventListener('click',()=>fillQuestion(text));followUps.append(button);
-    }
-    footer.append(followUps);
+  if (devMode && message.memoryState) {
+    const details = element('details');
+    details.append(element('summary', '', 'Routing'), element('pre', 'routing-trace', JSON.stringify(message.memoryState, null, 2)));
+    article.append(details);
   }
-  if(devMode && message.memoryState) {
-    const details=element('details','message-details');details.append(element('summary','','Routing'));
-    details.append(element('pre','routing-trace',JSON.stringify(message.memoryState,null,2)));footer.append(details);
+}
+
+function renderSuggestedReplies() {
+  const latest = state.messages.at(-1);
+  const suggestions = latest?.role === 'assistant' && !latest.isStreaming ? latest.followUps || [] : [];
+  const list = els['suggested-replies'];
+  list.hidden = true;
+  list.replaceChildren();
+  els['suggest-reply'].hidden = !suggestions.length;
+  els['suggest-reply'].setAttribute('aria-expanded', 'false');
+  for (const text of suggestions.slice(0, 2)) {
+    const button = element('button', 'starter-button', text);
+    button.type = 'button';
+    button.addEventListener('click', () => {
+      list.hidden = true;
+      els['suggest-reply'].setAttribute('aria-expanded', 'false');
+      fillQuestion(text);
+    });
+    list.append(button);
   }
-  return footer;
+}
+
+function appendExchange(question, answer) {
+  const exchange = element('section', 'exchange');
+  exchange.id = question.id;
+  const heading = element('h2', 'question');
+  heading.append(element('span', 'sr-only', 'You: '), document.createTextNode(question.content));
+  exchange.append(heading);
+  if (answer?.role === 'assistant') {
+    const article = element('div', 'assistant-message');
+    article.id = answer.id;
+    article.setAttribute('aria-busy', String(answer.isStreaming));
+    const avatar = element('img', 'chat-avatar');
+    avatar.src = '/assets/portrait.jpg';
+    avatar.alt = '';
+    const author = element('p', 'answer-label', 'AI-lexandre');
+    const body = element('div', 'answer');
+    setAnswer(body, answer.content);
+    article.append(avatar, author, body);
+    if (!answer.isStreaming) finishReplyView(article, answer);
+    exchange.append(article);
+  }
+  els.conversation.append(exchange);
+}
+
+function finishReplyView(article, answer) {
+  if (answer.interrupted) {
+    article.append(element('p', 'reply-note', 'Reply interrupted. You can send the question again.'));
+  }
+  appendReplyDetails(article, answer);
 }
 
 function renderConversation() {
   els.conversation.replaceChildren();
-  for(let i=0;i<state.messages.length;i++) {
-    const question=state.messages[i];if(question.role!=='user')continue;
-    const exchange=element('section','exchange');exchange.id=question.id;
-    const heading=element('h2','question',question.content);heading.tabIndex=-1;exchange.append(heading);
-    const answer=state.messages[i+1];
-    if(answer?.role==='assistant') {
-      const article=element('div','assistant-message');article.id=answer.id;
-      article.append(element('p','answer-label',answer.isStreaming?'AI-lexandre is answering…':'AI-lexandre'));
-      const body=element('div','answer');setAnswer(body,answer.content);article.append(body);
-      if(answer.interrupted)article.append(element('p','evidence-description','This answer was interrupted. You can ask the question again to continue.'));
-      article.append(createSources(answer));exchange.append(article);
-    }
-    els.conversation.append(exchange);
+  for (let i = 0; i < state.messages.length; i++) {
+    if (state.messages[i].role === 'user') appendExchange(state.messages[i], state.messages[i + 1]);
   }
+  renderSuggestedReplies();
   renderControls();
 }
 
@@ -252,9 +290,9 @@ async function submitQuestion(question) {
   const user={id:nextMessageId(),role:'user',content:question};
   const assistant={id:nextMessageId(),role:'assistant',content:'',citations:[],projectsUsed:[],followUps:[],isStreaming:true};
   state.messages.push(user,assistant);state.isStreaming=true;state.undo=null;
-  renderConversation();status('Answering from published evidence…');storeSession();
+  appendExchange(user,assistant);renderSuggestedReplies();renderControls();status('Answering…');storeSession();
   // One movement in direct response to submitting, never on later tokens.
-  $(user.id).querySelector('h2').focus({preventScroll:true});
+  els['question-input'].focus({preventScroll:true});
   $(user.id).scrollIntoView({block:'start',behavior:'instant'});
   try {
     try {await streamQuestion(question,assistant,memory);}
@@ -264,7 +302,7 @@ async function submitQuestion(question) {
       if(!response.ok)throw new Error('Interview unavailable');
       finishAnswer(assistant,await response.json());
     }
-    status('Answer ready. Ask a follow-up or explore the evidence.');
+    status('Answer ready.');
   } catch {
     assistant.isStreaming=false;assistant.interrupted=true;
     if(!assistant.content)assistant.content='The interview service couldn’t answer right now. Your question is saved; try again or browse the published work.';
@@ -273,7 +311,11 @@ async function submitQuestion(question) {
     status('The service is unavailable. Try your question again or browse my work.','danger');
   } finally {
     if(streamRender){cancelAnimationFrame(streamRender);streamRender=0;}
-    state.isStreaming=false;renderConversation();storeSession();
+    const article = $(assistant.id);
+    setAnswer(article.querySelector('.answer'), assistant.content);
+    finishReplyView(article, assistant);
+    article.setAttribute('aria-busy', 'false');
+    state.isStreaming=false;renderSuggestedReplies();renderControls();storeSession();
   }
 }
 
@@ -290,6 +332,11 @@ function bindEvents() {
   els['role-picker'].addEventListener('change',()=>{state.selectedRoleId=els['role-picker'].value;renderRoles();storeSession();});
   document.querySelectorAll('.starter-button').forEach(button=>{button.disabled=false;button.addEventListener('click',()=>fillQuestion(button.textContent));});
   els.reconnect.addEventListener('click',reconnect);
+  els['suggest-reply'].addEventListener('click', () => {
+    const list = els['suggested-replies'];
+    list.hidden = !list.hidden;
+    els['suggest-reply'].setAttribute('aria-expanded', String(!list.hidden));
+  });
   els['clear-thread'].addEventListener('click',()=>{
     if(state.isStreaming)return;
     state.undo=state.messages;state.messages=[];state.details=[];renderConversation();status('New conversation. You can undo this.');storeSession();els['question-input'].focus();

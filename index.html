@@ -37,7 +37,10 @@
 
     <main id="interview" class="interview-column">
       <div class="interview-intro">
-        <h1 translate="no">AI-lexandre</h1>
+        <div class="chat-heading">
+          <h1 translate="no">AI-lexandre</h1>
+          <div class="thread-actions"><button id="clear-thread" class="text-button" type="button" hidden>New conversation</button><button id="undo-clear" class="text-button" type="button" hidden>Undo</button></div>
+        </div>
         <p class="intro-copy">A working interview with my AI counterpart.<br>Ask about a decision. Follow the evidence.</p>
       </div>
       <noscript><style>#interview-form,#starter-prompts,#submit-status{display:none!important}</style><div class="service-notice"><strong>The interview needs JavaScript.</strong><p>You can still explore every project and read the résumé.</p><a href="/work/">Browse my work</a></div></noscript>
@@ -47,14 +50,16 @@
         <a href="/work/">Browse my work</a><span aria-hidden="true"> · </span><button id="reconnect" class="text-button" type="button">Try again</button>
       </section>
       <div id="conversation" class="conversation" role="log" aria-label="Interview conversation" aria-live="off"></div>
-      <form id="interview-form" class="composer" aria-label="Ask AI-lexandre">
-        <label for="question-input">Your question</label>
-        <textarea id="question-input" name="question" rows="2" maxlength="2000" required autocomplete="off" placeholder="What would you like to know?…" aria-describedby="composer-hint submit-status" disabled></textarea>
-        <div class="composer-bar">
-          <span id="composer-hint" class="composer-hint"><span class="hint-desktop">Enter to ask. Shift + Enter for a new line.</span><span class="hint-mobile">Edit, then ask.</span></span>
-          <button id="submit-button" class="button primary submit-button" type="submit" disabled><span class="submit-indicator" aria-hidden="true"></span><span id="submit-label">Ask</span></button>
-        </div>
-      </form>
+      <div class="composer-dock">
+        <form id="interview-form" class="composer" aria-label="Ask AI-lexandre">
+          <label id="question-label" for="question-input">Your question</label>
+          <textarea id="question-input" name="question" rows="2" maxlength="2000" required autocomplete="off" placeholder="What would you like to know?" aria-describedby="composer-hint submit-status" disabled></textarea>
+          <div class="composer-bar">
+            <span id="composer-hint" class="composer-hint"><span class="hint-desktop">Enter to ask. Shift + Enter for a new line.</span><span class="hint-mobile">Edit, then ask.</span></span>
+            <button id="submit-button" class="button primary submit-button" type="submit" disabled><span class="submit-indicator" aria-hidden="true"></span><span id="submit-label">Ask</span></button>
+          </div>
+        </form>
+      </div>
       <div id="composer-tools" class="composer-tools" hidden>
         <details class="role-settings">
           <summary id="role-summary">Role focus: AI Engineer</summary>
@@ -62,8 +67,9 @@
           <select id="role-picker" name="role"></select>
           <p id="role-description"></p>
         </details>
-        <div class="thread-actions"><button id="clear-thread" class="text-button" type="button" hidden>New conversation</button><button id="undo-clear" class="text-button" type="button" hidden>Undo</button></div>
+        <button id="suggest-reply" class="text-button" type="button" aria-expanded="false" aria-controls="suggested-replies" hidden>Suggested replies</button>
       </div>
+      <div id="suggested-replies" hidden></div>
       <p id="submit-status" class="submit-status" role="status" aria-live="polite">Connecting to the interview…</p>
       <section id="starter-prompts" class="starter-prompts" aria-labelledby="starter-title">
         <h2 id="starter-title">A few places to start</h2>
