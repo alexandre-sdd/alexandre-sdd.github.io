@@ -48,10 +48,11 @@
     <main id="interview" class="interview-column">
       <div class="interview-intro">
         <div class="chat-heading">
-          <h1 translate="no">AI-lexandre</h1>
+          <img class="header-avatar" src="/assets/portrait.jpg" width="40" height="40" alt="">
+          <div><h1 translate="no">AI-lexandre</h1><p class="chat-subtitle">Alexandre’s AI counterpart</p></div>
           <div class="thread-actions"><button id="clear-thread" class="text-button" type="button" hidden>New conversation</button><button id="undo-clear" class="text-button" type="button" hidden>Undo</button></div>
         </div>
-        <p class="intro-copy">A working interview with my AI counterpart.<br>Ask about a decision. Follow the evidence.</p>
+
       </div>
       <noscript><style>#interview-form,#starter-prompts,#submit-status{display:none!important}</style><div class="service-notice"><strong>The interview needs JavaScript.</strong><p>You can still explore every project and read the résumé.</p><a href="/work/">Browse my work</a></div></noscript>
       <section id="service-notice" class="service-notice" aria-label="Interview availability" hidden>
@@ -59,14 +60,15 @@
         <p>Your conversation is saved in this tab. Explore the work or try connecting again.</p>
         <a href="/work/">Browse my work</a><span aria-hidden="true"> · </span><button id="reconnect" class="text-button" type="button">Try again</button>
       </section>
+      <p class="welcome-message">Hi! What would you like to know about my work? You can ask me about a project, a decision I made, or what I’m looking for next.</p>
       <div id="conversation" class="conversation" role="log" aria-label="Interview conversation" aria-live="off"></div>
       <div class="composer-dock">
         <form id="interview-form" class="composer" aria-label="Ask AI-lexandre">
-          <label id="question-label" for="question-input">Your question</label>
-          <textarea id="question-input" name="question" rows="2" maxlength="2000" required autocomplete="off" placeholder="What would you like to know?" aria-describedby="composer-hint submit-status" disabled></textarea>
+          <label class="sr-only" id="question-label" for="question-input">Your question</label>
+          <textarea id="question-input" name="question" rows="1" maxlength="2000" required autocomplete="off" placeholder="Message AI-lexandre…" aria-describedby="composer-hint submit-status" disabled></textarea>
           <div class="composer-bar">
-            <span id="composer-hint" class="composer-hint"><span class="hint-desktop">Enter to ask. Shift + Enter for a new line.</span><span class="hint-mobile">Edit, then ask.</span></span>
-            <button id="submit-button" class="button primary submit-button" type="submit" disabled><span class="submit-indicator" aria-hidden="true"></span><span id="submit-label">Ask</span></button>
+            <span id="composer-hint" class="sr-only"><span class="hint-desktop">Enter to ask. Shift + Enter for a new line.</span><span class="hint-mobile">Edit, then ask.</span></span>
+            <button id="submit-button" class="button primary submit-button" type="submit" disabled><span class="submit-indicator" aria-hidden="true"></span><span id="submit-label">Send</span></button>
           </div>
         </form>
       </div>
@@ -81,12 +83,12 @@
       </div>
       <div id="suggested-replies" hidden></div>
       <p id="submit-status" class="submit-status" role="status" aria-live="polite">Connecting to the interview…</p>
-      <section id="starter-prompts" class="starter-prompts" aria-labelledby="starter-title">
-        <h2 id="starter-title">A few places to start</h2>
+      <details id="starter-prompts" class="starter-prompts">
+        <summary>Suggested questions</summary>
         <button class="starter-button" type="button" disabled>Why did CHANEL need two anomaly detectors?</button>
         <button class="starter-button" type="button" disabled>How did you validate 68 price changes at Tiffany?</button>
         <button class="starter-button" type="button" disabled>What happens when Zeit can’t fit a task?</button>
-      </section>
+      </details>
       <p class="interview-note">AI-lexandre answers from my published work and can make mistakes. Company data and confidential details stay private. <a href="/ai-lexandre-system.html">How this interview works</a></p>
       <section id="dev-panel" class="dev-panel" aria-label="Developer controls" hidden><strong>Developer</strong><div id="dev-status"></div></section>
     </main>

@@ -48,13 +48,11 @@ function status(text='',tone='default') {
 function renderControls() {
   const inChat = state.messages.length > 0;
   els.interview.classList.toggle('in-chat', inChat);
-  els['question-input'].placeholder = inChat ? 'Reply to AI-lexandre…' : 'What would you like to know?';
-  els['question-input'].rows = inChat ? 1 : 2;
+  els['question-input'].placeholder = inChat ? 'Reply to AI-lexandre…' : 'Message AI-lexandre…';
   els['question-label'].textContent = inChat ? 'Your reply' : 'Your question';
-  els['question-label'].classList.toggle('sr-only', inChat);
   els['submit-button'].disabled = state.isStreaming;
   els['submit-button'].setAttribute('aria-busy',String(state.isStreaming));
-  els['submit-label'].textContent = state.isStreaming ? 'Answering' : inChat ? 'Send' : 'Ask';
+  els['submit-label'].textContent = state.isStreaming ? 'Answering' : 'Send';
   els['clear-thread'].disabled = state.isStreaming;
   els['clear-thread'].hidden = state.messages.length===0;
   els['undo-clear'].hidden = !state.undo;
@@ -322,7 +320,13 @@ async function submitQuestion(question) {
 function bindEvents() {
   els['interview-form'].addEventListener('submit',event=>{
     event.preventDefault();if(state.isStreaming)return;
-    const question=els['question-input'].value.trim();if(!question)return;
+    const input = els['question-input'];
+    const question = input.value.trim();
+    if (!question) {
+      status('Write a message before sending.', 'danger');
+      input.focus();
+      return;
+    }
     els['question-input'].value='';void submitQuestion(question);
   });
   els['question-input'].addEventListener('keydown',event=>{

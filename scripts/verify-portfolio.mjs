@@ -46,6 +46,7 @@ try {
       assert.equal(await link.getAttribute('href'),href);
     }
     await overflow(page);let axeChecks=await accessibility(page);await screenshot(page,`after-home-${width}`);
+    await page.locator('#starter-prompts summary').click();
     await page.getByRole('button',{name:'Why did CHANEL need two anomaly detectors?',exact:true}).click();
     assert.equal(await page.locator('#question-input').inputValue(),'Why did CHANEL need two anomaly detectors?');
     assert.equal(await page.locator('.exchange').count(),0,'suggestion submitted before editing');
@@ -62,7 +63,8 @@ try {
   const requests=[],endpoints=[];page.on('request',req=>{if(req.url().includes('/v1/interview/')){requests.push(JSON.parse(req.postData()));endpoints.push(new URL(req.url()).pathname);}});
   await page.goto(`${site}/?api=${api}`);await ready(page);
   await page.locator('.role-settings summary').click();await page.locator('#role-picker').selectOption('ml-engineer');await page.locator('.role-settings summary').click();
-  await page.getByRole('button',{name:'Why did CHANEL need two anomaly detectors?',exact:true}).click();
+  await page.locator('#starter-prompts summary').click();
+    await page.getByRole('button',{name:'Why did CHANEL need two anomaly detectors?',exact:true}).click();
   await page.locator('#question-input').fill('Why did CHANEL need two anomaly detectors? Explain the tradeoff.');
   await page.locator('#submit-button').click();await page.waitForFunction(()=>document.getElementById('submit-status').textContent.startsWith('Answer ready'));
   assert.equal(requests[0].roleId,'ml-engineer');assert.ok(requests[0].question.includes('Explain the tradeoff'));
@@ -91,7 +93,7 @@ try {
   assert.equal(await page.locator('#question-input').inputValue(),suggestedText);
   assert.equal(await page.locator('.exchange').count(),1);
   const originalTurn=await page.locator('.exchange').first().elementHandle();
-  await page.locator('#question-input').fill('What tradeoff mattered most?');await page.locator('#question-input').press('Enter');
+  await page.locator('#question-input').fill('Why?');await page.locator('#question-input').press('Enter');
   await page.waitForFunction(()=>document.getElementById('submit-status').textContent.startsWith('Answer ready'));
   const followUp=requests.at(-1);assert.equal(followUp.history.length,2);assert.ok(followUp.memoryState || followUp.conversationSummary);
   assert.deepEqual(endpoints,['/v1/interview/stream','/v1/interview/stream'],'genuine SSE should not silently use fallback');
@@ -143,6 +145,10 @@ try {
   }
   await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').getAttribute('id'),'question-input');
   assert.notEqual(await page.locator('#interview-form').evaluate(el=>getComputedStyle(el).outlineStyle),'none');
+  await page.keyboard.type('   ');await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#question-input').inputValue(),'   ');
+  assert.equal(await page.locator('.exchange').count(),0);
+  await page.locator('#question-input').fill('');
   await page.keyboard.type('A keyboard question');await page.keyboard.press('Shift+Enter');await page.keyboard.type('with a second line');
   assert.ok((await page.locator('#question-input').inputValue()).includes('\n'));
   await page.reload();await ready(page);assert.ok((await page.locator('#question-input').inputValue()).includes('A keyboard question'));

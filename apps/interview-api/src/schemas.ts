@@ -33,7 +33,7 @@ export const MemoryStateSchema = z.object({
 });
 
 export const InterviewRequestSchema = z.object({
-  question: z.string().min(8).max(2000),
+  question: z.string().trim().min(1).max(2000),
   roleId: z.string().min(2).optional(),
   history: z.array(InterviewTurnSchema).max(8).optional(),
   /** Legacy string memory. Still accepted for backward compat. */
